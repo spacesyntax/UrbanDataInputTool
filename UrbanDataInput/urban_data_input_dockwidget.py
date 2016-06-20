@@ -74,8 +74,21 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         # initialisation
         self.updateLayers()
-        self.updateFrontageTypes()
-        self.updateSelectionFrontageTypes()
+        self.iface.legendInterface().itemAdded.connect(self.updateFrontageTypes)
+        self.iface.legendInterface().itemRemoved.connect(self.updateFrontageTypes)
+        self.iface.legendInterface().itemAdded.connect(self.updateSelectionFrontageTypes)
+        self.iface.legendInterface().itemRemoved.connect(self.updateSelectionFrontageTypes)
+
+
+
+        # get user defined current setting
+        enableProjectCRS = QSettings().value('/qgis/crs/enable_use_project_crs')
+        print enableProjectCRS
+
+        # override setting
+        QSettings().setValue('/qgis/digitizing/disable_enter_attribute_values_dialog', True)
+        QSettings().setValue('/qgis/crs/enable_use_project_crs', True)
+
 
         # add button icons
 
@@ -89,6 +102,11 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.iface.newProjectCreated.disconnect(self.updateLayers)
             self.iface.legendInterface().itemRemoved.disconnect(self.updateLayers)
             self.iface.legendInterface().itemAdded.disconnect(self.updateLayers)
+            self.iface.legendInterface().itemRemoved.disconnect(self.updateFrontageTypes)
+            self.iface.legendInterface().itemAdded.disconnect(self.updateFrontageTypes)
+            self.iface.legendInterface().itemRemoved.disconnect(self.updateSelectionFrontageTypes)
+            self.iface.legendInterface().itemAdded.disconnect(self.updateSelectionFrontageTypes)
+
 
         except:
             pass
@@ -114,18 +132,36 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.selectLUCombo.addItems(layer_list)
 
     def updateFrontageTypes(self):
-        fronatage_list = ['Transparent', 'Semi Transparent', 'Blank',
+        layers = self.iface.legendInterface().layers()
+
+        frontage_list = ['Transparent', 'Semi Transparent', 'Blank',
                           'High Opaque Fence', 'High See Through Fence',
                           'Low Fence']
+        empty = []
 
-        self.selectFacadeCombo.addItems(fronatage_list)
+        for layer in layers:
+            if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Line:
+                self.selectFacadeCombo.clear()
+                self.selectFacadeCombo.addItems(frontage_list)
+
+            else:
+                self.selectFacadeCombo.clear()
+
 
     def updateSelectionFrontageTypes(self):
-        fronatage_list = ['Transparent', 'Semi Transparent', 'Blank',
+        layers = self.iface.legendInterface().layers()
+        frontage_list = ['Transparent', 'Semi Transparent', 'Blank',
                           'High Opaque Fence', 'High See Through Fence',
                           'Low Fence']
 
-        self.updateFacadeCombo.addItems(fronatage_list)
+        for layer in layers:
+            if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Line:
+                self.updateFacadeCombo.clear()
+                self.updateFacadeCombo.addItems(frontage_list)
+
+            else:
+                self.updateFacadeCombo.clear()
+
 
     def getSelectedLayer(self):
         layer_name = self.selectLUCombo.currentText()
@@ -157,7 +193,8 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         if self.createNewFileCheckBox.checkState() == 0:
 
             if self.lineEditFrontages.text() != "":
-                vl = QgsVectorLayer("LineString?crs=EPSG:4326", "Frontages", "memory")
+                destCRS = self.canvas.mapRenderer().destinationCrs()
+                vl = QgsVectorLayer("LineString?crs=" + destCRS.toWkt(), "memory:Frontages", "memory")
                 QgsMapLayerRegistry.instance().addMapLayer(vl)
 
                 input1 = self.iface.activeLayer()
@@ -200,7 +237,8 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 input2.featureAdded.connect(self.logFeatureAdded)
 
             else:
-                vl = QgsVectorLayer("LineString?crs=EPSG:4326", "memory:Frontages", "memory")
+                destCRS = self.canvas.mapRenderer().destinationCrs()
+                vl = QgsVectorLayer("LineString?crs=" + destCRS.toWkt(), "memory:Frontages", "memory")
                 QgsMapLayerRegistry.instance().addMapLayer(vl)
 
                 layer = None
@@ -233,6 +271,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         elif self.createNewFileCheckBox.checkState() == 2:
             if self.lineEditFrontages.text() != "":
                 input1 = self.getSelectedLayer()
+                destCRS = input1.crs()
                 processing.runandload("qgis:polygonstolines", input1, "memory:line2poly")
                 input2 = self.iface.activeLayer()
                 processing.runandload("qgis:explodelines", input2, "memory:Exploded")
