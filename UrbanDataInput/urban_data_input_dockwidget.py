@@ -67,33 +67,28 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.iface.newProjectCreated.connect(self.updateLayers)
         self.iface.legendInterface().itemRemoved.connect(self.updateLayers)
         self.iface.legendInterface().itemAdded.connect(self.updateLayers)
-        self.toolButtonNewFile.clicked.connect(self.newFrontageLayer)
-        self.toolButtonSaveFile.clicked.connect(self.selectSaveLocation)
-        self.loadNewFileButton.clicked.connect(self.loadFrontageLayer)
+        self.pushButtonNewFile.clicked.connect(self.newFrontageLayer)
+        self.pushButtonSelectLocation.clicked.connect(self.selectSaveLocation)
+        self.startEditingpushButton.clicked.connect(self.loadFrontageLayer)
         self.updateFacadeButton.clicked.connect(self.updateSelectedFrontageAttribute)
+        self.deletePushButton.clicked.connect(self.deleteFeatures)
+        self.createNewradioButton.toggled.connect(self.luCheckState)
+        self.existingradioButton.toggled.connect(self.luCheckState)
+        self.createNewFileCheckBox.stateChanged.connect(self.updateLayers)
+        self.iface.mapCanvas().selectionChanged.connect(self.addDataFields)
 
         # initialisation
-        self.updateLayers()
-        self.iface.legendInterface().itemAdded.connect(self.updateFrontageTypes)
-        self.iface.legendInterface().itemRemoved.connect(self.updateFrontageTypes)
-        self.iface.legendInterface().itemAdded.connect(self.updateSelectionFrontageTypes)
-        self.iface.legendInterface().itemRemoved.connect(self.updateSelectionFrontageTypes)
-
-
-
-        # get user defined current setting
-        enableProjectCRS = QSettings().value('/qgis/crs/enable_use_project_crs')
-        print enableProjectCRS
-
-        # override setting
-        QSettings().setValue('/qgis/digitizing/disable_enter_attribute_values_dialog', True)
-        QSettings().setValue('/qgis/crs/enable_use_project_crs', True)
-
+        self.updateFrontageTypes()
 
         # add button icons
 
         #initial button state
+        self.createNewradioButton.setChecked(True)
+        self.startEditingpushButton.setEnabled(False)
 
+        # override setting
+        QSettings().setValue('/qgis/digitizing/disable_enter_attribute_values_dialog', True)
+        QSettings().setValue('/qgis/crs/enable_use_project_crs', True)
 
     def closeEvent(self, event):
         # disconnect interface signals
@@ -102,18 +97,14 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.iface.newProjectCreated.disconnect(self.updateLayers)
             self.iface.legendInterface().itemRemoved.disconnect(self.updateLayers)
             self.iface.legendInterface().itemAdded.disconnect(self.updateLayers)
-            self.iface.legendInterface().itemRemoved.disconnect(self.updateFrontageTypes)
-            self.iface.legendInterface().itemAdded.disconnect(self.updateFrontageTypes)
-            self.iface.legendInterface().itemRemoved.disconnect(self.updateSelectionFrontageTypes)
-            self.iface.legendInterface().itemAdded.disconnect(self.updateSelectionFrontageTypes)
-
+            self.iface.projectRead.disconnect(self.updateFrontageTypes)
+            self.iface.newProjectCreated.disconnect(self.updateFrontageTypes)
 
         except:
             pass
 
         self.closingPlugin.emit()
         event.accept()
-
 
 
     #######
@@ -123,44 +114,27 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
     def updateLayers(self):
         layers = self.iface.legendInterface().layers()
         layer_list = []
-        self.selectLUCombo.clear()
 
-        for layer in layers:
-            if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Polygon:
-                layer_list.append(layer.name())
+        if self.createNewFileCheckBox.checkState() == 2:
 
-        self.selectLUCombo.addItems(layer_list)
+            for layer in layers:
+                if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Polygon:
+                    layer_list.append(layer.name())
+                    self.selectLUCombo.clear()
+                    self.selectLUCombo.addItems(layer_list)
+
+        elif self.createNewFileCheckBox.checkState() == 0:
+            self.selectLUCombo.addItems(layer_list)
+
 
     def updateFrontageTypes(self):
-        layers = self.iface.legendInterface().layers()
+        self.frontageslistWidget.clear()
 
         frontage_list = ['Transparent', 'Semi Transparent', 'Blank',
                           'High Opaque Fence', 'High See Through Fence',
                           'Low Fence']
-        empty = []
 
-        for layer in layers:
-            if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Line:
-                self.selectFacadeCombo.clear()
-                self.selectFacadeCombo.addItems(frontage_list)
-
-            else:
-                self.selectFacadeCombo.clear()
-
-
-    def updateSelectionFrontageTypes(self):
-        layers = self.iface.legendInterface().layers()
-        frontage_list = ['Transparent', 'Semi Transparent', 'Blank',
-                          'High Opaque Fence', 'High See Through Fence',
-                          'Low Fence']
-
-        for layer in layers:
-            if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Line:
-                self.updateFacadeCombo.clear()
-                self.updateFacadeCombo.addItems(frontage_list)
-
-            else:
-                self.updateFacadeCombo.clear()
+        self.frontageslistWidget.addItems(frontage_list)
 
 
     def getSelectedLayer(self):
@@ -168,6 +142,10 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         layer = uf.getLegendLayerByName(self.iface, layer_name)
         return layer
 
+    def getSelectedLayerLoad(self):
+        layer_name = self.useExistingcomboBox.currentText()
+        layer1 = uf.getLegendLayerByName(self.iface, layer_name)
+        return layer1
 
     def selectSaveLocation(self):
         filename = QFileDialog.getSaveFileName(self, "Select Save Location ", "", '*.shp')
@@ -181,6 +159,61 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         message = str(fid)
         QgsMessageLog.logMessage(message)
         QApplication.beep()
+
+    def luCheckState(self):
+        if self.createNewradioButton.isChecked():
+            self.startEditingpushButton.setEnabled(False)
+            self.createNewFileCheckBox.setCheckable(True)
+            self.pushButtonNewFile.setEnabled(True)
+            self.pushButtonSelectLocation.setEnabled(True)
+            self.updateLayers()
+
+        elif self.existingradioButton.isChecked():
+            self.startEditingpushButton.setEnabled(True)
+            self.createNewFileCheckBox.setCheckState(0)
+            self.createNewFileCheckBox.setCheckable(False)
+            self.pushButtonNewFile.setEnabled(False)
+            self.pushButtonSelectLocation.setEnabled(False)
+            self.selectLUCombo.clear()
+
+    def addDataFields(self):
+        self.tableClear()
+        layer = None
+        for lyr in self.iface.legendInterface().layers():
+            if lyr.name() == "memory:Frontages" or lyr.name() == "Frontages":
+                layer = lyr
+                break
+
+        if layer:
+            features = layer.selectedFeatures()
+            attrs = []
+            for feat in features:
+                attr = feat.attributes()
+                attrs.append(attr)
+
+            fields = layer.pendingFields()
+            field_names = [field.name() for field in fields]
+
+            field_length = len(field_names)
+
+            self.tableWidgetFrontage.setColumnCount(field_length)
+            headers = ["F-ID","Group","Type"]
+            self.tableWidgetFrontage.setHorizontalHeaderLabels(headers)
+            self.tableWidgetFrontage.setRowCount(len(attrs))
+
+            for i, item in enumerate(attrs):
+                self.tableWidgetFrontage.setItem(i, 0, QtGui.QTableWidgetItem(str(item[0])))
+                self.tableWidgetFrontage.setItem(i, 1, QtGui.QTableWidgetItem(str(item[1])))
+                self.tableWidgetFrontage.setItem(i, 2, QtGui.QTableWidgetItem(str(item[2])))
+
+            self.tableWidgetFrontage.horizontalHeader().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
+            self.tableWidgetFrontage.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
+            self.tableWidgetFrontage.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
+            self.tableWidgetFrontage.resizeRowsToContents()
+
+    def tableClear(self):
+        self.tableWidgetFrontage.clear()
+
 
         #######
         #   Frontages
@@ -201,7 +234,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 location = self.lineEditFrontages.text()
                 QgsVectorFileWriter.writeAsVectorFormat(input1, location, "System", None, "ESRI Shapefile")
 
-                removelayer = QgsMapLayerRegistry.instance().mapLayersByName("Frontages")[0]
+                removelayer = QgsMapLayerRegistry.instance().mapLayersByName("memory:Frontages")[0]
                 QgsMapLayerRegistry.instance().removeMapLayers([removelayer.id()])
 
                 input2 = self.iface.addVectorLayer(location, "Frontages", "ogr")
@@ -235,6 +268,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 input2.loadNamedStyle(qml_path)
 
                 input2.featureAdded.connect(self.logFeatureAdded)
+                input2.selectionChanged.connect(self.addDataFields)
 
             else:
                 destCRS = self.canvas.mapRenderer().destinationCrs()
@@ -267,6 +301,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 msgBar.pushWidget(msg, QgsMessageBar.INFO, 5)
 
                 input1.featureAdded.connect(self.logFeatureAdded)
+                input1.selectionChanged.connect(self.addDataFields)
 
         elif self.createNewFileCheckBox.checkState() == 2:
             if self.lineEditFrontages.text() != "":
@@ -278,7 +313,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
                 layer = None
                 for lyr in QgsMapLayerRegistry.instance().mapLayers().values():
-                    if lyr.name() == "memory:Exploded":
+                    if lyr.name() == "Exploded":
                         layer = lyr
                         break
 
@@ -287,9 +322,9 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 QgsVectorFileWriter.writeAsVectorFormat(input3, location, "System", None, "ESRI Shapefile")
 
 
-                removelayer = QgsMapLayerRegistry.instance().mapLayersByName("memory:line2poly")[0]
+                removelayer = QgsMapLayerRegistry.instance().mapLayersByName("Lines from polygons")[0]
                 QgsMapLayerRegistry.instance().removeMapLayers([removelayer.id()])
-                removelayer = QgsMapLayerRegistry.instance().mapLayersByName("memory:Exploded")[0]
+                removelayer = QgsMapLayerRegistry.instance().mapLayersByName("Exploded")[0]
                 QgsMapLayerRegistry.instance().removeMapLayers([removelayer.id()])
 
                 input4 = self.iface.addVectorLayer(location, "Frontages", "ogr")
@@ -333,18 +368,21 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
             else:
                 input1 = self.getSelectedLayer()
+                destCRS = input1.crs()
                 processing.runandload("qgis:polygonstolines", input1, "memory:line2poly")
                 input2 = self.iface.activeLayer()
                 processing.runandload("qgis:explodelines", input2, "memory:Frontages")
 
-                removelayer = QgsMapLayerRegistry.instance().mapLayersByName("memory:line2poly")[0]
+                removelayer = QgsMapLayerRegistry.instance().mapLayersByName("Lines from polygons")[0]
                 QgsMapLayerRegistry.instance().removeMapLayers([removelayer.id()])
 
                 layer = None
                 for lyr in QgsMapLayerRegistry.instance().mapLayers().values():
-                    if lyr.name() == "memory:Frontages":
+                    if lyr.name() == "Exploded":
                         layer = lyr
                         break
+
+                layer.setLayerName("memory:Frontages")
 
                 input3 = layer
 
@@ -379,20 +417,11 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
     # Load File
 
     def loadFrontageLayer(self):
-        location1 = self.selectLoadLocation()
-        input1 = self.iface.addVectorLayer(location1, "Frontages", "ogr")
+        input = self.getSelectedLayerLoad()
 
-        if not input1:
-            msgBar = self.iface.messageBar()
-            msg = msgBar.createMessage(u'Layer failed to load!' + location1)
-            msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+        input.setLayerName("Frontages")
 
-        else:
-            msgBar = self.iface.messageBar()
-            msg = msgBar.createMessage(u'Layer loaded:' + location1)
-            msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
-
-        input1.startEditing()
+        input.startEditing()
 
         plugin_path = os.path.dirname(__file__)
         qml_path = plugin_path + "/frontagesThematic.qml"
@@ -402,7 +431,6 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         # Draw/Update Feature
     def logFeatureAdded(self, fid):
         QgsMessageLog.logMessage("feature added, id = " + str(fid))
-        QApplication.beep()
 
         mc = self.canvas
         layer = None
@@ -426,27 +454,27 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         update3 = data.fieldNameIndex("F_ID")
         self.updateLength()
 
-        if self.selectFacadeCombo.currentText() == 'Transparent':
+        if self.frontageslistWidget.currentRow() == 0:
             v_layer.changeAttributeValue(fid, update1, "Building", True)
             v_layer.changeAttributeValue(fid, update2, "Transparent", True)
 
-        if self.selectFacadeCombo.currentText() == 'Semi Transparent':
+        if self.frontageslistWidget.currentRow() == 1:
             v_layer.changeAttributeValue(fid, update1, "Building", True)
             v_layer.changeAttributeValue(fid, update2, "Semi Transparent", True)
 
-        if self.selectFacadeCombo.currentText() == 'Blank':
+        if self.frontageslistWidget.currentRow() == 2:
             v_layer.changeAttributeValue(fid, update1, "Building", True)
             v_layer.changeAttributeValue(fid, update2, "Blank", True)
 
-        if self.selectFacadeCombo.currentText() == 'High Opaque Fence':
+        if self.frontageslistWidget.currentRow() == 3:
             v_layer.changeAttributeValue(fid, update1, "Fence", True)
             v_layer.changeAttributeValue(fid, update2, "High Opaque Fence", True)
 
-        if self.selectFacadeCombo.currentText() == 'High See Through Fence':
+        if self.frontageslistWidget.currentRow() == 4:
             v_layer.changeAttributeValue(fid, update1, "Fence", True)
             v_layer.changeAttributeValue(fid, update2, "High See Through Fence", True)
 
-        if self.selectFacadeCombo.currentText() == 'Low Fence':
+        if self.frontageslistWidget.currentRow() == 5:
             v_layer.changeAttributeValue(fid, update1, "Fence", True)
             v_layer.changeAttributeValue(fid, update2, "Low Fence", True)
             
@@ -524,6 +552,25 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 geom = feat.geometry()
                 feat['Length'] = geom.length()
                 layer.updateFeature(feat)
+
+    def deleteFeatures(self):
+        mc = self.canvas
+        layer = None
+        for lyr in QgsMapLayerRegistry.instance().mapLayers().values():
+            if lyr.name() == "memory:Frontages" or lyr.name() == 'Frontages':
+                layer = lyr
+                break
+
+        request = QgsFeatureRequest().setFilterExpression(u'"Group" IS NULL')
+        ids = [f.id() for f in layer.getFeatures(request)]
+        layer.startEditing()
+        layer.dataProvider().deleteFeatures(ids)
+
+        msgBar = self.iface.messageBar()
+        msg = msgBar.createMessage(u'Facades with "NULL" data deleted')
+        msgBar.pushWidget(msg, QgsMessageBar.INFO, 5)
+        mc.refresh()
+
 
 
 

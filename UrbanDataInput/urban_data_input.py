@@ -29,6 +29,15 @@ import resources
 from urban_data_input_dockwidget import UrbanDataInputDockWidget
 import os.path
 
+#import debug package
+is_debug = True
+try:
+    import pydevd
+    has_pydevd = True
+except ImportError, e:
+    has_pydevd = False
+    is_debug = False
+
 
 class UrbanDataInput:
     """QGIS Plugin Implementation."""
@@ -73,6 +82,16 @@ class UrbanDataInput:
         self.pluginIsActive = False
         self.dockwidget = None
 
+        # get user defined current setting
+        disableDialog = QSettings().value('/qgis/digitizing/disable_enter_attribute_values_dialog')
+        enableProjectCRS = QSettings().value('/qgis/crs/use_project_crs')
+
+        # override setting
+        QSettings().setValue('/qgis/digitizing/disable_enter_attribute_values_dialog', True)
+        QSettings().setValue('/qgis/crs/use_project_crs', True)
+
+        if has_pydevd and is_debug:
+            pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True, suspend=False)
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -188,7 +207,7 @@ class UrbanDataInput:
         # for reuse if plugin is reopened
         # Commented next statement since it causes QGIS crashe
         # when closing the docked window:
-        # self.dockwidget = None
+        self.dockwidget = None
 
         self.pluginIsActive = False
 
