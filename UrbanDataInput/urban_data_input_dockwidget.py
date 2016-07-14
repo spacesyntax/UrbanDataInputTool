@@ -72,9 +72,12 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.startEditingpushButton.clicked.connect(self.loadFrontageLayer)
         self.updateFacadeButton.clicked.connect(self.updateSelectedFrontageAttribute)
         self.deletePushButton.clicked.connect(self.deleteFeatures)
+        self.updateIDPushButton.clicked.connect(self.pushID)
         self.createNewradioButton.toggled.connect(self.luCheckState)
         self.existingradioButton.toggled.connect(self.luCheckState)
         self.createNewFileCheckBox.stateChanged.connect(self.updateLayers)
+        self.pushIDcheckBox.stateChanged.connect(self.updateLayersPushID)
+        self.pushIDcheckBox.stateChanged.connect(self.updatepushWidgetList)
         self.iface.mapCanvas().selectionChanged.connect(self.addDataFields)
 
         # initialisation
@@ -97,6 +100,8 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.iface.newProjectCreated.disconnect(self.updateLayers)
             self.iface.legendInterface().itemRemoved.disconnect(self.updateLayers)
             self.iface.legendInterface().itemAdded.disconnect(self.updateLayers)
+            self.iface.projectRead.disconnect(self.updateLayersPushID)
+            self.iface.newProjectCreated.disconnect(self.updateLayersPushID)
             self.iface.projectRead.disconnect(self.updateFrontageTypes)
             self.iface.newProjectCreated.disconnect(self.updateFrontageTypes)
 
@@ -114,6 +119,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
     def updateLayers(self):
         layers = self.iface.legendInterface().layers()
         layer_list = []
+        empty_list = []
 
         if self.createNewFileCheckBox.checkState() == 2:
 
@@ -124,7 +130,22 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                     self.selectLUCombo.addItems(layer_list)
 
         elif self.createNewFileCheckBox.checkState() == 0:
-            self.selectLUCombo.addItems(layer_list)
+            self.selectLUCombo.clear()
+
+    def updateLayersPushID(self):
+        layers = self.iface.legendInterface().layers()
+        layer_list = []
+
+        if self.pushIDcheckBox.checkState() == 2:
+
+            for layer in layers:
+                if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Polygon:
+                    layer_list.append(layer.name())
+                    self.pushIDcomboBox.clear()
+                    self.pushIDcomboBox.addItems(layer_list)
+
+        elif self.pushIDcheckBox.checkState() == 0:
+            self.pushIDcomboBox.addItems(layer_list)
 
 
     def updateFrontageTypes(self):
@@ -146,6 +167,11 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         layer_name = self.useExistingcomboBox.currentText()
         layer1 = uf.getLegendLayerByName(self.iface, layer_name)
         return layer1
+
+    def getSelectedLayerPushID(self):
+        layer_name = self.pushIDcomboBox.currentText()
+        layer = uf.getLegendLayerByName(self.iface, layer_name)
+        return layer
 
     def selectSaveLocation(self):
         filename = QFileDialog.getSaveFileName(self, "Select Save Location ", "", '*.shp')
@@ -505,53 +531,61 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         features = layer.selectedFeatures()
 
-        if self.updateFacadeCombo.currentText() == 'Transparent':
+        if self.frontageslistWidget.currentRow() == 0:
             for feat in features:
                 feat['Group'] = "Building"
                 feat['Type'] = "Transparent"
                 geom = feat.geometry()
                 feat['Length'] = geom.length()
                 layer.updateFeature(feat)
+                self.addDataFields()
 
-        if self.updateFacadeCombo.currentText() == 'Semi Transparent':
+        if self.frontageslistWidget.currentRow() == 1:
             for feat in features:
                 feat['Group'] = "Building"
                 feat['Type'] = "Semi Transparent"
                 geom = feat.geometry()
                 feat['Length'] = geom.length()
                 layer.updateFeature(feat)
+                self.addDataFields()
 
-        if self.updateFacadeCombo.currentText() == 'Blank':
+        if self.frontageslistWidget.currentRow() == 2:
             for feat in features:
                 feat['Group'] = "Building"
                 feat['Type'] = "Blank"
                 geom = feat.geometry()
                 feat['Length'] = geom.length()
                 layer.updateFeature(feat)
+                self.addDataFields()
 
-        if self.updateFacadeCombo.currentText() == 'High Opaque Fence':
+        if self.frontageslistWidget.currentRow() == 3:
             for feat in features:
                 feat['Group'] = "Fence"
                 feat['Type'] = "High Opaque Fence"
                 geom = feat.geometry()
                 feat['Length'] = geom.length()
                 layer.updateFeature(feat)
+                self.addDataFields()
 
-        if self.updateFacadeCombo.currentText() == 'High See Through Fence':
+        if self.frontageslistWidget.currentRow() == 4:
             for feat in features:
                 feat['Group'] = "Fence"
                 feat['Type'] = "High See Through Fence"
                 geom = feat.geometry()
                 feat['Length'] = geom.length()
                 layer.updateFeature(feat)
+                self.addDataFields()
 
-        if self.updateFacadeCombo.currentText() == 'Low Fence':
+        if self.frontageslistWidget.currentRow() == 5:
             for feat in features:
                 feat['Group'] = "Fence"
                 feat['Type'] = "Low Fence"
                 geom = feat.geometry()
                 feat['Length'] = geom.length()
                 layer.updateFeature(feat)
+                self.addDataFields()
+
+
 
     def deleteFeatures(self):
         mc = self.canvas
@@ -561,6 +595,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 layer = lyr
                 break
 
+        layer.commitChanges()
         request = QgsFeatureRequest().setFilterExpression(u'"Group" IS NULL')
         ids = [f.id() for f in layer.getFeatures(request)]
         layer.startEditing()
@@ -570,6 +605,55 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         msg = msgBar.createMessage(u'Facades with "NULL" data deleted')
         msgBar.pushWidget(msg, QgsMessageBar.INFO, 5)
         mc.refresh()
+
+    def updatepushWidgetList(self):
+        buildinglayer = self.getSelectedLayerPushID()
+        if buildinglayer:
+            features = buildinglayer.getFeatures()
+            attrs = []
+            for feat in features:
+                attr = feat.attributes()
+                attrs.append(attr)
+
+            fields = buildinglayer.pendingFields()
+            field_names = [field.name() for field in fields]
+            self.pushIDlistWidget.addItems(field_names)
+
+        else:
+            self.pushIDlistWidget.clear()
+
+
+    def pushID(self):
+        buildinglayer = self.getSelectedLayerPushID()
+
+        mc = self.canvas
+        frontlayer = None
+        for lyr in QgsMapLayerRegistry.instance().mapLayers().values():
+            if lyr.name() == "memory:Frontages" or lyr.name() == 'Frontages':
+                frontlayer = lyr
+                break
+
+        frontlayer.startEditing()
+
+        frontlayer_pr = frontlayer.dataProvider()
+        frontlayer_pr.addAttributes([QgsField("Building_Data", QVariant.Int)])
+        frontlayer.commitChanges()
+        frontlayer.startEditing()
+
+        frontlayer_caps = frontlayer_pr.capabilities()
+
+        buildingID = self.frontageslistWidget.currentItem()
+        buildingIDtext = str(buildingID)
+
+        for buildfeat in buildinglayer.getFeatures():
+            for frontfeat in frontlayer.getFeatures():
+                if frontfeat.geometry().intersects(buildfeat.geometry()) == True:
+                    frontlayer.startEditing()
+
+                    if frontlayer_caps & QgsVectorDataProvider.ChangeAttributeValues:
+                        frontfeat['Building_Data'] = buildfeat[buildingIDtext]
+                        frontlayer.updateFeature(frontfeat)
+                        frontlayer.commitChanges()
 
 
 
