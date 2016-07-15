@@ -30,7 +30,7 @@ from urban_data_input_dockwidget import UrbanDataInputDockWidget
 import os.path
 
 #import debug package
-is_debug = True
+is_debug = False
 try:
     import pydevd
     has_pydevd = True
