@@ -27,6 +27,7 @@ import resources
 
 # Import the code for the DockWidget
 from urban_data_input_dockwidget import UrbanDataInputDockWidget
+from CreateNew_dialog import CreatenewDialog
 import os.path
 
 #import debug package
@@ -52,6 +53,7 @@ class UrbanDataInput:
         """
         # Save reference to the QGIS interface
         self.iface = iface
+        self.canvas = self.iface.mapCanvas()
 
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
@@ -79,8 +81,11 @@ class UrbanDataInput:
 
         #print "** INITIALIZING UrbanDataInput"
 
+        # set up GUI operation signals
         self.pluginIsActive = False
         self.dockwidget = None
+        self.dlg = CreatenewDialog()
+
 
         # get user defined current setting
         disableDialog = QSettings().value('/qgis/digitizing/disable_enter_attribute_values_dialog')
@@ -92,6 +97,10 @@ class UrbanDataInput:
 
         if has_pydevd and is_debug:
             pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True, suspend=False)
+
+        # Create the dialog (after translation) and keep reference
+
+
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -196,12 +205,15 @@ class UrbanDataInput:
     #--------------------------------------------------------------------------
 
     def onClosePlugin(self):
-        """Cleanup necessary items here when plugin dockwidget is closed"""
+
+        self.dockwidget.closingPlugin.disconnect(self.onClosePlugin)
+
+        #Cleanup necessary items here when plugin dockwidget is closed
 
         #print "** CLOSING UrbanDataInput"
 
         # disconnects
-        self.dockwidget.closingPlugin.disconnect(self.onClosePlugin)
+
 
         # remove this statement if dockwidget is to remain
         # for reuse if plugin is reopened
@@ -227,6 +239,9 @@ class UrbanDataInput:
 
     #--------------------------------------------------------------------------
 
+
+
+
     def run(self):
         """Run method that loads and starts the plugin"""
 
@@ -249,4 +264,8 @@ class UrbanDataInput:
             # TODO: fix to allow choice of dock location
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
             self.dockwidget.show()
+
+
+
+
 
