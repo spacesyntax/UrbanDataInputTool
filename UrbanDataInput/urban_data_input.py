@@ -31,7 +31,7 @@ from CreateNew_dialog import CreatenewDialog
 import os.path
 
 #import debug package
-is_debug = False
+is_debug = True
 try:
     import pydevd
     has_pydevd = True
