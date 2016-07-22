@@ -82,17 +82,19 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.iface.legendInterface().itemAdded.connect(self.updateExistingLayers)
         self.iface.projectRead.connect(self.updateExistingLayers)
         self.iface.newProjectCreated.connect(self.updateExistingLayers)
+        self.iface.legendInterface().itemRemoved.connect(self.enablePushIDcombo)
+        self.iface.legendInterface().itemAdded.connect(self.enablePushIDcombo)
+        self.iface.projectRead.connect(self.enablePushIDcombo)
+        self.iface.newProjectCreated.connect(self.enablePushIDcombo)
         self.iface.legendInterface().itemRemoved.connect(self.updateLayersPushID)
         self.iface.legendInterface().itemAdded.connect(self.updateLayersPushID)
         self.iface.projectRead.connect(self.updateLayersPushID)
         self.iface.newProjectCreated.connect(self.updateLayersPushID)
-        self.pushIDcomboBox.activated.connect(self.updatepushWidgetList)
+        self.pushIDcomboBox.currentIndexChanged.connect(self.updatepushWidgetList)
         self.hideshowButton.clicked.connect(self.hideFeatures)
 
         # initialisation
         self.updateFrontageTypes()
-        self.updateExistingLayers()
-        self.updateLayersPushID()
 
 
 
@@ -114,16 +116,20 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.iface.newProjectCreated.disconnect(self.updateLayers)
             self.iface.legendInterface().itemRemoved.disconnect(self.updateLayers)
             self.iface.legendInterface().itemAdded.disconnect(self.updateLayers)
-            self.iface.projectRead.disconnect(self.updateLayersPushID)
-            self.iface.legendInterface().itemRemoved.disconnect(self.updateLayersPushID)
-            self.iface.legendInterface().itemAdded.disconnect(self.updateLayersPushID)
-            self.iface.newProjectCreated.disconnect(self.updateLayersPushID)
             self.iface.projectRead.disconnect(self.updateFrontageTypes)
             self.iface.newProjectCreated.disconnect(self.updateFrontageTypes)
             self.iface.projectRead.disconnect(self.updateExistingLayers)
             self.iface.newProjectCreated.disconnect(self.updateExistingLayers)
             self.iface.legendInterface().itemRemoved.disconnect(self.updateExistingLayers)
             self.iface.legendInterface().itemAdded.disconnect(self.updateExistingLayers)
+            self.iface.legendInterface().itemRemoved.disconnect(self.enablePushIDcombo)
+            self.iface.legendInterface().itemAdded.disconnect(self.enablePushIDcombo)
+            self.iface.projectRead.disconnect(self.enablePushIDcombo)
+            self.iface.newProjectCreated.disconnect(self.enablePushIDcombo)
+            self.iface.legendInterface().itemRemoved.disconnect(self.updateLayersPushID)
+            self.iface.legendInterface().itemAdded.disconnect(self.updateLayersPushID)
+            self.iface.projectRead.disconnect(self.updateLayersPushID)
+            self.iface.newProjectCreated.disconnect(self.updateLayersPushID)
 
 
         except:
@@ -147,7 +153,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         return layer
 
     def selectSaveLocation(self):
-        filename = QFileDialog.getSaveFileName(self, "Select Save Location ", "", '*.shp')
+        filename = QFileDialog.getExistingDirectory(self.dlg, "Select Folder ", '')
         self.dlg.lineEditFrontages.setText(filename)
 
     def newFileDialog(self):
@@ -158,8 +164,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         result = self.dlg.exec_()
         # See if OK was pressed
         if result:
-            # Do something useful here - delete the line containing pass and
-            # substitute with your code.
+            self.dlg.lineEditFileName.clear()
             pass
 
     def updateLayers(self):
@@ -175,7 +180,6 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                     self.dlg.selectLUCombo.clear()
                     self.dlg.selectLUCombo.addItems(layer_list)
 
-
         elif self.dlg.createNewFileCheckBox.checkState() == 0:
             self.dlg.selectLUCombo.setEditable(False)
             self.dlg.selectLUCombo.clear()
@@ -185,10 +189,22 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         layer_list = []
 
         for layer in layers:
-            if layer.type() == QgsMapLayer.VectorLayer:
+            if layer.geometryType() == QGis.Polygon:
                 layer_list.append(layer.name())
                 self.pushIDcomboBox.clear()
                 self.pushIDcomboBox.addItems(layer_list)
+
+            elif layer.geometryType() != QGis.Polygon:
+                self.pushIDcomboBox.setEditable(False)
+                self.pushIDcomboBox.clear()
+
+    def enablePushIDcombo(self):
+        if self.useExistingcomboBox.isEditable() == True:
+            self.pushIDcomboBox.setEditable(True)
+
+        elif self.useExistingcomboBox.isEditable() == False:
+            self.pushIDcomboBox.setEditable(False)
+
 
 
     def updateFrontageTypes(self):
@@ -213,9 +229,10 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
     def addDataFields(self):
         self.tableClear()
+        filename = self.useExistingcomboBox.currentText()
         layer = None
         for lyr in self.iface.legendInterface().layers():
-            if lyr.name() == "memory:Frontages" or lyr.name() == "Frontages":
+            if lyr.name() == filename:
                 layer = lyr
                 break
 
@@ -257,11 +274,17 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         layer_list = []
 
         for layer in layers:
-            if layer.type() == QgsMapLayer.VectorLayer:
-                self.useExistingcomboBox.setEditable(True)
+            if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Line:
                 layer_list.append(layer.name())
+                self.useExistingcomboBox.setEditable(True)
                 self.useExistingcomboBox.clear()
                 self.useExistingcomboBox.addItems(layer_list)
+                print layer_list
+
+            elif layer.type() != QgsMapLayer.VectorLayer or layer.geometryType() != QGis.Line:
+                self.useExistingcomboBox.setEditable(False)
+                self.useExistingcomboBox.clear()
+
 
 
 
@@ -269,6 +292,9 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         #   Frontages
         #######
     def newFrontageLayer(self):
+
+        filename = self.dlg.lineEditFileName.text()
+        format = ".shp"
         if self.dlg.createNewFileCheckBox.checkState() == 0:
 
             if self.dlg.lineEditFrontages.text() != "":
@@ -277,13 +303,13 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 QgsMapLayerRegistry.instance().addMapLayer(vl)
 
                 input1 = self.iface.activeLayer()
-                location = self.dlg.lineEditFrontages.text()
+                location = self.dlg.lineEditFrontages.text() + filename + format
                 QgsVectorFileWriter.writeAsVectorFormat(input1, location, "System", None, "ESRI Shapefile")
 
                 removelayer = QgsMapLayerRegistry.instance().mapLayersByName("memory:Frontages")[0]
                 QgsMapLayerRegistry.instance().removeMapLayers([removelayer.id()])
 
-                input2 = self.iface.addVectorLayer(location, "Frontages", "ogr")
+                input2 = self.iface.addVectorLayer(location, filename, "ogr")
 
                 if not input2:
                     msgBar = self.iface.messageBar()
@@ -315,14 +341,16 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 input2.selectionChanged.connect(self.addDataFields)
                 self.dlg.close()
 
+
+
             else:
                 destCRS = self.canvas.mapRenderer().destinationCrs()
-                vl = QgsVectorLayer("LineString?crs=" + destCRS.toWkt(), "memory:Frontages", "memory")
+                vl = QgsVectorLayer("LineString?crs=" + destCRS.toWkt(), filename, "memory")
                 QgsMapLayerRegistry.instance().addMapLayer(vl)
 
                 layer = None
                 for lyr in QgsMapLayerRegistry.instance().mapLayers().values():
-                    if lyr.name() == "memory:Frontages":
+                    if lyr.name() == filename:
                         layer = lyr
                         break
 
@@ -349,13 +377,14 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 input1.selectionChanged.connect(self.addDataFields)
                 self.dlg.close()
 
+
         elif self.dlg.createNewFileCheckBox.checkState() == 2:
             if self.dlg.lineEditFrontages.text() != "":
                 input1 = self.getSelectedLayer()
                 destCRS = input1.crs()
-                processing.runandload("qgis:polygonstolines", input1, "memory:line2poly")
+                processing.runandload("qgis:polygonstolines", input1, "Lines from polygons")
                 input2 = self.iface.activeLayer()
-                processing.runandload("qgis:explodelines", input2, "memory:Exploded")
+                processing.runandload("qgis:explodelines", input2, "Exploded")
 
                 layer = None
                 for lyr in QgsMapLayerRegistry.instance().mapLayers().values():
@@ -364,7 +393,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                         break
 
                 input3 = layer
-                location = self.dlg.lineEditFrontages.text()
+                location = self.dlg.lineEditFrontages.text() + filename + format
                 QgsVectorFileWriter.writeAsVectorFormat(input3, location, "System", None, "ESRI Shapefile")
 
                 removelayer = QgsMapLayerRegistry.instance().mapLayersByName("Lines from polygons")[0]
@@ -372,7 +401,8 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 removelayer = QgsMapLayerRegistry.instance().mapLayersByName("Exploded")[0]
                 QgsMapLayerRegistry.instance().removeMapLayers([removelayer.id()])
 
-                input4 = self.iface.addVectorLayer(location, "Frontages", "ogr")
+                input4 = self.iface.addVectorLayer(location, filename, "ogr")
+
 
                 if not input4:
                     msgBar = self.iface.messageBar()
@@ -412,12 +442,13 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 input4.selectionChanged.connect(self.addDataFields)
                 self.dlg.close()
 
+
             else:
                 input1 = self.getSelectedLayer()
                 destCRS = input1.crs()
-                processing.runandload("qgis:polygonstolines", input1, "memory:line2poly")
+                processing.runandload("qgis:polygonstolines", input1, "Lines from polygons")
                 input2 = self.iface.activeLayer()
-                processing.runandload("qgis:explodelines", input2, "memory:Frontages")
+                processing.runandload("qgis:explodelines", input2, "Exploded")
 
                 removelayer = QgsMapLayerRegistry.instance().mapLayersByName("Lines from polygons")[0]
                 QgsMapLayerRegistry.instance().removeMapLayers([removelayer.id()])
@@ -428,7 +459,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                         layer = lyr
                         break
 
-                layer.setLayerName("memory:Frontages")
+                layer.setLayerName(filename)
 
                 input3 = layer
 
@@ -460,6 +491,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 input3.selectionChanged.connect(self.addDataFields)
                 self.dlg.close()
 
+
     # Load File
 
     def loadFrontageLayer(self):
@@ -472,10 +504,6 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         plugin_path = os.path.dirname(__file__)
         qml_path = plugin_path + "/frontagesThematic.qml"
         input.loadNamedStyle(qml_path)
-        self.pushIDcomboBox.setEditable(True)
-        self.updatepushWidgetList()
-
-
 
 
         # Draw/Update Feature
@@ -633,20 +661,21 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
 
     def updatepushWidgetList(self):
-        self.pushIDlistWidget.clear()
-        buildinglayer = self.getSelectedLayerPushID()
-        if buildinglayer:
-            features = buildinglayer.getFeatures()
-            attrs = []
-            for feat in features:
-                attr = feat.attributes()
-                attrs.append(attr)
+        if self.pushIDcomboBox.isEditable()== True:
+            self.pushIDlistWidget.clear()
+            buildinglayer = self.getSelectedLayerPushID()
+            if buildinglayer:
+                features = buildinglayer.getFeatures()
+                attrs = []
+                for feat in features:
+                    attr = feat.attributes()
+                    attrs.append(attr)
 
-            fields = buildinglayer.pendingFields()
-            field_names = [field.name() for field in fields]
-            self.pushIDlistWidget.addItems(field_names)
+                fields = buildinglayer.pendingFields()
+                field_names = [field.name() for field in fields]
+                self.pushIDlistWidget.addItems(field_names)
 
-        else:
+        elif self.pushIDcomboBox.isEditable()== False:
             self.pushIDlistWidget.clear()
 
 
