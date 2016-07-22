@@ -86,15 +86,13 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.iface.legendInterface().itemAdded.connect(self.enablePushIDcombo)
         self.iface.projectRead.connect(self.enablePushIDcombo)
         self.iface.newProjectCreated.connect(self.enablePushIDcombo)
-        self.iface.legendInterface().itemRemoved.connect(self.updateLayersPushID)
-        self.iface.legendInterface().itemAdded.connect(self.updateLayersPushID)
-        self.iface.projectRead.connect(self.updateLayersPushID)
-        self.iface.newProjectCreated.connect(self.updateLayersPushID)
         self.pushIDcomboBox.currentIndexChanged.connect(self.updatepushWidgetList)
         self.hideshowButton.clicked.connect(self.hideFeatures)
 
         # initialisation
         self.updateFrontageTypes()
+        self.updateExistingLayers()
+        self.updateLayersPushID()
 
 
 
@@ -126,10 +124,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.iface.legendInterface().itemAdded.disconnect(self.enablePushIDcombo)
             self.iface.projectRead.disconnect(self.enablePushIDcombo)
             self.iface.newProjectCreated.disconnect(self.enablePushIDcombo)
-            self.iface.legendInterface().itemRemoved.disconnect(self.updateLayersPushID)
-            self.iface.legendInterface().itemAdded.disconnect(self.updateLayersPushID)
-            self.iface.projectRead.disconnect(self.updateLayersPushID)
-            self.iface.newProjectCreated.disconnect(self.updateLayersPushID)
+
 
 
         except:
@@ -168,6 +163,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             pass
 
     def updateLayers(self):
+        self.dlg.selectLUCombo.clear()
         layers = self.iface.legendInterface().layers()
         layer_list = []
 
@@ -177,40 +173,45 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Polygon:
                     layer_list.append(layer.name())
                     self.dlg.selectLUCombo.setEditable(True)
-                    self.dlg.selectLUCombo.clear()
-                    self.dlg.selectLUCombo.addItems(layer_list)
 
-        elif self.dlg.createNewFileCheckBox.checkState() == 0:
-            self.dlg.selectLUCombo.setEditable(False)
-            self.dlg.selectLUCombo.clear()
+            self.dlg.selectLUCombo.addItems(layer_list)
+
 
     def updateLayersPushID(self):
+        self.pushIDcomboBox.clear()
         layers = self.iface.legendInterface().layers()
         layer_list = []
 
         for layer in layers:
-            if layer.geometryType() == QGis.Polygon:
+            if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Polygon:
+                self.pushIDcomboBox.setEditable(True)
                 layer_list.append(layer.name())
-                self.pushIDcomboBox.clear()
-                self.pushIDcomboBox.addItems(layer_list)
 
-            elif layer.geometryType() != QGis.Polygon:
-                self.pushIDcomboBox.setEditable(False)
-                self.pushIDcomboBox.clear()
+        self.pushIDcomboBox.addItems(layer_list)
 
     def enablePushIDcombo(self):
+        layers = self.iface.legendInterface().layers()
+
         if self.useExistingcomboBox.isEditable() == True:
-            self.pushIDcomboBox.setEditable(True)
+            for layer in layers:
+                if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Polygon:
+                    self.pushIDcomboBox.setEditable(True)
+                    self.updateLayersPushID()
 
         elif self.useExistingcomboBox.isEditable() == False:
+            self.pushIDcomboBox.clear()
             self.pushIDcomboBox.setEditable(False)
+
 
 
 
     def updateFrontageTypes(self):
         self.frontageslistWidget.clear()
+        frontage_list = []
 
-        frontage_list = ['Transparent', 'Semi Transparent', 'Blank',
+        if self.useExistingcomboBox.isEditable() == True:
+
+            frontage_list = ['Transparent', 'Semi Transparent', 'Blank',
                           'High Opaque Fence', 'High See Through Fence',
                           'Low Fence']
 
@@ -269,7 +270,9 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
     def tableClear(self):
         self.tableWidgetFrontage.clear()
 
+
     def updateExistingLayers(self):
+        self.useExistingcomboBox.clear()
         layers = self.iface.legendInterface().layers()
         layer_list = []
 
@@ -277,15 +280,11 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Line:
                 layer_list.append(layer.name())
                 self.useExistingcomboBox.setEditable(True)
-                self.useExistingcomboBox.clear()
-                self.useExistingcomboBox.addItems(layer_list)
-                print layer_list
 
-            elif layer.type() != QgsMapLayer.VectorLayer or layer.geometryType() != QGis.Line:
+            else:
                 self.useExistingcomboBox.setEditable(False)
-                self.useExistingcomboBox.clear()
 
-
+        self.useExistingcomboBox.addItems(layer_list)
 
 
         #######
@@ -304,7 +303,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
                 input1 = self.iface.activeLayer()
                 location = self.dlg.lineEditFrontages.text() + filename + format
-                QgsVectorFileWriter.writeAsVectorFormat(input1, location, "System", None, "ESRI Shapefile")
+                QgsVectorFileWriter.writeAsVectorFormat(input1, location, "CP1250", None, "ESRI Shapefile")
 
                 removelayer = QgsMapLayerRegistry.instance().mapLayersByName("memory:Frontages")[0]
                 QgsMapLayerRegistry.instance().removeMapLayers([removelayer.id()])
@@ -340,7 +339,6 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 input2.featureAdded.connect(self.logFeatureAdded)
                 input2.selectionChanged.connect(self.addDataFields)
                 self.dlg.close()
-
 
 
             else:
