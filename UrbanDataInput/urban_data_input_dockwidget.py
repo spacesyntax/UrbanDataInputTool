@@ -89,10 +89,12 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.pushIDcomboBox.currentIndexChanged.connect(self.updatepushWidgetList)
         self.hideshowButton.clicked.connect(self.hideFeatures)
 
+
+
         # initialisation
-        self.updateFrontageTypes()
         self.updateExistingLayers()
         self.updateLayersPushID()
+        self.updateFrontageTypes()
 
 
 
@@ -138,6 +140,8 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
     #   Data functions
     #######
 
+
+
     def closePopUp(self):
         self.dlg.close()
 
@@ -147,9 +151,11 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         layer = uf.getLegendLayerByName(self.iface, layer_name)
         return layer
 
+
     def selectSaveLocation(self):
-        filename = QFileDialog.getExistingDirectory(self.dlg, "Select Folder ", '')
+        filename = QFileDialog.getSaveFileName(self, "Select Save Location ","", '*.shp')
         self.dlg.lineEditFrontages.setText(filename)
+
 
     def newFileDialog(self):
         """Run method that performs all the real work"""
@@ -161,6 +167,18 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         if result:
             self.dlg.lineEditFileName.clear()
             pass
+
+    def ifFrontageLayer(self):
+        attrlist = []
+
+        layers = self.iface.legendInterface().layers()
+        for lyr in layers:
+            if lyr.type() == QgsMapLayer.VectorLayer:
+                if lyr.geometryType() == QGis.Line:
+                    frontageLayer = lyr
+                    return True
+
+        global frontageLayer
 
     def updateLayers(self):
         self.dlg.selectLUCombo.clear()
@@ -207,11 +225,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
     def updateFrontageTypes(self):
         self.frontageslistWidget.clear()
-        frontage_list = []
-
-        if self.useExistingcomboBox.isEditable() == True:
-
-            frontage_list = ['Transparent', 'Semi Transparent', 'Blank',
+        frontage_list = ['Transparent', 'Semi Transparent', 'Blank',
                           'High Opaque Fence', 'High See Through Fence',
                           'Low Fence']
 
@@ -223,6 +237,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         layer1 = uf.getLegendLayerByName(self.iface, layer_name)
         return layer1
 
+
     def getSelectedLayerPushID(self):
         layer_name = self.pushIDcomboBox.currentText()
         layer = uf.getLegendLayerByName(self.iface, layer_name)
@@ -230,12 +245,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
     def addDataFields(self):
         self.tableClear()
-        filename = self.useExistingcomboBox.currentText()
-        layer = None
-        for lyr in self.iface.legendInterface().layers():
-            if lyr.name() == filename:
-                layer = lyr
-                break
+        layer = self.getSelectedLayerLoad()
 
         if layer:
             features = layer.selectedFeatures()
@@ -273,16 +283,14 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
     def updateExistingLayers(self):
         self.useExistingcomboBox.clear()
-        layers = self.iface.legendInterface().layers()
+        self.iface.legendInterface().layers()
         layer_list = []
+        if self.ifFrontageLayer() is True:
+            layer_list.append(frontageLayer.name())
+            self.useExistingcomboBox.setEditable(True)
 
-        for layer in layers:
-            if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Line:
-                layer_list.append(layer.name())
-                self.useExistingcomboBox.setEditable(True)
-
-            else:
-                self.useExistingcomboBox.setEditable(False)
+        else:
+            self.useExistingcomboBox.setEditable(False)
 
         self.useExistingcomboBox.addItems(layer_list)
 
@@ -291,22 +299,20 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         #   Frontages
         #######
     def newFrontageLayer(self):
-
-        filename = self.dlg.lineEditFileName.text()
-        format = ".shp"
         if self.dlg.createNewFileCheckBox.checkState() == 0:
 
             if self.dlg.lineEditFrontages.text() != "":
+                path = self.dlg.lineEditFrontages.text()
+                filename = os.path.basename(path)
+                location = os.path.abspath(path)
+
                 destCRS = self.canvas.mapRenderer().destinationCrs()
                 vl = QgsVectorLayer("LineString?crs=" + destCRS.toWkt(), "memory:Frontages", "memory")
                 QgsMapLayerRegistry.instance().addMapLayer(vl)
 
-                input1 = self.iface.activeLayer()
-                location = self.dlg.lineEditFrontages.text() + filename + format
-                QgsVectorFileWriter.writeAsVectorFormat(input1, location, "CP1250", None, "ESRI Shapefile")
+                QgsVectorFileWriter.writeAsVectorFormat(vl, location, "CP1250", None, "ESRI Shapefile")
 
-                removelayer = QgsMapLayerRegistry.instance().mapLayersByName("memory:Frontages")[0]
-                QgsMapLayerRegistry.instance().removeMapLayers([removelayer.id()])
+                QgsMapLayerRegistry.instance().removeMapLayers([vl.id()])
 
                 input2 = self.iface.addVectorLayer(location, filename, "ogr")
 
@@ -343,61 +349,60 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
             else:
                 destCRS = self.canvas.mapRenderer().destinationCrs()
-                vl = QgsVectorLayer("LineString?crs=" + destCRS.toWkt(), filename, "memory")
+                vl = QgsVectorLayer("LineString?crs=" + destCRS.toWkt(), "memory:Frontages", "memory")
                 QgsMapLayerRegistry.instance().addMapLayer(vl)
 
-                layer = None
-                for lyr in QgsMapLayerRegistry.instance().mapLayers().values():
-                    if lyr.name() == filename:
-                        layer = lyr
-                        break
-
-                input1 = layer
-
-                edit1 = input1.dataProvider()
+                edit1 = vl.dataProvider()
                 edit1.addAttributes([QgsField("F_ID", QVariant.Int),
                                          QgsField("Group", QVariant.String),
                                          QgsField("Type", QVariant.String),
                                          QgsField("Length", QVariant.Double)])
 
-                input1.commitChanges()
-                input1.startEditing()
+                vl.commitChanges()
+                vl.startEditing()
 
                 plugin_path = os.path.dirname(__file__)
                 qml_path = plugin_path + "/frontagesThematic.qml"
-                input1.loadNamedStyle(qml_path)
+                vl.loadNamedStyle(qml_path)
 
                 msgBar = self.iface.messageBar()
                 msg = msgBar.createMessage(u'New Frontages Layer Created')
                 msgBar.pushWidget(msg, QgsMessageBar.INFO, 5)
 
-                input1.featureAdded.connect(self.logFeatureAdded)
-                input1.selectionChanged.connect(self.addDataFields)
+                vl.featureAdded.connect(self.logFeatureAdded)
+                vl.selectionChanged.connect(self.addDataFields)
                 self.dlg.close()
 
 
         elif self.dlg.createNewFileCheckBox.checkState() == 2:
             if self.dlg.lineEditFrontages.text() != "":
-                input1 = self.getSelectedLayer()
-                destCRS = input1.crs()
-                processing.runandload("qgis:polygonstolines", input1, "Lines from polygons")
-                input2 = self.iface.activeLayer()
-                processing.runandload("qgis:explodelines", input2, "Exploded")
+                path = self.dlg.lineEditFrontages.text()
+                filename = os.path.basename(path)
+                location = os.path.abspath(path)
 
-                layer = None
+                input1 = self.getSelectedLayer()
+
+                processing.runandload("qgis:polygonstolines", input1, "Lines from polygons")
+
+                input2 = None
                 for lyr in QgsMapLayerRegistry.instance().mapLayers().values():
-                    if lyr.name() == "Exploded":
-                        layer = lyr
+                    if lyr.name() == "Lines from polygons" or lyr.name() == "LINES FROM POLYGONS":
+                        input2 = lyr
                         break
 
-                input3 = layer
-                location = self.dlg.lineEditFrontages.text() + filename + format
-                QgsVectorFileWriter.writeAsVectorFormat(input3, location, "System", None, "ESRI Shapefile")
+                processing.runandload("qgis:explodelines", input2, "Exploded")
 
-                removelayer = QgsMapLayerRegistry.instance().mapLayersByName("Lines from polygons")[0]
-                QgsMapLayerRegistry.instance().removeMapLayers([removelayer.id()])
-                removelayer = QgsMapLayerRegistry.instance().mapLayersByName("Exploded")[0]
-                QgsMapLayerRegistry.instance().removeMapLayers([removelayer.id()])
+                input3 = None
+                for lyr in QgsMapLayerRegistry.instance().mapLayers().values():
+                    if lyr.name() == "Exploded" or lyr.name() == "EXPLODED":
+                        input3 = lyr
+                        break
+
+                QgsMapLayerRegistry.instance().removeMapLayer(input2)
+
+                QgsVectorFileWriter.writeAsVectorFormat(input3, location, "CP1250", None, "ESRI Shapefile")
+
+                QgsMapLayerRegistry.instance().removeMapLayer(input3)
 
                 input4 = self.iface.addVectorLayer(location, filename, "ogr")
 
@@ -443,23 +448,26 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
             else:
                 input1 = self.getSelectedLayer()
-                destCRS = input1.crs()
+
                 processing.runandload("qgis:polygonstolines", input1, "Lines from polygons")
-                input2 = self.iface.activeLayer()
-                processing.runandload("qgis:explodelines", input2, "Exploded")
 
-                removelayer = QgsMapLayerRegistry.instance().mapLayersByName("Lines from polygons")[0]
-                QgsMapLayerRegistry.instance().removeMapLayers([removelayer.id()])
-
-                layer = None
+                input2 = None
                 for lyr in QgsMapLayerRegistry.instance().mapLayers().values():
-                    if lyr.name() == "Exploded":
-                        layer = lyr
+                    if lyr.name() == "Lines from polygons" or lyr.name() == "LINES FROM POLYGONS":
+                        input2 = lyr
                         break
 
-                layer.setLayerName(filename)
+                processing.runandload("qgis:explodelines", input2, "Exploded")
 
-                input3 = layer
+                input3 = None
+                for lyr in QgsMapLayerRegistry.instance().mapLayers().values():
+                    if lyr.name() == "Exploded" or lyr.name() == "EXPLODED":
+                        input3 = lyr
+                        break
+
+                QgsMapLayerRegistry.instance().removeMapLayer(input2)
+
+                input3.setLayerName("memory:Frontages")
 
                 edit1 = input3.dataProvider()
                 edit1.addAttributes([QgsField("F_ID", QVariant.Int),
@@ -495,8 +503,6 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
     def loadFrontageLayer(self):
         input = self.getSelectedLayerLoad()
 
-        input.setLayerName("Frontages")
-
         input.startEditing()
 
         plugin_path = os.path.dirname(__file__)
@@ -509,13 +515,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         QgsMessageLog.logMessage("feature added, id = " + str(fid))
 
         mc = self.canvas
-        layer = None
-        for lyr in QgsMapLayerRegistry.instance().mapLayers().values():
-            if lyr.name() == "memory:Frontages" or lyr.name() == 'Frontages' :
-                layer = lyr
-                break
-
-        v_layer = layer
+        v_layer = self.getSelectedLayerLoad()
         features = v_layer.getFeatures()
         i = 0
         for feat in features:
@@ -527,7 +527,6 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         update1 = data.fieldNameIndex("Group")
         update2 = data.fieldNameIndex("Type")
-        update3 = data.fieldNameIndex("F_ID")
         self.updateLength()
 
         if self.frontageslistWidget.currentRow() == 0:
@@ -556,11 +555,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             
     def updateLength(self):
         mc = self.canvas
-        layer = None
-        for lyr in QgsMapLayerRegistry.instance().mapLayers().values():
-            if lyr.name() == "memory:Frontages" or lyr.name() == 'Frontages':
-                layer = lyr
-                break
+        layer = self.getSelectedLayerLoad()
 
         v_layer = layer
         features = v_layer.getFeatures()
@@ -573,11 +568,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
     def updateSelectedFrontageAttribute(self):
         QApplication.beep()
         mc = self.canvas
-        layer = None
-        for lyr in QgsMapLayerRegistry.instance().mapLayers().values():
-            if lyr.name() == "memory:Frontages" or lyr.name() == 'Frontages':
-                layer = lyr
-                break
+        layer = self.getSelectedLayerLoad()
 
         features = layer.selectedFeatures()
 
@@ -639,11 +630,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
     def hideFeatures(self):
         mc = self.canvas
-        layer = None
-        for lyr in QgsMapLayerRegistry.instance().mapLayers().values():
-            if lyr.name() == "memory:Frontages" or lyr.name() == 'Frontages':
-                layer = lyr
-                break
+        layer = self.getSelectedLayerLoad()
 
         if self.hideshowButton.isChecked():
             plugin_path = os.path.dirname(__file__)
@@ -681,11 +668,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         buildinglayer = self.getSelectedLayerPushID()
 
         mc = self.canvas
-        frontlayer = None
-        for lyr in QgsMapLayerRegistry.instance().mapLayers().values():
-            if lyr.name() == "memory:Frontages" or lyr.name() == 'Frontages':
-                frontlayer = lyr
-                break
+        frontlayer = self.getSelectedLayerLoad()
 
         frontlayer.startEditing()
 
