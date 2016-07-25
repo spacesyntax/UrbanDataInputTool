@@ -21,6 +21,7 @@
  ***************************************************************************/
 """
 from qgis.core import *
+import os.path
 
 def getLegendLayers(iface, geom='all', provider='all'):
     """
@@ -58,3 +59,29 @@ def getFieldNames(layer):
         field_names = [field.name() for field in layer.dataProvider().fields()]
     return field_names
 
+def getLayerPath(layer):
+    path = ''
+    provider = layer.dataProvider()
+    provider_type = provider.name()
+    if provider_type == 'spatialite':
+        uri = QgsDataSourceURI(provider.dataSourceUri())
+        path = uri.database()
+    elif provider_type == 'ogr':
+        uri = provider.dataSourceUri()
+        path = os.path.dirname(uri)
+    return path
+
+def reloadLayer(layer):
+    layer_name = layer.name()
+    layer_provider = layer.dataProvider().name()
+    new_layer = None
+    if layer_provider in ('spatialite','postgres'):
+        uri = QgsDataSourceURI(layer.dataProvider().dataSourceUri())
+        new_layer = QgsVectorLayer(uri.uri(), layer_name, layer_provider)
+    elif layer_provider == 'ogr':
+        uri = layer.dataProvider().dataSourceUri()
+        new_layer = QgsVectorLayer(uri.split("|")[0], layer_name, layer_provider)
+    QgsMapLayerRegistry.instance().removeMapLayer(layer.id())
+    if new_layer:
+        QgsMapLayerRegistry.instance().addMapLayer(new_layer)
+    return new_layer
