@@ -182,9 +182,9 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         layers = self.iface.legendInterface().layers()
         layer_list = []
         layer_list1 = []
-        for lyr in layers:
-            if lyr.type() == QgsMapLayer.VectorLayer and lyr.geometryType() == QGis.Line:
-                layer_list.append(lyr)
+        for layer in layers:
+            if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Line:
+                layer_list.append(layer)
 
         for layer1 in layer_list:
 
@@ -192,15 +192,13 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             print fieldlist
             if 'Group' in fieldlist:
                 frontageLayer = layer1
-                layer_list1.append(frontageLayer.name())
+                self.useExistingcomboBox.addItem(frontageLayer.name(),frontageLayer)
                 print frontageLayer.name()
                 self.useExistingcomboBox.setEditable(True)
                 print layer_list1
 
             else:
                 self.useExistingcomboBox.setEditable(False)
-
-        self.useExistingcomboBox.addItems(layer_list1)
 
         global frontageLayer
 
@@ -324,6 +322,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         #   Frontages
         #######
     def newFrontageLayer(self):
+        mc = self.canvas
         if self.dlg.createNewFileCheckBox.checkState() == 0:
 
             if self.dlg.lineEditFrontages.text() != "":
@@ -340,6 +339,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 QgsMapLayerRegistry.instance().removeMapLayers([vl.id()])
 
                 input2 = self.iface.addVectorLayer(location, filename, "ogr")
+                QgsMapLayerRegistry.instance().addMapLayer(input2)
 
                 if not input2:
                     msgBar = self.iface.messageBar()
@@ -348,26 +348,21 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
                 else:
                     msgBar = self.iface.messageBar()
-                    msg = msgBar.createMessage(u'Layer loaded:' + location)
+                    msg = msgBar.createMessage(u'New Frontages Layer Created:' + location)
                     msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
 
-                input2.startEditing()
+                    input2.startEditing()
 
-                edit1 = input2.dataProvider()
-                edit1.addAttributes([QgsField("F_ID", QVariant.Int),
+                    edit1 = input2.dataProvider()
+                    edit1.addAttributes([QgsField("F_ID", QVariant.Int),
                                          QgsField("Group", QVariant.String),
                                          QgsField("Type", QVariant.String),
                                          QgsField("Length", QVariant.Double)])
 
-                input2.commitChanges()
+                    input2.commitChanges()
+                    mc.refresh
 
-
-
-                msgBar = self.iface.messageBar()
-                msg = msgBar.createMessage(u'New Frontages Layer Created')
-                msgBar.pushWidget(msg, QgsMessageBar.INFO, 5)
-
-                self.dlg.close()
+                    self.dlg.close()
 
 
             else:
@@ -375,21 +370,29 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 vl = QgsVectorLayer("LineString?crs=" + destCRS.toWkt(), "memory:Frontages", "memory")
                 QgsMapLayerRegistry.instance().addMapLayer(vl)
 
-                vl.startEditing()
+                if not vl:
+                    msgBar = self.iface.messageBar()
+                    msg = msgBar.createMessage(u'Layer failed to load!' + location)
+                    msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
 
-                edit1 = vl.dataProvider()
-                edit1.addAttributes([QgsField("F_ID", QVariant.Int),
+                else:
+                    msgBar = self.iface.messageBar()
+                    msg = msgBar.createMessage(u'New Frontages Layer Create:')
+                    msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+
+                    vl.startEditing()
+
+                    edit1 = vl.dataProvider()
+                    edit1.addAttributes([QgsField("F_ID", QVariant.Int),
                                          QgsField("Group", QVariant.String),
                                          QgsField("Type", QVariant.String),
                                          QgsField("Length", QVariant.Double)])
 
-                vl.commitChanges()
+                    vl.commitChanges()
 
-                msgBar = self.iface.messageBar()
-                msg = msgBar.createMessage(u'New Frontages Layer Created')
-                msgBar.pushWidget(msg, QgsMessageBar.INFO, 5)
+                    mc.refresh
 
-                self.dlg.close()
+                    self.dlg.close()
 
 
         elif self.dlg.createNewFileCheckBox.checkState() == 2:
@@ -423,6 +426,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 QgsMapLayerRegistry.instance().removeMapLayer(input3)
 
                 input4 = self.iface.addVectorLayer(location, filename, "ogr")
+                QgsMapLayerRegistry.instance().addMapLayer(input4)
 
 
                 if not input4:
@@ -432,36 +436,33 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
                 else:
                     msgBar = self.iface.messageBar()
-                    msg = msgBar.createMessage(u'Layer loaded:' + location)
+                    msg = msgBar.createMessage(u'New Frontages Layer Created:' + location)
                     msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
 
-                input4.startEditing()
+                    input4.startEditing()
 
-                edit1 = input4.dataProvider()
-                edit1.addAttributes([QgsField("F_ID", QVariant.Int),
+                    edit1 = input4.dataProvider()
+                    edit1.addAttributes([QgsField("F_ID", QVariant.Int),
                                          QgsField("Group", QVariant.String),
                                          QgsField("Type", QVariant.String),
                                          QgsField("Length", QVariant.Double)])
 
-                input4.commitChanges()
-                input4.startEditing()
+                    input4.commitChanges()
+                    input4.startEditing()
 
-                features = input4.getFeatures()
-                i = 0
-                for feat in features:
-                    feat['F_ID'] = i
-                    i += 1
-                    input4.updateFeature(feat)
+                    features = input4.getFeatures()
+                    i = 0
+                    for feat in features:
+                        feat['F_ID'] = i
+                        i += 1
+                        input4.updateFeature(feat)
 
-                input4.commitChanges()
+                    input4.commitChanges()
 
-                self.dlg.lineEditFrontages.clear()
+                    self.dlg.lineEditFrontages.clear()
 
-                msgBar = self.iface.messageBar()
-                msg = msgBar.createMessage(u'New Frontages Layer Created')
-                msgBar.pushWidget(msg, QgsMessageBar.INFO, 5)
-
-                self.dlg.close()
+                    mc.refresh
+                    self.dlg.close()
 
 
             else:
@@ -484,35 +485,42 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                         break
 
                 QgsMapLayerRegistry.instance().removeMapLayer(input2)
+                QgsMapLayerRegistry.instance().addMapLayer(input3)
 
                 input3.setLayerName("memory:Frontages")
 
-                edit1 = input3.dataProvider()
-                edit1.addAttributes([QgsField("F_ID", QVariant.Int),
+                if not input3:
+                    msgBar = self.iface.messageBar()
+                    msg = msgBar.createMessage(u'Layer failed to load!')
+                    msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+
+                else:
+                    msgBar = self.iface.messageBar()
+                    msg = msgBar.createMessage(u'New Frontages Layer Created:')
+                    msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+
+                    edit1 = input3.dataProvider()
+                    edit1.addAttributes([QgsField("F_ID", QVariant.Int),
                                          QgsField("Group", QVariant.String),
                                          QgsField("Type", QVariant.String),
                                          QgsField("Length", QVariant.Double)])
 
-                input3.commitChanges()
-                input3.startEditing()
+                    input3.commitChanges()
+                    input3.startEditing()
 
-                features = input3.getFeatures()
-                i = 0
-                for feat in features:
-                    feat['F_ID'] = i
-                    i += 1
-                    input3.updateFeature(feat)
+                    features = input3.getFeatures()
+                    i = 0
+                    for feat in features:
+                        feat['F_ID'] = i
+                        i += 1
+                        input3.updateFeature(feat)
 
-                input3.commitChanges()
+                    input3.commitChanges()
 
-                self.dlg.lineEditFrontages.clear()
+                    self.dlg.lineEditFrontages.clear()
 
-
-                msgBar = self.iface.messageBar()
-                msg = msgBar.createMessage(u'New Frontages Layer Created')
-                msgBar.pushWidget(msg, QgsMessageBar.INFO, 5)
-
-                self.dlg.close()
+                    mc.refresh
+                    self.dlg.close()
 
 
     # Load File
