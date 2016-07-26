@@ -89,6 +89,10 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.iface.legendInterface().itemAdded.connect(self.ifFrontageLayer)
         self.iface.projectRead.connect(self.ifFrontageLayer)
         self.iface.newProjectCreated.connect(self.ifFrontageLayer)
+        self.iface.legendInterface().itemRemoved.connect(self.noLayer)
+        self.iface.legendInterface().itemAdded.connect(self.noLayer)
+        self.iface.projectRead.connect(self.noLayer)
+        self.iface.newProjectCreated.connect(self.noLayer)
 
 
 
@@ -165,6 +169,14 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.dlg.selectLUCombo.clear()
             pass
 
+    def noLayer(self):
+        layers = self.iface.legendInterface().layers()
+        for lyr in layers:
+            if lyr is None:
+                self.useExistingcomboBox.setEditable(False)
+
+
+
     def ifFrontageLayer(self):
         self.useExistingcomboBox.clear()
         layers = self.iface.legendInterface().layers()
@@ -173,20 +185,20 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         for lyr in layers:
             if lyr.type() == QgsMapLayer.VectorLayer and lyr.geometryType() == QGis.Line:
                 layer_list.append(lyr)
-                print layer_list
 
+        for layer1 in layer_list:
 
-            for layer1 in layer_list:
-                fieldlist = uf.getFieldNames(layer1)
-                print fieldlist
-                if 'Group' in fieldlist and 'Type' in fieldlist:
-                    frontageLayer = layer1
-                    layer_list1.append(frontageLayer.name())
-                    self.useExistingcomboBox.setEditable(True)
-                    print layer_list1
+            fieldlist = uf.getFieldNames(layer1)
+            print fieldlist
+            if 'Group' in fieldlist:
+                frontageLayer = layer1
+                layer_list1.append(frontageLayer.name())
+                print frontageLayer.name()
+                self.useExistingcomboBox.setEditable(True)
+                print layer_list1
 
-                else:
-                    self.useExistingcomboBox.setEditable(False)
+            else:
+                self.useExistingcomboBox.setEditable(False)
 
         self.useExistingcomboBox.addItems(layer_list1)
 
