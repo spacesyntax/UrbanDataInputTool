@@ -491,16 +491,15 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
     # Load File
 
     def loadFrontageLayer(self):
-        input = self.setFrontageLayer()
+        if self.useExistingcomboBox.count() > 0:
+            input = self.setFrontageLayer()
+            input.startEditing()
+            plugin_path = os.path.dirname(__file__)
+            qml_path = plugin_path + "/frontagesThematic.qml"
+            input.loadNamedStyle(qml_path)
 
-        plugin_path = os.path.dirname(__file__)
-        qml_path = plugin_path + "/frontagesThematic.qml"
-        input.loadNamedStyle(qml_path)
-
-        input.startEditing()
-
-        input.featureAdded.connect(self.logFeatureAdded)
-        input.selectionChanged.connect(self.addDataFields)
+            input.featureAdded.connect(self.logFeatureAdded)
+            input.selectionChanged.connect(self.addDataFields)
 
         # Draw/Update Feature
     def logFeatureAdded(self, fid):
