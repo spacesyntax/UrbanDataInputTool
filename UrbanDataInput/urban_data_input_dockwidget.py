@@ -63,6 +63,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         # define globals
         self.iface = iface
         self.canvas = self.iface.mapCanvas()
+        self.frontage_layer = None
 
         self.dlg = CreatenewDialog()
 
@@ -78,26 +79,19 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.iface.legendInterface().itemAdded.connect(self.updateLayers)
         self.dlg.pushButtonNewFileDLG.clicked.connect(self.newFrontageLayer)
         self.dlg.pushButtonSelectLocation.clicked.connect(self.selectSaveLocation)
-        self.iface.legendInterface().itemRemoved.connect(self.enablePushIDcombo)
-        self.iface.legendInterface().itemAdded.connect(self.enablePushIDcombo)
-        self.iface.projectRead.connect(self.enablePushIDcombo)
-        self.iface.newProjectCreated.connect(self.enablePushIDcombo)
         self.pushIDcomboBox.currentIndexChanged.connect(self.updatepushWidgetList)
         self.useExistingcomboBox.currentIndexChanged.connect(self.loadFrontageLayer)
         self.hideshowButton.clicked.connect(self.hideFeatures)
-        self.iface.legendInterface().itemRemoved.connect(self.ifFrontageLayer)
-        self.iface.legendInterface().itemAdded.connect(self.ifFrontageLayer)
-        self.iface.projectRead.connect(self.ifFrontageLayer)
-        self.iface.newProjectCreated.connect(self.ifFrontageLayer)
-        self.iface.legendInterface().itemRemoved.connect(self.noLayer)
-        self.iface.legendInterface().itemAdded.connect(self.noLayer)
-        self.iface.projectRead.connect(self.noLayer)
-        self.iface.newProjectCreated.connect(self.noLayer)
-
+        self.iface.legendInterface().itemRemoved.connect(self.updateFrontageLayer)
+        self.iface.legendInterface().itemAdded.connect(self.updateFrontageLayer)
+        self.iface.legendInterface().itemRemoved.connect(self.updateLayersPushID)
+        self.iface.legendInterface().itemAdded.connect(self.updateLayersPushID)
+        self.iface.projectRead.connect(self.updateLayersPushID)
+        self.iface.newProjectCreated.connect(self.updateLayersPushID)
 
 
         # initialisation
-        self.ifFrontageLayer()
+        self.updateFrontageLayer()
         self.updateLayersPushID()
         self.updateFrontageTypes()
 
@@ -123,10 +117,13 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.iface.legendInterface().itemAdded.disconnect(self.updateLayers)
             self.iface.projectRead.disconnect(self.updateFrontageTypes)
             self.iface.newProjectCreated.disconnect(self.updateFrontageTypes)
-            self.iface.legendInterface().itemRemoved.disconnect(self.enablePushIDcombo)
-            self.iface.legendInterface().itemAdded.disconnect(self.enablePushIDcombo)
-            self.iface.projectRead.disconnect(self.enablePushIDcombo)
-            self.iface.newProjectCreated.disconnect(self.enablePushIDcombo)
+            self.hideshowButton.clicked.disconnect(self.hideFeatures)
+            self.iface.legendInterface().itemRemoved.disconnect(self.updateFrontageLayer)
+            self.iface.legendInterface().itemAdded.disconnect(self.updateFrontageLayer)
+            self.iface.legendInterface().itemRemoved.disconnect(self.updateLayersPushID)
+            self.iface.legendInterface().itemAdded.disconnect(self.updateLayersPushID)
+            self.iface.projectRead.disconnect(self.updateLayersPushID)
+            self.iface.newProjectCreated.disconnect(self.updateLayersPushID)
 
 
 
@@ -167,40 +164,35 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         # See if OK was pressed
         if result:
             self.dlg.selectLUCombo.clear()
+            self.dlg.lineEditFrontages.clear()
             pass
 
-    def noLayer(self):
+    def updateFrontageLayer(self):
+        self.useExistingcomboBox.clear()
+        self.useExistingcomboBox.setEnabled(False)
         layers = self.iface.legendInterface().layers()
         for lyr in layers:
-            if lyr is None:
-                self.useExistingcomboBox.setEditable(False)
+            if self.isFrontageLayer(lyr):
+                self.useExistingcomboBox.addItem(lyr.name(), lyr)
 
+        if self.useExistingcomboBox.count() > 0:
+            self.useExistingcomboBox.setEnabled(True)
+            self.setFrontageLayer()
+            print self.frontage_layer
 
+    def isFrontageLayer(self, layer):
+        if layer.type() == QgsMapLayer.VectorLayer \
+           and layer.geometryType() == QGis.Line:
+            fieldlist = uf.getFieldNames(layer)
+            if 'Group' in fieldlist and 'Type' in fieldlist:
+                return True
 
-    def ifFrontageLayer(self):
-        self.useExistingcomboBox.clear()
-        layers = self.iface.legendInterface().layers()
-        layer_list = []
-        layer_list1 = []
-        for layer in layers:
-            if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Line:
-                layer_list.append(layer)
+        return False
 
-        for layer1 in layer_list:
-
-            fieldlist = uf.getFieldNames(layer1)
-            print fieldlist
-            if 'Group' in fieldlist:
-                frontageLayer = layer1
-                self.useExistingcomboBox.addItem(frontageLayer.name(),frontageLayer)
-                print frontageLayer.name()
-                self.useExistingcomboBox.setEditable(True)
-                print layer_list1
-
-            else:
-                self.useExistingcomboBox.setEditable(False)
-
-        global frontageLayer
+    def setFrontageLayer(self):
+        index = self.useExistingcomboBox.currentIndex()
+        self.frontage_layer = self.useExistingcomboBox.itemData(index)
+        return self.frontage_layer
 
     def updateLayers(self):
         self.dlg.selectLUCombo.clear()
@@ -224,25 +216,8 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         for layer in layers:
             if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Polygon:
-                self.pushIDcomboBox.setEditable(True)
-                layer_list.append(layer.name())
-
-        self.pushIDcomboBox.addItems(layer_list)
-
-    def enablePushIDcombo(self):
-        layers = self.iface.legendInterface().layers()
-
-        if self.useExistingcomboBox.isEditable() == True:
-            for layer in layers:
-                if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Polygon:
-                    self.pushIDcomboBox.setEditable(True)
-                    self.updateLayersPushID()
-
-        elif self.useExistingcomboBox.isEditable() == False:
-            self.pushIDcomboBox.clear()
-            self.pushIDcomboBox.setEditable(False)
-
-
+                self.pushIDcomboBox.setEditable(False)
+                self.pushIDcomboBox.addItem(layer.name(),layer)
 
 
     def updateFrontageTypes(self):
@@ -257,30 +232,16 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
     def getSelectedLayerLoad(self):
         layer_name = self.useExistingcomboBox.currentText()
         layer1 = uf.getLegendLayerByName(self.iface, layer_name)
-        finalLayer = layer1
-        return finalLayer
-
-
+        return layer1
 
     def getSelectedLayerPushID(self):
         layer_name = self.pushIDcomboBox.currentText()
         layer = uf.getLegendLayerByName(self.iface, layer_name)
         return layer
 
-    def globalFrontageLayer(self):
-        layer1 = self.getSelectedLayerPushID()
-        gFLayer = layer1
-        return gFLayer
-
-    def globalBuildingLayer(self):
-        layer1= self.getSelectedLayerPushID()
-        buldingLayer = layer1
-        return buldingLayer
-
     def addDataFields(self):
         self.tableClear()
-        layer = frontageLayer
-
+        layer = self.setFrontageLayer()
         if layer:
             features = layer.selectedFeatures()
             attrs = []
@@ -360,6 +321,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                                          QgsField("Length", QVariant.Double)])
 
                     input2.commitChanges()
+                    self.updateFrontageLayer()
                     mc.refresh
 
                     self.dlg.close()
@@ -389,6 +351,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                                          QgsField("Length", QVariant.Double)])
 
                     vl.commitChanges()
+                    self.updateFrontageLayer()
 
                     mc.refresh
 
@@ -448,6 +411,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                                          QgsField("Length", QVariant.Double)])
 
                     input4.commitChanges()
+                    self.updateFrontageLayer()
                     input4.startEditing()
 
                     features = input4.getFeatures()
@@ -506,6 +470,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                                          QgsField("Length", QVariant.Double)])
 
                     input3.commitChanges()
+                    self.updateFrontageLayer()
                     input3.startEditing()
 
                     features = input3.getFeatures()
@@ -526,13 +491,13 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
     # Load File
 
     def loadFrontageLayer(self):
-        input = frontageLayer
-
-        input.startEditing()
+        input = self.setFrontageLayer()
 
         plugin_path = os.path.dirname(__file__)
         qml_path = plugin_path + "/frontagesThematic.qml"
         input.loadNamedStyle(qml_path)
+
+        input.startEditing()
 
         input.featureAdded.connect(self.logFeatureAdded)
         input.selectionChanged.connect(self.addDataFields)
@@ -542,7 +507,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         QgsMessageLog.logMessage("feature added, id = " + str(fid))
 
         mc = self.canvas
-        v_layer = frontageLayer
+        v_layer = self.setFrontageLayer()
         features = v_layer.getFeatures()
         i = 0
         for feat in features:
@@ -582,8 +547,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             
     def updateLength(self):
         mc = self.canvas
-        layer = frontageLayer
-
+        layer = self.setFrontageLayer()
         v_layer = layer
         features = v_layer.getFeatures()
 
@@ -595,8 +559,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
     def updateSelectedFrontageAttribute(self):
         QApplication.beep()
         mc = self.canvas
-        layer = frontageLayer
-
+        layer = self.setFrontageLayer()
         features = layer.selectedFeatures()
 
         if self.frontageslistWidget.currentRow() == 0:
@@ -657,8 +620,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
     def hideFeatures(self):
         mc = self.canvas
-        layer = frontageLayer
-
+        layer = self.setFrontageLayer()
         if self.hideshowButton.isChecked():
             plugin_path = os.path.dirname(__file__)
             qml_path = plugin_path + "/frontagesThematic_NULL.qml"
@@ -673,21 +635,14 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
 
     def updatepushWidgetList(self):
-        if self.pushIDcomboBox.isEditable()== True:
-            self.pushIDlistWidget.clear()
-            buildinglayer = self.getSelectedLayerPushID()
-            if buildinglayer:
-                features = buildinglayer.getFeatures()
-                attrs = []
-                for feat in features:
-                    attr = feat.attributes()
-                    attrs.append(attr)
+        self.pushIDlistWidget.clear()
+        buildinglayer = self.getSelectedLayerPushID()
+        if buildinglayer:
+            fields = buildinglayer.pendingFields()
+            field_names = [field.name() for field in fields]
+            self.pushIDlistWidget.addItems(field_names)
 
-                fields = buildinglayer.pendingFields()
-                field_names = [field.name() for field in fields]
-                self.pushIDlistWidget.addItems(field_names)
-
-        elif self.pushIDcomboBox.isEditable()== False:
+        else:
             self.pushIDlistWidget.clear()
 
 
@@ -695,8 +650,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         buildinglayer = self.getSelectedLayerPushID()
 
         mc = self.canvas
-        frontlayer = frontageLayer
-
+        frontlayer = self.setFrontageLayer()
         frontlayer.startEditing()
 
         buildingID = self.pushIDlistWidget.currentItem().text()
