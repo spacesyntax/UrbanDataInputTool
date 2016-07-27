@@ -16,8 +16,8 @@ email=a.acharya@spacesyntax.com
 
 about=Urban Data Input Tool for QGIS
 
-tracker=https://github.com/OpenDigitalWorks/Urban-Data-Input-Tool
-repository=https://github.com/OpenDigitalWorks/Urban-Data-Input-Tool
+tracker=https://github.com/OpenDigitalWorks/UrbanDataInputTool/issues
+repository=https://github.com/OpenDigitalWorks/UrbanDataInputTool
 # End of mandatory metadata
 
 # Recommended items:
@@ -26,13 +26,13 @@ repository=https://github.com/OpenDigitalWorks/Urban-Data-Input-Tool
 # changelog=
 
 # Tags are comma separated with spaces allowed
-tags=
+tags= space syntax, data input, frontages, entrances, landuse
 
 homepage=https://github.com/OpenDigitalWorks
 category=Plugins
 icon=icon.png
 # experimental flag
-experimental=True
+experimental=False
 
 # deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False

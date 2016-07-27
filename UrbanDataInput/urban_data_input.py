@@ -7,7 +7,7 @@
                               -------------------
         begin                : 2016-06-03
         git sha              : $Format:%H$
-        copyright            : (C) 2016 by Abhimanyu Acharya/ Space Syntax Limited
+        copyright            : (C) 2016 by Abhimanyu Acharya/(C) 2016 by Space Syntax Limited’.
         email                : a.acharya@spacesyntax.com
  ***************************************************************************/
 
@@ -31,7 +31,7 @@ from CreateNew_dialog import CreatenewDialog
 import os.path
 
 #import debug package
-is_debug = True
+is_debug = False
 try:
     import pydevd
     has_pydevd = True
@@ -74,10 +74,10 @@ class UrbanDataInput:
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&Urban Data Input')
+        self.menu = self.tr(u'Space Syntax Toolkit')
         # TODO: We are going to let the user set this up in a future iteration
-        self.toolbar = self.iface.addToolBar(u'UrbanDataInput')
-        self.toolbar.setObjectName(u'UrbanDataInput')
+        self.toolbar = self.iface.addToolBar(u' Urban Data Input ')
+        self.toolbar.setObjectName(u' Urban Data Input ')
 
         #print "** INITIALIZING UrbanDataInput"
 
@@ -194,13 +194,13 @@ class UrbanDataInput:
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
-
         icon_path = ':/plugins/UrbanDataInput/icon.png'
         self.add_action(
-            icon_path,
-            text=self.tr(u'Urban Data Input '),
-            callback=self.run,
-            parent=self.iface.mainWindow())
+        icon_path,
+        text=self.tr(u'&Urban Data Input'),
+        callback=self.run,
+        parent=self.iface.mainWindow(),
+        status_tip='Urban Data Input')
 
     #--------------------------------------------------------------------------
 
@@ -226,12 +226,9 @@ class UrbanDataInput:
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
-
-        #print "** UNLOAD UrbanDataInput"
-
         for action in self.actions:
-            self.iface.removePluginMenu(
-                self.tr(u'&Urban Data Input'),
+            self.iface.removePluginVectorMenu(
+                self.menu ,
                 action)
             self.iface.removeToolBarIcon(action)
         # remove the toolbar

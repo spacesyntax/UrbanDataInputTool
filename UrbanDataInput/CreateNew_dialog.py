@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- CreatenewDialog
+ UrbanDataInputDockWidget
                                  A QGIS plugin
- CreateNew 
+ Urban Data Input Tool for QGIS
                              -------------------
-        begin                : 2016-07-18
+        begin                : 2016-06-03
         git sha              : $Format:%H$
-        copyright            : (C) 2016 by AA
+        copyright            : (C) 2016 by Abhimanyu Acharya/(C) 2016 by Space Syntax Limited’.
         email                : a.acharya@spacesyntax.com
  ***************************************************************************/
 

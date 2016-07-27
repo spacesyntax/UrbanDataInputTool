@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- UrbanDataInput
+ UrbanDataInputDockWidget
                                  A QGIS plugin
  Urban Data Input Tool for QGIS
                              -------------------
         begin                : 2016-06-03
-        copyright            : (C) 2016 by Abhimanyu Acharya/ Space Syntax Limited
-        email                : a.acharya@spacesyntax.com
         git sha              : $Format:%H$
+        copyright            : (C) 2016 by Abhimanyu Acharya/(C) 2016 by Space Syntax Limited’.
+        email                : a.acharya@spacesyntax.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -19,7 +19,6 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- This script initializes the plugin, making it known to QGIS.
 """
 
 

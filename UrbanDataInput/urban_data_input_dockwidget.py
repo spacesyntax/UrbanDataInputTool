@@ -7,7 +7,7 @@
                              -------------------
         begin                : 2016-06-03
         git sha              : $Format:%H$
-        copyright            : (C) 2016 by Abhimanyu Acharya/ Space Syntax Limited
+        copyright            : (C) 2016 by Abhimanyu Acharya/(C) 2016 by Space Syntax Limited’.
         email                : a.acharya@spacesyntax.com
  ***************************************************************************/
 
@@ -71,7 +71,6 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.dlg.closePopUpButton.clicked.connect(self.closePopUp)
         self.pushButtonNewFile.clicked.connect(self.newFileDialog)
         self.dlg.createNewFileCheckBox.stateChanged.connect(self.updateLayers)
-        self.startpushButton.clicked.connect(self.loadFrontageLayer)
         self.updateFacadeButton.clicked.connect(self.updateSelectedFrontageAttribute)
         self.updateIDPushButton.clicked.connect(self.pushID)
         self.iface.mapCanvas().selectionChanged.connect(self.addDataFields)
@@ -95,14 +94,9 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.updateLayersPushID()
         self.updateFrontageTypes()
 
-
-
-
         # add button icons
 
         #initial button state
-
-
 
         # override setting
         QSettings().setValue('/qgis/digitizing/disable_enter_attribute_values_dialog', True)
@@ -111,12 +105,14 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
     def closeEvent(self, event):
         # disconnect interface signals
         try:
-            self.iface.projectRead.disconnect(self.updateLayers)
-            self.iface.newProjectCreated.disconnect(self.updateLayers)
+            self.dlg.createNewFileCheckBox.stateChanged.disconnect(self.updateLayers)
+            self.iface.mapCanvas().selectionChanged.disconnect(self.addDataFields)
             self.iface.legendInterface().itemRemoved.disconnect(self.updateLayers)
             self.iface.legendInterface().itemAdded.disconnect(self.updateLayers)
-            self.iface.projectRead.disconnect(self.updateFrontageTypes)
-            self.iface.newProjectCreated.disconnect(self.updateFrontageTypes)
+            self.dlg.pushButtonNewFileDLG.clicked.disconnect(self.newFrontageLayer)
+            self.dlg.pushButtonSelectLocation.clicked.disconnect(self.selectSaveLocation)
+            self.pushIDcomboBox.currentIndexChanged.disconnect(self.updatepushWidgetList)
+            self.useExistingcomboBox.currentIndexChanged.disconnect(self.loadFrontageLayer)
             self.hideshowButton.clicked.disconnect(self.hideFeatures)
             self.iface.legendInterface().itemRemoved.disconnect(self.updateFrontageLayer)
             self.iface.legendInterface().itemAdded.disconnect(self.updateFrontageLayer)
@@ -124,8 +120,6 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.iface.legendInterface().itemAdded.disconnect(self.updateLayersPushID)
             self.iface.projectRead.disconnect(self.updateLayersPushID)
             self.iface.newProjectCreated.disconnect(self.updateLayersPushID)
-
-
 
         except:
             pass
