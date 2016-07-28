@@ -10,11 +10,11 @@
 name=Urban Data Input
 qgisMinimumVersion=2.0
 description=Urban Data Input Tool for QGIS
-version=0.1
+version=0.0.1
 author=Abhimanyu Acharya/ Space Syntax Limited
 email=a.acharya@spacesyntax.com
 
-about=Urban Data Input Tool for QGIS
+about=Urban Data Input Tool for QGIS based on Space Syntax Limited standards
 
 tracker=https://github.com/OpenDigitalWorks/UrbanDataInputTool/issues
 repository=https://github.com/OpenDigitalWorks/UrbanDataInputTool
@@ -23,10 +23,10 @@ repository=https://github.com/OpenDigitalWorks/UrbanDataInputTool
 # Recommended items:
 
 # Uncomment the following line and add your changelog:
-# changelog=
+# changelog= ver 0.0.1 Frontages tool functional
 
 # Tags are comma separated with spaces allowed
-tags= space syntax, data input, frontages, entrances, landuse
+tags= space syntax, data input, frontages, entrances, land use
 
 homepage=https://github.com/OpenDigitalWorks
 category=Plugins

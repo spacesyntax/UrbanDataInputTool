@@ -1,48 +1,12 @@
-# Urban Data Input Tool for QGIS
-# This file contains metadata for your plugin. Since 
-# version 2.0 of QGIS this is the proper way to supply 
-# information about a plugin. The old method of 
-# embedding metadata in __init__.py will 
-# is no longer supported since version 2.0.
+# Gate Transformer QGIS plugin
+### Urban Data input tool based on Space Syntax Limited standards
 
-# This file should be included when you package your plugin.# Mandatory items:
+## About
+Gate Transformer is a plugin to input urban data like Frontages, Entrances and land use.
+The thematics and categories included are as per Space Syntax Limited Standards. The default thematic style but can be changed by editing the .qml file in the plugin folder.
 
-[general]
-name=Urban Data Input
-qgisMinimumVersion=2.0
-description= Tool to help add urban data as per Space Syntax Limited standards
-version=0.0.x
-author=Abhimanyu Acharya/ Space Syntax Limited
-email=a.acharya@spacesyntax.com
+## Installation
+The plug-in can be installed from the QGIS Plugins Manager, and updates become automatically available once submitted to the QGIS plugins repository.
 
-about= This plugin was developed by Space Syntax Open Digital Works ©
-2016 Space Syntax Ltd. The aim of this plugin  is to ease data input of urban
-elements - frontages, entrances and building land use based on Space Syntax Limited standard.
-
-tracker=https://github.com/OpenDigitalWorks/UrbanDataInputTool/issues
-repository=https://github.com/OpenDigitalWorks/UrbanDataInputTool
-# End of mandatory metadata
-
-# Recommended items:
-
-# Uncomment the following line and add your changelog:
-# changelog=
-    ver 0.0.x
-    Create frontage layer
-    Create frontage layer from building layer
-    Draw frontage type
-    Selection update
-    Push data from building layer to frontage layer
-
-# Tags are comma separated with spaces allowed
-tags= space syntax, data input
-
-homepage=https://github.com/OpenDigitalWorks
-category=Vector
-icon=icon.png
-# experimental flag
-experimental=False
-
-# deprecated flag (applies to the whole plugin, not just a single version)
-deprecated=False
-
+## Software Requirements
+QGIS (2.0 or above) - http://www.qgis.org/en/site/

@@ -156,9 +156,8 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         # Run the dialog event loop
         result = self.dlg.exec_()
         # See if OK was pressed
+        self.dlg.lineEditFrontages.clear()
         if result:
-            self.dlg.selectLUCombo.clear()
-            self.dlg.lineEditFrontages.clear()
             pass
 
     def updateFrontageLayer(self):
@@ -487,10 +486,12 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
     def loadFrontageLayer(self):
         if self.useExistingcomboBox.count() > 0:
             input = self.setFrontageLayer()
-            input.startEditing()
+
             plugin_path = os.path.dirname(__file__)
             qml_path = plugin_path + "/frontagesThematic.qml"
             input.loadNamedStyle(qml_path)
+
+            input.startEditing()
 
             input.featureAdded.connect(self.logFeatureAdded)
             input.selectionChanged.connect(self.addDataFields)
