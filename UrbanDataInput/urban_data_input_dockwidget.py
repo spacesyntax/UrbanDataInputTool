@@ -93,6 +93,9 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.updateFrontageLayer()
         self.updateLayersPushID()
         self.updateFrontageTypes()
+        self.pushIDlistWidget.hide()
+        self.pushIDcomboBox.hide()
+        self.updateIDPushButton.hide()
 
         # add button icons
 
@@ -197,7 +200,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             for layer in layers:
                 if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Polygon:
                     layer_list.append(layer.name())
-                    self.dlg.selectLUCombo.setEditable(True)
+                    self.dlg.selectLUCombo.setEnabled(True)
 
             self.dlg.selectLUCombo.addItems(layer_list)
 
@@ -209,7 +212,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         for layer in layers:
             if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Polygon:
-                self.pushIDcomboBox.setEditable(False)
+                self.pushIDcomboBox.setEnabled(False)
                 self.pushIDcomboBox.addItem(layer.name(),layer)
 
 
@@ -315,7 +318,6 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
                     input2.commitChanges()
                     self.updateFrontageLayer()
-                    mc.refresh
 
                     self.dlg.close()
 
@@ -345,8 +347,6 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
                     vl.commitChanges()
                     self.updateFrontageLayer()
-
-                    mc.refresh
 
                     self.dlg.close()
 
@@ -415,10 +415,10 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                         input4.updateFeature(feat)
 
                     input4.commitChanges()
+                    input4.startEditing()
 
                     self.dlg.lineEditFrontages.clear()
 
-                    mc.refresh
                     self.dlg.close()
 
 
@@ -474,10 +474,10 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                         input3.updateFeature(feat)
 
                     input3.commitChanges()
+                    input3.startEditing()
 
                     self.dlg.lineEditFrontages.clear()
 
-                    mc.refresh
                     self.dlg.close()
 
 
@@ -649,7 +649,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         buildingID = self.pushIDlistWidget.currentItem().text()
         print buildingID
-        newColumn = "Building_" + buildingID
+        newColumn = "B_" + buildingID
         frontlayer_pr = frontlayer.dataProvider()
         frontlayer_pr.addAttributes([QgsField( newColumn, QVariant.Int)])
         frontlayer.commitChanges()
