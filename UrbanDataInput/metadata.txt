@@ -9,12 +9,16 @@
 [general]
 name=Urban Data Input
 qgisMinimumVersion=2.0
-description=Urban Data Input Tool for QGIS
+description= This plugin helps input urban data like frontage type, entrance type and land use type in qgis as per Space Syntax Limited standards.
 version=0.0.1
-author=Abhimanyu Acharya/ Space Syntax Limited
+author=Abhimanyu Acharya
 email=a.acharya@spacesyntax.com
+copyright: (C) 2016 by Space Syntax Limited
 
-about=Urban Data Input Tool for QGIS based on Space Syntax Limited standards
+about=Urban Data Input Tool is a plugin to ease aid the input of urban data like frontage type, entrance type and land use type as per Space Syntax Limited standards.
+      The space syntax community is the key users for the plugin.
+      The plugin and was developed by Space Syntax Open Digital Works (C) 2016 Space Syntax Ltd.
+      The author of the plugin is Abhimanyu Acharya (email: a.acharya@spacesyntax.com).
 
 tracker=https://github.com/OpenDigitalWorks/UrbanDataInputTool/issues
 repository=https://github.com/OpenDigitalWorks/UrbanDataInputTool
@@ -23,13 +27,13 @@ repository=https://github.com/OpenDigitalWorks/UrbanDataInputTool
 # Recommended items:
 
 # Uncomment the following line and add your changelog:
-# changelog= ver 0.0.1 Frontages tool functional
+# changelog= version 0.0.1:  Frontages tool functional
 
 # Tags are comma separated with spaces allowed
 tags= space syntax, data input, frontages, entrances, land use
 
 homepage=https://github.com/OpenDigitalWorks
-category=Plugins
+category=Vector
 icon=icon.png
 # experimental flag
 experimental=False

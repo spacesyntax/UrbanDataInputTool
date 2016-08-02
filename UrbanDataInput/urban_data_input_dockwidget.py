@@ -22,14 +22,9 @@
 """
 
 import os
-
+import time
 from PyQt4 import QtGui, uic
 from PyQt4.QtCore import pyqtSignal
-
-# Initialize Qt resources from file resources.py
-
-
-
 import os.path
 from . import utility_functions as uf
 from qgis.core import *
@@ -180,7 +175,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         if layer.type() == QgsMapLayer.VectorLayer \
            and layer.geometryType() == QGis.Line:
             fieldlist = uf.getFieldNames(layer)
-            if 'Group' in fieldlist and 'Type' in fieldlist:
+            if 'F_Group' in fieldlist and 'F_Type' in fieldlist:
                 return True
 
         return False
@@ -312,9 +307,9 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
                     edit1 = input2.dataProvider()
                     edit1.addAttributes([QgsField("F_ID", QVariant.Int),
-                                         QgsField("Group", QVariant.String),
-                                         QgsField("Type", QVariant.String),
-                                         QgsField("Length", QVariant.Double)])
+                                         QgsField("F_Group", QVariant.String),
+                                         QgsField("F_Type", QVariant.String),
+                                         QgsField("F_Length", QVariant.Double)])
 
                     input2.commitChanges()
                     self.updateFrontageLayer()
@@ -341,9 +336,9 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
                     edit1 = vl.dataProvider()
                     edit1.addAttributes([QgsField("F_ID", QVariant.Int),
-                                         QgsField("Group", QVariant.String),
-                                         QgsField("Type", QVariant.String),
-                                         QgsField("Length", QVariant.Double)])
+                                         QgsField("F_Group", QVariant.String),
+                                         QgsField("F_Type", QVariant.String),
+                                         QgsField("F_Length", QVariant.Double)])
 
                     vl.commitChanges()
                     self.updateFrontageLayer()
@@ -399,9 +394,9 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
                     edit1 = input4.dataProvider()
                     edit1.addAttributes([QgsField("F_ID", QVariant.Int),
-                                         QgsField("Group", QVariant.String),
-                                         QgsField("Type", QVariant.String),
-                                         QgsField("Length", QVariant.Double)])
+                                         QgsField("F_Group", QVariant.String),
+                                         QgsField("F_Type", QVariant.String),
+                                         QgsField("F_Length", QVariant.Double)])
 
                     input4.commitChanges()
                     self.updateFrontageLayer()
@@ -458,9 +453,9 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
                     edit1 = input3.dataProvider()
                     edit1.addAttributes([QgsField("F_ID", QVariant.Int),
-                                         QgsField("Group", QVariant.String),
-                                         QgsField("Type", QVariant.String),
-                                         QgsField("Length", QVariant.Double)])
+                                         QgsField("F_Group", QVariant.String),
+                                         QgsField("F_Type", QVariant.String),
+                                         QgsField("F_Length", QVariant.Double)])
 
                     input3.commitChanges()
                     self.updateFrontageLayer()
@@ -498,6 +493,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         # Draw/Update Feature
     def logFeatureAdded(self, fid):
+
         QgsMessageLog.logMessage("feature added, id = " + str(fid))
 
         mc = self.canvas
@@ -511,8 +507,8 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         data = v_layer.dataProvider()
 
-        update1 = data.fieldNameIndex("Group")
-        update2 = data.fieldNameIndex("Type")
+        update1 = data.fieldNameIndex("F_Group")
+        update2 = data.fieldNameIndex("F_Type")
         self.updateLength()
 
         if self.frontageslistWidget.currentRow() == 0:
@@ -558,55 +554,55 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         if self.frontageslistWidget.currentRow() == 0:
             for feat in features:
-                feat['Group'] = "Building"
-                feat['Type'] = "Transparent"
+                feat['F_Group'] = "Building"
+                feat['F_Type'] = "Transparent"
                 geom = feat.geometry()
-                feat['Length'] = geom.length()
+                feat['F_Length'] = geom.length()
                 layer.updateFeature(feat)
                 self.addDataFields()
 
         if self.frontageslistWidget.currentRow() == 1:
             for feat in features:
-                feat['Group'] = "Building"
-                feat['Type'] = "Semi Transparent"
+                feat['F_Group'] = "Building"
+                feat['F_Type'] = "Semi Transparent"
                 geom = feat.geometry()
-                feat['Length'] = geom.length()
+                feat['F_Length'] = geom.length()
                 layer.updateFeature(feat)
                 self.addDataFields()
 
         if self.frontageslistWidget.currentRow() == 2:
             for feat in features:
-                feat['Group'] = "Building"
-                feat['Type'] = "Blank"
+                feat['F_Group'] = "Building"
+                feat['F_Type'] = "Blank"
                 geom = feat.geometry()
-                feat['Length'] = geom.length()
+                feat['F_Length'] = geom.length()
                 layer.updateFeature(feat)
                 self.addDataFields()
 
         if self.frontageslistWidget.currentRow() == 3:
             for feat in features:
-                feat['Group'] = "Fence"
-                feat['Type'] = "High Opaque Fence"
+                feat['F_Group'] = "Fence"
+                feat['F_Type'] = "High Opaque Fence"
                 geom = feat.geometry()
-                feat['Length'] = geom.length()
+                feat['F_Length'] = geom.length()
                 layer.updateFeature(feat)
                 self.addDataFields()
 
         if self.frontageslistWidget.currentRow() == 4:
             for feat in features:
-                feat['Group'] = "Fence"
-                feat['Type'] = "High See Through Fence"
+                feat['F_Group'] = "Fence"
+                feat['F_Type'] = "High See Through Fence"
                 geom = feat.geometry()
-                feat['Length'] = geom.length()
+                feat['F_Length'] = geom.length()
                 layer.updateFeature(feat)
                 self.addDataFields()
 
         if self.frontageslistWidget.currentRow() == 5:
             for feat in features:
-                feat['Group'] = "Fence"
-                feat['Type'] = "Low Fence"
+                feat['F_Group'] = "Fence"
+                feat['F_Type'] = "Low Fence"
                 geom = feat.geometry()
-                feat['Length'] = geom.length()
+                feat['F_Length'] = geom.length()
                 layer.updateFeature(feat)
                 self.addDataFields()
 

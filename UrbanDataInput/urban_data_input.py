@@ -74,7 +74,7 @@ class UrbanDataInput:
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'Space Syntax Toolkit')
+        self.menu = self.tr(u'&Space Syntax Toolkit')
         # TODO: We are going to let the user set this up in a future iteration
         self.toolbar = self.iface.addToolBar(u' Urban Data Input ')
         self.toolbar.setObjectName(u' Urban Data Input ')
@@ -183,7 +183,7 @@ class UrbanDataInput:
             self.toolbar.addAction(action)
 
         if add_to_menu:
-            self.iface.addPluginToMenu(
+            self.iface.addPluginToVectorMenu(
                 self.menu,
                 action)
 
@@ -196,11 +196,12 @@ class UrbanDataInput:
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
         icon_path = ':/plugins/UrbanDataInput/icon.png'
         self.add_action(
-        icon_path,
-        text=self.tr(u'&Urban Data Input'),
-        callback=self.run,
-        parent=self.iface.mainWindow(),
-        status_tip='Urban Data Input')
+            icon_path,
+            text=self.tr(u'&Urban Data Input'),
+            callback=self.run,
+            parent=self.iface.mainWindow(),
+            status_tip='urban Data Input'
+        )
 
     #--------------------------------------------------------------------------
 
@@ -228,11 +229,11 @@ class UrbanDataInput:
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
             self.iface.removePluginVectorMenu(
-                self.menu ,
+                self.menu,
                 action)
             self.iface.removeToolBarIcon(action)
-        # remove the toolbar
-        del self.toolbar
+            # remove the toolbar
+            del self.toolbar
 
     #--------------------------------------------------------------------------
 
