@@ -8,7 +8,7 @@
 
 [general]
 name=Urban Data Input
-qgisMinimumVersion=2.0
+qgisMinimumVersion=2.16
 description= This plugin helps input urban data like frontage type, entrance type and land use type in qgis as per Space Syntax Limited standards.
 version=0.0.1
 author=Abhimanyu Acharya
