@@ -409,6 +409,8 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                         i += 1
                         input4.updateFeature(feat)
 
+                    self.updateLength()
+
                     input4.commitChanges()
                     input4.startEditing()
 
@@ -467,6 +469,8 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                         feat['F_ID'] = i
                         i += 1
                         input3.updateFeature(feat)
+
+                    self.updateLength()
 
                     input3.commitChanges()
                     input3.startEditing()
@@ -543,7 +547,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         for feat in features:
             geom = feat.geometry()
-            feat['Length'] = geom.length()
+            feat['F_Length'] = geom.length()
             v_layer.updateFeature(feat)
 
     def updateSelectedFrontageAttribute(self):
@@ -605,8 +609,6 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 feat['F_Length'] = geom.length()
                 layer.updateFeature(feat)
                 self.addDataFields()
-
-
 
     def hideFeatures(self):
         mc = self.canvas
