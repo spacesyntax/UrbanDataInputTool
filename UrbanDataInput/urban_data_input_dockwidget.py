@@ -324,7 +324,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
                 if not vl:
                     msgBar = self.iface.messageBar()
-                    msg = msgBar.createMessage(u'Layer failed to load!' + location)
+                    msg = msgBar.createMessage(u'Layer failed to load!')
                     msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
 
                 else:
@@ -343,141 +343,60 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                     vl.commitChanges()
                     self.updateFrontageLayer()
 
-                    self.dlg.close()
-
 
         elif self.dlg.createNewFileCheckBox.checkState() == 2:
-            if self.dlg.lineEditFrontages.text() != "":
-                path = self.dlg.lineEditFrontages.text()
-                filename = os.path.basename(path)
-                location = os.path.abspath(path)
+            input1 = self.getSelectedLayer()
+            if input1:
+                # create a new file
+                if self.dlg.lineEditFrontages.text() != "":
+                    # prepare save file path
+                    path = self.dlg.lineEditFrontages.text()
+                    filename = os.path.basename(path)
+                    location = os.path.abspath(path)
+                    # process input geometries
+                    lines_from_polys = processing.runalg("qgis:polygonstolines", input1, None)
+                    exploded_lines = processing.runalg("qgis:explodelines", lines_from_polys['OUTPUT'], path)
+                    result_layer = self.iface.addVectorLayer(location, filename, "ogr")
+                # create a memory layer
+                else:
+                    # process input geometries
+                    lines_from_polys = processing.runalg("qgis:polygonstolines", input1, None)
+                    exploded_lines = processing.runalg("qgis:explodelines", lines_from_polys['OUTPUT'], None)
+                    filename = os.path.basename(exploded_lines['OUTPUT'])
+                    location = os.path.abspath(exploded_lines['OUTPUT'])
+                    result_layer = self.iface.addVectorLayer(location,filename,"ogr")
+                    result_layer.setLayerName("memory:Frontages")
 
-                input1 = self.getSelectedLayer()
-
-                processing.runandload("qgis:polygonstolines", input1, "Lines from polygons")
-
-                input2 = None
-                for lyr in QgsMapLayerRegistry.instance().mapLayers().values():
-                    if lyr.name() == "Lines from polygons" or lyr.name() == "LINES FROM POLYGONS":
-                        input2 = lyr
-                        break
-
-                processing.runandload("qgis:explodelines", input2, "Exploded")
-
-                input3 = None
-                for lyr in QgsMapLayerRegistry.instance().mapLayers().values():
-                    if lyr.name() == "Exploded" or lyr.name() == "EXPLODED":
-                        input3 = lyr
-                        break
-
-                QgsMapLayerRegistry.instance().removeMapLayer(input2)
-
-                QgsVectorFileWriter.writeAsVectorFormat(input3, location, "CP1250", None, "ESRI Shapefile")
-
-                QgsMapLayerRegistry.instance().removeMapLayer(input3)
-
-                input4 = self.iface.addVectorLayer(location, filename, "ogr")
-                QgsMapLayerRegistry.instance().addMapLayer(input4)
-
-
-                if not input4:
+                if not result_layer:
                     msgBar = self.iface.messageBar()
                     msg = msgBar.createMessage(u'Layer failed to load!' + location)
-                    msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
-
+                    msgBar.pushWidget(msg, QgsMessageBar.INFO, 5)
                 else:
                     msgBar = self.iface.messageBar()
                     msg = msgBar.createMessage(u'New Frontages Layer Created:' + location)
-                    msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+                    msgBar.pushWidget(msg, QgsMessageBar.INFO, 5)
 
-                    input4.startEditing()
-
-                    edit1 = input4.dataProvider()
-                    edit1.addAttributes([QgsField("F_ID", QVariant.Int),
+                    # Add new fields
+                    provider = result_layer.dataProvider()
+                    provider.addAttributes([QgsField("F_ID", QVariant.Int),
                                          QgsField("F_Group", QVariant.String),
                                          QgsField("F_Type", QVariant.String),
                                          QgsField("F_Length", QVariant.Double)])
-
-                    input4.commitChanges()
-                    self.updateFrontageLayer()
-                    input4.startEditing()
-
-                    features = input4.getFeatures()
-                    i = 0
+                    result_layer.updateFields()
+                    # Update new fields with values
+                    result_layer.startEditing()
+                    features = result_layer.getFeatures()
                     for feat in features:
-                        feat['F_ID'] = i
-                        i += 1
-                        input4.updateFeature(feat)
-
+                        feat['F_ID'] = feat.id()
+                        result_layer.updateFeature(feat)
+                    result_layer.commitChanges()
+                    # Add layer to panel
+                    QgsMapLayerRegistry.instance().addMapLayer(result_layer)
+                    self.updateFrontageLayer()
+                    # TODO: updateLength function should receive a layer as input. It would be used earlier
                     self.updateLength()
 
-                    input4.commitChanges()
-                    input4.startEditing()
-
-                    self.dlg.lineEditFrontages.clear()
-
-                    self.dlg.close()
-
-
-            else:
-                input1 = self.getSelectedLayer()
-
-                processing.runandload("qgis:polygonstolines", input1, "Lines from polygons")
-
-                input2 = None
-                for lyr in QgsMapLayerRegistry.instance().mapLayers().values():
-                    if lyr.name() == "Lines from polygons" or lyr.name() == "LINES FROM POLYGONS":
-                        input2 = lyr
-                        break
-
-                processing.runandload("qgis:explodelines", input2, "Exploded")
-
-                input3 = None
-                for lyr in QgsMapLayerRegistry.instance().mapLayers().values():
-                    if lyr.name() == "Exploded" or lyr.name() == "EXPLODED":
-                        input3 = lyr
-                        break
-
-                QgsMapLayerRegistry.instance().removeMapLayer(input2)
-                QgsMapLayerRegistry.instance().addMapLayer(input3)
-
-                input3.setLayerName("memory:Frontages")
-
-                if not input3:
-                    msgBar = self.iface.messageBar()
-                    msg = msgBar.createMessage(u'Layer failed to load!')
-                    msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
-
-                else:
-                    msgBar = self.iface.messageBar()
-                    msg = msgBar.createMessage(u'New Frontages Layer Created:')
-                    msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
-
-                    edit1 = input3.dataProvider()
-                    edit1.addAttributes([QgsField("F_ID", QVariant.Int),
-                                         QgsField("F_Group", QVariant.String),
-                                         QgsField("F_Type", QVariant.String),
-                                         QgsField("F_Length", QVariant.Double)])
-
-                    input3.commitChanges()
-                    self.updateFrontageLayer()
-                    input3.startEditing()
-
-                    features = input3.getFeatures()
-                    i = 0
-                    for feat in features:
-                        feat['F_ID'] = i
-                        i += 1
-                        input3.updateFeature(feat)
-
-                    self.updateLength()
-
-                    input3.commitChanges()
-                    input3.startEditing()
-
-                    self.dlg.lineEditFrontages.clear()
-
-                    self.dlg.close()
+        self.dlg.close()
 
 
     # Load File
