@@ -60,7 +60,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.canvas = self.iface.mapCanvas()
         self.frontage_layer = None
 
-        self.dlg = CreatenewDialog()
+        self.frontagedlg = CreatenewDialog()
 
         # set up GUI operation signals
         self.frontagedlg.closePopUpButton.clicked.connect(self.closePopUp)
@@ -105,12 +105,12 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
     def closeEvent(self, event):
         # disconnect interface signals
         try:
-            self.dlg.createNewFileCheckBox.stateChanged.disconnect(self.updateLayers)
+            self.frontagedlg.createNewFileCheckBox.stateChanged.disconnect(self.updateLayers)
             self.iface.mapCanvas().selectionChanged.disconnect(self.addDataFields)
             self.iface.legendInterface().itemRemoved.disconnect(self.updateLayers)
             self.iface.legendInterface().itemAdded.disconnect(self.updateLayers)
-            self.dlg.pushButtonNewFileDLG.clicked.disconnect(self.newFrontageLayer)
-            self.dlg.pushButtonSelectLocation.clicked.disconnect(self.selectSaveLocation)
+            self.frontagedlg.pushButtonNewFileDLG.clicked.disconnect(self.newFrontageLayer)
+            self.frontagedlg.pushButtonSelectLocation.clicked.disconnect(self.selectSaveLocation)
             self.pushIDcomboBox.currentIndexChanged.disconnect(self.updatepushWidgetList)
             self.useExistingcomboBox.currentIndexChanged.disconnect(self.loadFrontageLayer)
             self.hideshowButton.clicked.disconnect(self.hideFeatures)
@@ -135,28 +135,32 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
 
     def closePopUp(self):
-        self.dlg.close()
+        self.frontagedlg.close()
+
+    def updateID(self):
+        layer = self.setFrontageLayer()
+        uf.updateID(self.iface, layer)
 
 
     def getSelectedLayer(self):
-        layer_name = self.dlg.selectLUCombo.currentText()
+        layer_name = self.frontagedlg.selectLUCombo.currentText()
         layer = uf.getLegendLayerByName(self.iface, layer_name)
         return layer
 
 
     def selectSaveLocation(self):
         filename = QFileDialog.getSaveFileName(self, "Select Save Location ","", '*.shp')
-        self.dlg.lineEditFrontages.setText(filename)
+        self.frontagedlg.lineEditFrontages.setText(filename)
 
 
     def newFileDialog(self):
         """Run method that performs all the real work"""
         # show the dialog
-        self.dlg.show()
+        self.frontagedlg.show()
         # Run the dialog event loop
-        result = self.dlg.exec_()
+        result = self.frontagedlg.exec_()
         # See if OK was pressed
-        self.dlg.lineEditFrontages.clear()
+        self.frontagedlg.lineEditFrontages.clear()
         if result:
             pass
 
@@ -188,18 +192,18 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         return self.frontage_layer
 
     def updateLayers(self):
-        self.dlg.selectLUCombo.clear()
+        self.frontagedlg.selectLUCombo.clear()
         layers = self.iface.legendInterface().layers()
         layer_list = []
 
-        if self.dlg.createNewFileCheckBox.checkState() == 2:
+        if self.frontagedlg.createNewFileCheckBox.checkState() == 2:
 
             for layer in layers:
                 if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Polygon:
                     layer_list.append(layer.name())
-                    self.dlg.selectLUCombo.setEnabled(True)
+                    self.frontagedlg.selectLUCombo.setEnabled(True)
 
-            self.dlg.selectLUCombo.addItems(layer_list)
+            self.frontagedlg.selectLUCombo.addItems(layer_list)
 
 
     def updateLayersPushID(self):
@@ -277,10 +281,10 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         #######
     def newFrontageLayer(self):
         mc = self.canvas
-        if self.dlg.createNewFileCheckBox.checkState() == 0:
+        if self.frontagedlg.createNewFileCheckBox.checkState() == 0:
 
-            if self.dlg.lineEditFrontages.text() != "":
-                path = self.dlg.lineEditFrontages.text()
+            if self.frontagedlg.lineEditFrontages.text() != "":
+                path = self.frontagedlg.lineEditFrontages.text()
                 filename = os.path.basename(path)
                 location = os.path.abspath(path)
 
@@ -316,7 +320,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                     input2.commitChanges()
                     self.updateFrontageLayer()
 
-                    self.dlg.close()
+                    self.frontagedlg.close()
 
 
             else:
@@ -346,13 +350,13 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                     self.updateFrontageLayer()
 
 
-        elif self.dlg.createNewFileCheckBox.checkState() == 2:
+        elif self.frontagedlg.createNewFileCheckBox.checkState() == 2:
             input1 = self.getSelectedLayer()
             if input1:
                 # create a new file
-                if self.dlg.lineEditFrontages.text() != "":
+                if self.frontagedlg.lineEditFrontages.text() != "":
                     # prepare save file path
-                    path = self.dlg.lineEditFrontages.text()
+                    path = self.frontagedlg.lineEditFrontages.text()
                     filename = os.path.basename(path)
                     location = os.path.abspath(path)
                     # process input geometries
@@ -398,7 +402,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                     # TODO: updateLength function should receive a layer as input. It would be used earlier
                     self.updateLength()
 
-        self.dlg.close()
+        self.frontagedlg.close()
 
 
     # Load File

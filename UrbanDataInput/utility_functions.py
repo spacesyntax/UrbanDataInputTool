@@ -92,3 +92,15 @@ def reloadLayer(layer):
     if new_layer:
         QgsMapLayerRegistry.instance().addMapLayer(new_layer)
     return new_layer
+
+def updateID(iface, layer):
+    features = layer.getFeatures()
+    i = 1
+    layer.startEditing()
+    for feat in features:
+        feat['F_ID'] = i
+        i += 1
+        layer.updateFeature(feat)
+
+    layer.commitChanges()
+    layer.startEditing()
