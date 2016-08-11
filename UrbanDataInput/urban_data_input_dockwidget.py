@@ -63,16 +63,18 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.dlg = CreatenewDialog()
 
         # set up GUI operation signals
-        self.dlg.closePopUpButton.clicked.connect(self.closePopUp)
+        self.frontagedlg.closePopUpButton.clicked.connect(self.closePopUp)
+        self.frontagedlg.pushButtonNewFileDLG.clicked.connect(self.newFrontageLayer)
         self.pushButtonNewFile.clicked.connect(self.newFileDialog)
-        self.dlg.createNewFileCheckBox.stateChanged.connect(self.updateLayers)
+        self.updateIDButton.clicked.connect(self.updateID)
+        self.updateLengthButton.clicked.connect(self.updateLength)
+        self.frontagedlg.createNewFileCheckBox.stateChanged.connect(self.updateLayers)
         self.updateFacadeButton.clicked.connect(self.updateSelectedFrontageAttribute)
         self.updateIDPushButton.clicked.connect(self.pushID)
         self.iface.mapCanvas().selectionChanged.connect(self.addDataFields)
         self.iface.legendInterface().itemRemoved.connect(self.updateLayers)
         self.iface.legendInterface().itemAdded.connect(self.updateLayers)
-        self.dlg.pushButtonNewFileDLG.clicked.connect(self.newFrontageLayer)
-        self.dlg.pushButtonSelectLocation.clicked.connect(self.selectSaveLocation)
+        self.frontagedlg.pushButtonSelectLocation.clicked.connect(self.selectSaveLocation)
         self.pushIDcomboBox.currentIndexChanged.connect(self.updatepushWidgetList)
         self.useExistingcomboBox.currentIndexChanged.connect(self.loadFrontageLayer)
         self.hideshowButton.clicked.connect(self.hideFeatures)
@@ -421,42 +423,58 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         mc = self.canvas
         v_layer = self.setFrontageLayer()
+        feature_Count = v_layer.featureCount()
         features = v_layer.getFeatures()
-        i = 0
-        for feat in features:
-            feat['F_ID'] = i
-            i += 1
-            v_layer.updateFeature(feat)
+        inputid = 0
+
+        if feature_Count == 1:
+            for feat in features:
+                inputid = 1
+
+        elif feature_Count > 1:
+            for feat in features:
+                inputid = feature_Count
 
         data = v_layer.dataProvider()
-
         update1 = data.fieldNameIndex("F_Group")
         update2 = data.fieldNameIndex("F_Type")
-        self.updateLength()
+        update3 = data.fieldNameIndex("F_ID")
 
         if self.frontageslistWidget.currentRow() == 0:
             v_layer.changeAttributeValue(fid, update1, "Building", True)
             v_layer.changeAttributeValue(fid, update2, "Transparent", True)
+            v_layer.changeAttributeValue(fid, update3, inputid, True)
+            v_layer.updateFields()
 
         if self.frontageslistWidget.currentRow() == 1:
             v_layer.changeAttributeValue(fid, update1, "Building", True)
             v_layer.changeAttributeValue(fid, update2, "Semi Transparent", True)
+            v_layer.changeAttributeValue(fid, update3, inputid, True)
+            v_layer.updateFields()
 
         if self.frontageslistWidget.currentRow() == 2:
             v_layer.changeAttributeValue(fid, update1, "Building", True)
             v_layer.changeAttributeValue(fid, update2, "Blank", True)
+            v_layer.changeAttributeValue(fid, update3, inputid, True)
+            v_layer.updateFields()
 
         if self.frontageslistWidget.currentRow() == 3:
             v_layer.changeAttributeValue(fid, update1, "Fence", True)
             v_layer.changeAttributeValue(fid, update2, "High Opaque Fence", True)
+            v_layer.changeAttributeValue(fid, update3, inputid, True)
+            v_layer.updateFields()
 
         if self.frontageslistWidget.currentRow() == 4:
             v_layer.changeAttributeValue(fid, update1, "Fence", True)
             v_layer.changeAttributeValue(fid, update2, "High See Through Fence", True)
+            v_layer.changeAttributeValue(fid, update3, inputid, True)
+            v_layer.updateFields()
 
         if self.frontageslistWidget.currentRow() == 5:
             v_layer.changeAttributeValue(fid, update1, "Fence", True)
             v_layer.changeAttributeValue(fid, update2, "Low Fence", True)
+            v_layer.changeAttributeValue(fid, update3, inputid, True)
+            v_layer.updateFields()
             
     def updateLength(self):
         mc = self.canvas
