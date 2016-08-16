@@ -20,15 +20,13 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt
-from PyQt4.QtGui import QAction, QIcon
-# Initialize Qt resources from file resources.py
-import resources
-
-# Import the code for the DockWidget
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+from qgis.core import *
 from urban_data_input_dockwidget import UrbanDataInputDockWidget
 from CreateNew_dialog import CreatenewDialog
 import os.path
+from functionality_modules import FrontageTool
 
 #import debug package
 is_debug = False
@@ -84,16 +82,11 @@ class UrbanDataInput:
         # set up GUI operation signals
         self.pluginIsActive = False
         self.dockwidget = None
-        self.dlg = CreatenewDialog()
 
-
-        # get user defined current setting
-        disableDialog = QSettings().value('/qgis/digitizing/disable_enter_attribute_values_dialog')
-        enableProjectCRS = QSettings().value('/qgis/crs/use_project_crs')
-
-        # override setting
+        # Overide existing settings
         QSettings().setValue('/qgis/digitizing/disable_enter_attribute_values_dialog', True)
         QSettings().setValue('/qgis/crs/use_project_crs', True)
+
 
         if has_pydevd and is_debug:
             pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True, suspend=False)
@@ -208,6 +201,26 @@ class UrbanDataInput:
     def onClosePlugin(self):
 
         self.dockwidget.closingPlugin.disconnect(self.onClosePlugin)
+        # disconnect interface signals
+        try:
+            self.frontagedlg.createNewFileCheckBox.stateChanged.disconnect(self.frontage_tool.updateLayers)
+            self.iface.mapCanvas().selectionChanged.disconnect(self.dockidget.addDataFields)
+            self.iface.legendInterface().itemRemoved.disconnect(self.frontage_tool.updateLayers)
+            self.iface.legendInterface().itemAdded.disconnect(self.frontage_tool.updateLayers)
+            self.frontagedlg.pushButtonNewFileDLG.clicked.disconnect(self.frontage_tool.newFrontageLayer)
+            self.frontagedlg.pushButtonSelectLocation.clicked.disconnect(self.frontage_tool.selectSaveLocation)
+            self.dockwidget.pushIDcomboBox.currentIndexChanged.disconnect(self.frontage_tool.updatepushWidgetList)
+            self.dockwidget.useExistingcomboBox.currentIndexChanged.disconnect(self.frontage_tool.loadFrontageLayer)
+            self.dockwidget.hideshowButton.clicked.disconnect(self.frontage_tool.hideFeatures)
+            self.iface.legendInterface().itemRemoved.disconnect(self.frontage_tool.updateFrontageLayer)
+            self.iface.legendInterface().itemAdded.disconnect(self.frontage_tool.updateFrontageLayer)
+            self.iface.legendInterface().itemRemoved.disconnect(self.frontage_tool.updateLayersPushID)
+            self.iface.legendInterface().itemAdded.disconnect(self.frontage_tool.updateLayersPushID)
+            self.iface.projectRead.disconnect(self.frontage_tool.updateLayersPushID)
+            self.iface.newProjectCreated.disconnect(self.frontage_tool.updateLayersPushID)
+
+        except:
+            pass
 
         #Cleanup necessary items here when plugin dockwidget is closed
 
@@ -237,9 +250,6 @@ class UrbanDataInput:
 
     #--------------------------------------------------------------------------
 
-
-
-
     def run(self):
         """Run method that loads and starts the plugin"""
 
@@ -251,9 +261,15 @@ class UrbanDataInput:
             # dockwidget may not exist if:
             #    first run of plugin
             #    removed on close (see self.onClosePlugin method)
+
+
             if self.dockwidget == None:
                 # Create the dockwidget (after translation) and keep reference
                 self.dockwidget = UrbanDataInputDockWidget(self.iface)
+                self.frontagedlg = CreatenewDialog()
+                self.frontage_tool = FrontageTool(self.iface, self.dockwidget,self.frontagedlg)
+
+
 
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
@@ -262,6 +278,52 @@ class UrbanDataInput:
             # TODO: fix to allow choice of dock location
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
             self.dockwidget.show()
+
+            # set up GUI operation signals
+            self.iface.mapCanvas().selectionChanged.connect(self.dockwidget.addDataFields)
+            self.iface.legendInterface().itemRemoved.connect(self.frontage_tool.updateLayers)
+            self.iface.legendInterface().itemAdded.connect(self.frontage_tool.updateLayers)
+            self.iface.legendInterface().itemRemoved.connect(self.frontage_tool.updateFrontageLayer)
+            self.iface.legendInterface().itemAdded.connect(self.frontage_tool.updateFrontageLayer)
+            self.iface.legendInterface().itemRemoved.connect(self.frontage_tool.updateLayersPushID)
+            self.iface.legendInterface().itemAdded.connect(self.frontage_tool.updateLayersPushID)
+            self.iface.projectRead.connect(self.frontage_tool.updateLayersPushID)
+            self.iface.newProjectCreated.connect(self.frontage_tool.updateLayersPushID)
+
+            self.frontagedlg.closePopUpButton.clicked.connect(self.frontage_tool.closePopUp)
+            self.frontagedlg.pushButtonNewFileDLG.clicked.connect(self.frontage_tool.newFrontageLayer)
+            self.frontagedlg.createNewFileCheckBox.stateChanged.connect(self.frontage_tool.updateLayers)
+            self.frontagedlg.pushButtonSelectLocation.clicked.connect(self.frontage_tool.selectSaveLocation)
+            self.dockwidget.pushButtonNewFile.clicked.connect(self.newFileDialog)
+            self.dockwidget.updateIDButton.clicked.connect(self.frontage_tool.updateID)
+            self.dockwidget.updateLengthButton.clicked.connect(self.frontage_tool.updateLength)
+            self.dockwidget.updateFacadeButton.clicked.connect(self.frontage_tool.updateSelectedFrontageAttribute)
+            self.dockwidget.updateIDPushButton.clicked.connect(self.frontage_tool.pushID)
+            self.dockwidget.pushIDcomboBox.currentIndexChanged.connect(self.frontage_tool.updatepushWidgetList)
+            self.dockwidget.useExistingcomboBox.currentIndexChanged.connect(self.frontage_tool.loadFrontageLayer)
+            self.dockwidget.hideshowButton.clicked.connect(self.frontage_tool.hideFeatures)
+
+            #Initialisation
+            self.frontage_tool.updateFrontageLayer()
+            self.frontage_tool.updateLayersPushID()
+
+    def newFileDialog(self):
+        """Run method that performs all the real work"""
+        # show the dialog
+        self.frontagedlg.show()
+        # Run the dialog event loop
+        result = self.frontagedlg.exec_()
+        # See if OK was pressed
+        self.frontagedlg.lineEditFrontages.clear()
+        self.frontage_tool.updateLayers()
+        if result:
+            pass
+
+
+
+
+
+
 
 
 

@@ -22,18 +22,10 @@
 """
 
 import os
-import time
 from PyQt4 import QtGui, uic
-from PyQt4.QtCore import pyqtSignal
-import os.path
-from . import utility_functions as uf
-from qgis.core import *
-from qgis.gui import *
 from PyQt4.QtCore import *
-from PyQt4.QtGui import *
 from CreateNew_dialog import CreatenewDialog
-import processing
-
+from . import utility_functions as uf
 
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -59,71 +51,19 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.iface = iface
         self.canvas = self.iface.mapCanvas()
         self.frontage_layer = None
-
+        self.LU_layer = None
         self.frontagedlg = CreatenewDialog()
-
-        # set up GUI operation signals
-        self.frontagedlg.closePopUpButton.clicked.connect(self.closePopUp)
-        self.frontagedlg.pushButtonNewFileDLG.clicked.connect(self.newFrontageLayer)
-        self.pushButtonNewFile.clicked.connect(self.newFileDialog)
-        self.updateIDButton.clicked.connect(self.updateID)
-        self.updateLengthButton.clicked.connect(self.updateLength)
-        self.frontagedlg.createNewFileCheckBox.stateChanged.connect(self.updateLayers)
-        self.updateFacadeButton.clicked.connect(self.updateSelectedFrontageAttribute)
-        self.updateIDPushButton.clicked.connect(self.pushID)
-        self.iface.mapCanvas().selectionChanged.connect(self.addDataFields)
-        self.iface.legendInterface().itemRemoved.connect(self.updateLayers)
-        self.iface.legendInterface().itemAdded.connect(self.updateLayers)
-        self.frontagedlg.pushButtonSelectLocation.clicked.connect(self.selectSaveLocation)
-        self.pushIDcomboBox.currentIndexChanged.connect(self.updatepushWidgetList)
-        self.useExistingcomboBox.currentIndexChanged.connect(self.loadFrontageLayer)
-        self.hideshowButton.clicked.connect(self.hideFeatures)
-        self.iface.legendInterface().itemRemoved.connect(self.updateFrontageLayer)
-        self.iface.legendInterface().itemAdded.connect(self.updateFrontageLayer)
-        self.iface.legendInterface().itemRemoved.connect(self.updateLayersPushID)
-        self.iface.legendInterface().itemAdded.connect(self.updateLayersPushID)
-        self.iface.projectRead.connect(self.updateLayersPushID)
-        self.iface.newProjectCreated.connect(self.updateLayersPushID)
+        self.legend = self.iface.legendInterface()
 
 
         # initialisation
-        self.updateFrontageLayer()
-        self.updateLayersPushID()
+
         self.updateFrontageTypes()
         self.pushIDlistWidget.hide()
         self.pushIDcomboBox.hide()
         self.updateIDPushButton.hide()
 
-        # add button icons
-
-        #initial button state
-
-        # override setting
-        QSettings().setValue('/qgis/digitizing/disable_enter_attribute_values_dialog', True)
-        QSettings().setValue('/qgis/crs/enable_use_project_crs', True)
-
     def closeEvent(self, event):
-        # disconnect interface signals
-        try:
-            self.frontagedlg.createNewFileCheckBox.stateChanged.disconnect(self.updateLayers)
-            self.iface.mapCanvas().selectionChanged.disconnect(self.addDataFields)
-            self.iface.legendInterface().itemRemoved.disconnect(self.updateLayers)
-            self.iface.legendInterface().itemAdded.disconnect(self.updateLayers)
-            self.frontagedlg.pushButtonNewFileDLG.clicked.disconnect(self.newFrontageLayer)
-            self.frontagedlg.pushButtonSelectLocation.clicked.disconnect(self.selectSaveLocation)
-            self.pushIDcomboBox.currentIndexChanged.disconnect(self.updatepushWidgetList)
-            self.useExistingcomboBox.currentIndexChanged.disconnect(self.loadFrontageLayer)
-            self.hideshowButton.clicked.disconnect(self.hideFeatures)
-            self.iface.legendInterface().itemRemoved.disconnect(self.updateFrontageLayer)
-            self.iface.legendInterface().itemAdded.disconnect(self.updateFrontageLayer)
-            self.iface.legendInterface().itemRemoved.disconnect(self.updateLayersPushID)
-            self.iface.legendInterface().itemAdded.disconnect(self.updateLayersPushID)
-            self.iface.projectRead.disconnect(self.updateLayersPushID)
-            self.iface.newProjectCreated.disconnect(self.updateLayersPushID)
-
-        except:
-            pass
-
         self.closingPlugin.emit()
         event.accept()
 
@@ -132,91 +72,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
     #   Data functions
     #######
 
-
-
-    def closePopUp(self):
-        self.frontagedlg.close()
-
-    def updateID(self):
-        layer = self.setFrontageLayer()
-        uf.updateID(self.iface, layer)
-
-
-    def getSelectedLayer(self):
-        layer_name = self.frontagedlg.selectLUCombo.currentText()
-        layer = uf.getLegendLayerByName(self.iface, layer_name)
-        return layer
-
-
-    def selectSaveLocation(self):
-        filename = QFileDialog.getSaveFileName(self, "Select Save Location ","", '*.shp')
-        self.frontagedlg.lineEditFrontages.setText(filename)
-
-
-    def newFileDialog(self):
-        """Run method that performs all the real work"""
-        # show the dialog
-        self.frontagedlg.show()
-        # Run the dialog event loop
-        result = self.frontagedlg.exec_()
-        # See if OK was pressed
-        self.frontagedlg.lineEditFrontages.clear()
-        if result:
-            pass
-
-    def updateFrontageLayer(self):
-        self.useExistingcomboBox.clear()
-        self.useExistingcomboBox.setEnabled(False)
-        layers = self.iface.legendInterface().layers()
-        for lyr in layers:
-            if self.isFrontageLayer(lyr):
-                self.useExistingcomboBox.addItem(lyr.name(), lyr)
-
-        if self.useExistingcomboBox.count() > 0:
-            self.useExistingcomboBox.setEnabled(True)
-            self.setFrontageLayer()
-            print self.frontage_layer
-
-    def isFrontageLayer(self, layer):
-        if layer.type() == QgsMapLayer.VectorLayer \
-           and layer.geometryType() == QGis.Line:
-            fieldlist = uf.getFieldNames(layer)
-            if 'F_Group' in fieldlist and 'F_Type' in fieldlist:
-                return True
-
-        return False
-
-    def setFrontageLayer(self):
-        index = self.useExistingcomboBox.currentIndex()
-        self.frontage_layer = self.useExistingcomboBox.itemData(index)
-        return self.frontage_layer
-
-    def updateLayers(self):
-        self.frontagedlg.selectLUCombo.clear()
-        layers = self.iface.legendInterface().layers()
-        layer_list = []
-
-        if self.frontagedlg.createNewFileCheckBox.checkState() == 2:
-
-            for layer in layers:
-                if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Polygon:
-                    layer_list.append(layer.name())
-                    self.frontagedlg.selectLUCombo.setEnabled(True)
-
-            self.frontagedlg.selectLUCombo.addItems(layer_list)
-
-
-    def updateLayersPushID(self):
-        self.pushIDcomboBox.clear()
-        layers = self.iface.legendInterface().layers()
-        layer_list = []
-
-        for layer in layers:
-            if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Polygon:
-                self.pushIDcomboBox.setEnabled(False)
-                self.pushIDcomboBox.addItem(layer.name(),layer)
-
-
+    # Update frontage types
     def updateFrontageTypes(self):
         self.frontageslistWidget.clear()
         frontage_list = ['Transparent', 'Semi Transparent', 'Blank',
@@ -225,12 +81,13 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         self.frontageslistWidget.addItems(frontage_list)
 
+    # Set universal Frontage layer if conditions are satisfied
+    def setFrontageLayer(self):
+        index = self.useExistingcomboBox.currentIndex()
+        self.frontage_layer = self.useExistingcomboBox.itemData(index)
+        return self.frontage_layer
 
-    def getSelectedLayerLoad(self):
-        layer_name = self.useExistingcomboBox.currentText()
-        layer1 = uf.getLegendLayerByName(self.iface, layer_name)
-        return layer1
-
+    # Get building layer based on name
     def getSelectedLayerPushID(self):
         layer_name = self.pushIDcomboBox.currentText()
         layer = uf.getLegendLayerByName(self.iface, layer_name)
@@ -255,7 +112,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             A3 = field_length - 2
 
             self.tableWidgetFrontage.setColumnCount(3)
-            headers = ["F-ID","Group","Type"]
+            headers = ["F-ID", "Group", "Type"]
             self.tableWidgetFrontage.setHorizontalHeaderLabels(headers)
             self.tableWidgetFrontage.setRowCount(len(attrs))
 
@@ -264,349 +121,12 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.tableWidgetFrontage.setItem(i, 1, QtGui.QTableWidgetItem(str(item[A2])))
                 self.tableWidgetFrontage.setItem(i, 2, QtGui.QTableWidgetItem(str(item[A3])))
 
-            self.tableWidgetFrontage.horizontalHeader().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
             self.tableWidgetFrontage.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
             self.tableWidgetFrontage.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
             self.tableWidgetFrontage.resizeRowsToContents()
 
     def tableClear(self):
         self.tableWidgetFrontage.clear()
-
-
-
-
-
-        #######
-        #   Frontages
-        #######
-    def newFrontageLayer(self):
-        mc = self.canvas
-        if self.frontagedlg.createNewFileCheckBox.checkState() == 0:
-
-            if self.frontagedlg.lineEditFrontages.text() != "":
-                path = self.frontagedlg.lineEditFrontages.text()
-                filename = os.path.basename(path)
-                location = os.path.abspath(path)
-
-                destCRS = self.canvas.mapRenderer().destinationCrs()
-                vl = QgsVectorLayer("LineString?crs=" + destCRS.toWkt(), "memory:Frontages", "memory")
-                QgsMapLayerRegistry.instance().addMapLayer(vl)
-
-                QgsVectorFileWriter.writeAsVectorFormat(vl, location, "CP1250", None, "ESRI Shapefile")
-
-                QgsMapLayerRegistry.instance().removeMapLayers([vl.id()])
-
-                input2 = self.iface.addVectorLayer(location, filename, "ogr")
-                QgsMapLayerRegistry.instance().addMapLayer(input2)
-
-                if not input2:
-                    msgBar = self.iface.messageBar()
-                    msg = msgBar.createMessage(u'Layer failed to load!' + location)
-                    msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
-
-                else:
-                    msgBar = self.iface.messageBar()
-                    msg = msgBar.createMessage(u'New Frontages Layer Created:' + location)
-                    msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
-
-                    input2.startEditing()
-
-                    edit1 = input2.dataProvider()
-                    edit1.addAttributes([QgsField("F_ID", QVariant.Int),
-                                         QgsField("F_Group", QVariant.String),
-                                         QgsField("F_Type", QVariant.String),
-                                         QgsField("F_Length", QVariant.Double)])
-
-                    input2.commitChanges()
-                    self.updateFrontageLayer()
-
-                    self.frontagedlg.close()
-
-
-            else:
-                destCRS = self.canvas.mapRenderer().destinationCrs()
-                vl = QgsVectorLayer("LineString?crs=" + destCRS.toWkt(), "memory:Frontages", "memory")
-                QgsMapLayerRegistry.instance().addMapLayer(vl)
-
-                if not vl:
-                    msgBar = self.iface.messageBar()
-                    msg = msgBar.createMessage(u'Layer failed to load!')
-                    msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
-
-                else:
-                    msgBar = self.iface.messageBar()
-                    msg = msgBar.createMessage(u'New Frontages Layer Create:')
-                    msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
-
-                    vl.startEditing()
-
-                    edit1 = vl.dataProvider()
-                    edit1.addAttributes([QgsField("F_ID", QVariant.Int),
-                                         QgsField("F_Group", QVariant.String),
-                                         QgsField("F_Type", QVariant.String),
-                                         QgsField("F_Length", QVariant.Double)])
-
-                    vl.commitChanges()
-                    self.updateFrontageLayer()
-
-
-        elif self.frontagedlg.createNewFileCheckBox.checkState() == 2:
-            input1 = self.getSelectedLayer()
-            if input1:
-                # create a new file
-                if self.frontagedlg.lineEditFrontages.text() != "":
-                    # prepare save file path
-                    path = self.frontagedlg.lineEditFrontages.text()
-                    filename = os.path.basename(path)
-                    location = os.path.abspath(path)
-                    # process input geometries
-                    lines_from_polys = processing.runalg("qgis:polygonstolines", input1, None)
-                    exploded_lines = processing.runalg("qgis:explodelines", lines_from_polys['OUTPUT'], path)
-                    result_layer = self.iface.addVectorLayer(location, filename, "ogr")
-                # create a memory layer
-                else:
-                    # process input geometries
-                    lines_from_polys = processing.runalg("qgis:polygonstolines", input1, None)
-                    exploded_lines = processing.runalg("qgis:explodelines", lines_from_polys['OUTPUT'], None)
-                    filename = os.path.basename(exploded_lines['OUTPUT'])
-                    location = os.path.abspath(exploded_lines['OUTPUT'])
-                    result_layer = self.iface.addVectorLayer(location,filename,"ogr")
-                    result_layer.setLayerName("memory:Frontages")
-
-                if not result_layer:
-                    msgBar = self.iface.messageBar()
-                    msg = msgBar.createMessage(u'Layer failed to load!' + location)
-                    msgBar.pushWidget(msg, QgsMessageBar.INFO, 5)
-                else:
-                    msgBar = self.iface.messageBar()
-                    msg = msgBar.createMessage(u'New Frontages Layer Created:' + location)
-                    msgBar.pushWidget(msg, QgsMessageBar.INFO, 5)
-
-                    # Add new fields
-                    provider = result_layer.dataProvider()
-                    provider.addAttributes([QgsField("F_ID", QVariant.Int),
-                                         QgsField("F_Group", QVariant.String),
-                                         QgsField("F_Type", QVariant.String),
-                                         QgsField("F_Length", QVariant.Double)])
-                    result_layer.updateFields()
-                    # Update new fields with values
-                    result_layer.startEditing()
-                    features = result_layer.getFeatures()
-                    for feat in features:
-                        feat['F_ID'] = feat.id()
-                        result_layer.updateFeature(feat)
-                    result_layer.commitChanges()
-                    # Add layer to panel
-                    QgsMapLayerRegistry.instance().addMapLayer(result_layer)
-                    self.updateFrontageLayer()
-                    # TODO: updateLength function should receive a layer as input. It would be used earlier
-                    self.updateLength()
-
-        self.frontagedlg.close()
-
-
-    # Load File
-
-    def loadFrontageLayer(self):
-        if self.useExistingcomboBox.count() > 0:
-            input = self.setFrontageLayer()
-
-            plugin_path = os.path.dirname(__file__)
-            qml_path = plugin_path + "/frontagesThematic.qml"
-            input.loadNamedStyle(qml_path)
-
-            input.startEditing()
-
-            input.featureAdded.connect(self.logFeatureAdded)
-            input.selectionChanged.connect(self.addDataFields)
-
-        # Draw/Update Feature
-    def logFeatureAdded(self, fid):
-
-        QgsMessageLog.logMessage("feature added, id = " + str(fid))
-
-        mc = self.canvas
-        v_layer = self.setFrontageLayer()
-        feature_Count = v_layer.featureCount()
-        features = v_layer.getFeatures()
-        inputid = 0
-
-        if feature_Count == 1:
-            for feat in features:
-                inputid = 1
-
-        elif feature_Count > 1:
-            for feat in features:
-                inputid = feature_Count
-
-        data = v_layer.dataProvider()
-        update1 = data.fieldNameIndex("F_Group")
-        update2 = data.fieldNameIndex("F_Type")
-        update3 = data.fieldNameIndex("F_ID")
-
-        if self.frontageslistWidget.currentRow() == 0:
-            v_layer.changeAttributeValue(fid, update1, "Building", True)
-            v_layer.changeAttributeValue(fid, update2, "Transparent", True)
-            v_layer.changeAttributeValue(fid, update3, inputid, True)
-            v_layer.updateFields()
-
-        if self.frontageslistWidget.currentRow() == 1:
-            v_layer.changeAttributeValue(fid, update1, "Building", True)
-            v_layer.changeAttributeValue(fid, update2, "Semi Transparent", True)
-            v_layer.changeAttributeValue(fid, update3, inputid, True)
-            v_layer.updateFields()
-
-        if self.frontageslistWidget.currentRow() == 2:
-            v_layer.changeAttributeValue(fid, update1, "Building", True)
-            v_layer.changeAttributeValue(fid, update2, "Blank", True)
-            v_layer.changeAttributeValue(fid, update3, inputid, True)
-            v_layer.updateFields()
-
-        if self.frontageslistWidget.currentRow() == 3:
-            v_layer.changeAttributeValue(fid, update1, "Fence", True)
-            v_layer.changeAttributeValue(fid, update2, "High Opaque Fence", True)
-            v_layer.changeAttributeValue(fid, update3, inputid, True)
-            v_layer.updateFields()
-
-        if self.frontageslistWidget.currentRow() == 4:
-            v_layer.changeAttributeValue(fid, update1, "Fence", True)
-            v_layer.changeAttributeValue(fid, update2, "High See Through Fence", True)
-            v_layer.changeAttributeValue(fid, update3, inputid, True)
-            v_layer.updateFields()
-
-        if self.frontageslistWidget.currentRow() == 5:
-            v_layer.changeAttributeValue(fid, update1, "Fence", True)
-            v_layer.changeAttributeValue(fid, update2, "Low Fence", True)
-            v_layer.changeAttributeValue(fid, update3, inputid, True)
-            v_layer.updateFields()
-            
-    def updateLength(self):
-        mc = self.canvas
-        layer = self.setFrontageLayer()
-        v_layer = layer
-        features = v_layer.getFeatures()
-
-        for feat in features:
-            geom = feat.geometry()
-            feat['F_Length'] = geom.length()
-            v_layer.updateFeature(feat)
-
-    def updateSelectedFrontageAttribute(self):
-        QApplication.beep()
-        mc = self.canvas
-        layer = self.setFrontageLayer()
-        features = layer.selectedFeatures()
-
-        if self.frontageslistWidget.currentRow() == 0:
-            for feat in features:
-                feat['F_Group'] = "Building"
-                feat['F_Type'] = "Transparent"
-                geom = feat.geometry()
-                feat['F_Length'] = geom.length()
-                layer.updateFeature(feat)
-                self.addDataFields()
-
-        if self.frontageslistWidget.currentRow() == 1:
-            for feat in features:
-                feat['F_Group'] = "Building"
-                feat['F_Type'] = "Semi Transparent"
-                geom = feat.geometry()
-                feat['F_Length'] = geom.length()
-                layer.updateFeature(feat)
-                self.addDataFields()
-
-        if self.frontageslistWidget.currentRow() == 2:
-            for feat in features:
-                feat['F_Group'] = "Building"
-                feat['F_Type'] = "Blank"
-                geom = feat.geometry()
-                feat['F_Length'] = geom.length()
-                layer.updateFeature(feat)
-                self.addDataFields()
-
-        if self.frontageslistWidget.currentRow() == 3:
-            for feat in features:
-                feat['F_Group'] = "Fence"
-                feat['F_Type'] = "High Opaque Fence"
-                geom = feat.geometry()
-                feat['F_Length'] = geom.length()
-                layer.updateFeature(feat)
-                self.addDataFields()
-
-        if self.frontageslistWidget.currentRow() == 4:
-            for feat in features:
-                feat['F_Group'] = "Fence"
-                feat['F_Type'] = "High See Through Fence"
-                geom = feat.geometry()
-                feat['F_Length'] = geom.length()
-                layer.updateFeature(feat)
-                self.addDataFields()
-
-        if self.frontageslistWidget.currentRow() == 5:
-            for feat in features:
-                feat['F_Group'] = "Fence"
-                feat['F_Type'] = "Low Fence"
-                geom = feat.geometry()
-                feat['F_Length'] = geom.length()
-                layer.updateFeature(feat)
-                self.addDataFields()
-
-    def hideFeatures(self):
-        mc = self.canvas
-        layer = self.setFrontageLayer()
-        if self.hideshowButton.isChecked():
-            plugin_path = os.path.dirname(__file__)
-            qml_path = plugin_path + "/frontagesThematic_NULL.qml"
-            layer.loadNamedStyle(qml_path)
-            mc.refresh()
-
-        else:
-            plugin_path = os.path.dirname(__file__)
-            qml_path = plugin_path + "/frontagesThematic.qml"
-            layer.loadNamedStyle(qml_path)
-            mc.refresh()
-
-
-    def updatepushWidgetList(self):
-        self.pushIDlistWidget.clear()
-        buildinglayer = self.getSelectedLayerPushID()
-        if buildinglayer:
-            fields = buildinglayer.pendingFields()
-            field_names = [field.name() for field in fields]
-            self.pushIDlistWidget.addItems(field_names)
-
-        else:
-            self.pushIDlistWidget.clear()
-
-
-    def pushID(self):
-        buildinglayer = self.getSelectedLayerPushID()
-
-        mc = self.canvas
-        frontlayer = self.setFrontageLayer()
-        frontlayer.startEditing()
-
-        buildingID = self.pushIDlistWidget.currentItem().text()
-        print buildingID
-        newColumn = "B_" + buildingID
-        frontlayer_pr = frontlayer.dataProvider()
-        frontlayer_pr.addAttributes([QgsField( newColumn, QVariant.Int)])
-        frontlayer.commitChanges()
-        frontlayer.startEditing()
-        frontlayer_caps = frontlayer_pr.capabilities()
-
-        for buildfeat in buildinglayer.getFeatures():
-            for frontfeat in frontlayer.getFeatures():
-                if frontfeat.geometry().intersects(buildfeat.geometry()) == True:
-                    frontlayer.startEditing()
-
-                    if frontlayer_caps & QgsVectorDataProvider.ChangeAttributeValues:
-                        frontfeat[newColumn] = buildfeat[buildingID]
-                        frontlayer.updateFeature(frontfeat)
-                        frontlayer.commitChanges()
-
-
-
 
 
 

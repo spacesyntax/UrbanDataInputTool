@@ -91,6 +91,9 @@
      </item>
      <item row="2" column="0">
       <widget class="QCheckBox" name="createNewFileCheckBox">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <property name="text">
         <string>Use building layer:</string>
        </property>

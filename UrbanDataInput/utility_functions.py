@@ -104,3 +104,13 @@ def updateID(iface, layer):
 
     layer.commitChanges()
     layer.startEditing()
+
+
+def isRequiredLayer(self, layer, type):
+    if layer.type() == QgsMapLayer.VectorLayer \
+            and layer.geometryType() == type:
+        fieldlist = getFieldNames(layer)
+        if 'F_Group' in fieldlist and 'F_Type' in fieldlist:
+            return True
+
+    return False

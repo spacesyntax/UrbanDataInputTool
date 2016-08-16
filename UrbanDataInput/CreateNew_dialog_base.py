@@ -2,7 +2,8 @@
 
 # Form implementation generated from reading ui file 'CreateNew_dialog_base.ui'
 #
-# Created by: PyQt4 UI code generator 4.11.4
+# Created: Tue Aug 16 12:24:47 2016
+#      by: PyQt4 UI code generator 4.10.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -67,6 +68,7 @@ class Ui_CreatenewDialogBase(object):
         spacerItem = QtGui.QSpacerItem(20, 20, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.gridLayout.addItem(spacerItem, 3, 2, 1, 1)
         self.createNewFileCheckBox = QtGui.QCheckBox(CreatenewDialogBase)
+        self.createNewFileCheckBox.setEnabled(True)
         self.createNewFileCheckBox.setObjectName(_fromUtf8("createNewFileCheckBox"))
         self.gridLayout.addWidget(self.createNewFileCheckBox, 2, 0, 1, 1)
         self.pushButtonNewFileDLG = QtGui.QPushButton(CreatenewDialogBase)
