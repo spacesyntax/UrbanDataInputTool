@@ -40,9 +40,9 @@ class FrontageTool(QObject):
         self.canvas = self.iface.mapCanvas()
         self.dockwidget = dockwidget
 
-        #######
-        #   Data functions
-        #######
+    #######
+    #   Data functions
+    #######
 
     # Close create new file pop up dialogue when cancel button is pressed
     def closePopUp(self):
@@ -441,11 +441,131 @@ class FrontageTool(QObject):
                         frontlayer.commitChanges()
 
 
+class EntranceTool(QObject):
+
+    def __init__(self, iface, dockwidget,entrancedlg):
+        QObject.__init__(self)
+        self.iface = iface
+        self.legend = self.iface.legendInterface()
+        self.entrancedlg = entrancedlg
+        self.canvas = self.iface.mapCanvas()
+        self.dockwidget = dockwidget
 
 
+    #######
+    #   Data functions
+    #######
+
+    # Close create new file pop up dialogue when cancel button is pressed
+    def closePopUpEntrances(self):
+        self.entrancedlg.close()
+
+    # Update the F_ID column of the Frontage layer
+    def updateIDEntrances(self):
+        layer = self.dockwidget.setEntranceLayer()
+        uf.updateID(self.iface, layer)
+
+    # Open Save file dialogue and set location in text edit
+    def selectSaveLocationEntrance(self):
+        filename = QtGui.QFileDialog.getSaveFileName(None, "Select Save Location ", "", '*.shp')
+        self.entrancedlg.lineEditEntrances.setText(filename)
+
+    # Add Frontage layer to combobox if conditions are satisfied
+    def updateEntranceLayer(self):
+        self.dockwidget.useExistingEntrancescomboBox.clear()
+        self.dockwidget.useExistingEntrancescomboBox.setEnabled(False)
+        layers = self.legend.layers()
+        type = 0
+        for lyr in layers:
+            if uf.isRequiredEntranceLayer(self.iface, lyr, type):
+                self.dockwidget.useExistingEntrancescomboBox.addItem(lyr.name(), lyr)
+
+        if self.dockwidget.useExistingEntrancescomboBox.count() > 0:
+            self.dockwidget.useExistingEntrancescomboBox.setEnabled(True)
+            self.dockwidget.setEntranceLayer()
 
 
+    # Create New Layer
+    def newEntranceLayer(self):
+        # Save to file
+        if self.entrancedlg.lineEditEntrances.text() != "":
+            path = self.entrancedlg.lineEditEntrances.text()
+            filename = os.path.basename(path)
+            location = os.path.abspath(path)
+
+            destCRS = self.canvas.mapRenderer().destinationCrs()
+            vl = QgsVectorLayer("Point?crs=" + destCRS.toWkt(), "memory:Entrances", "memory")
+            QgsMapLayerRegistry.instance().addMapLayer(vl)
+
+            QgsVectorFileWriter.writeAsVectorFormat(vl, location, "CP1250", None, "ESRI Shapefile")
+
+            QgsMapLayerRegistry.instance().removeMapLayers([vl.id()])
+
+            input2 = self.iface.addVectorLayer(location, filename, "ogr")
+            QgsMapLayerRegistry.instance().addMapLayer(input2)
+
+            if not input2:
+                msgBar = self.iface.messageBar()
+                msg = msgBar.createMessage(u'Layer failed to load!' + location)
+                msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+
+            else:
+                msgBar = self.iface.messageBar()
+                msg = msgBar.createMessage(u'New Frontages Layer Created:' + location)
+                msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+
+                input2.startEditing()
+
+                edit1 = input2.dataProvider()
+                edit1.addAttributes([QgsField("E_ID", QVariant.Int),
+                                     QgsField("E_Category", QVariant.String),
+                                     QgsField("E_SubCat", QVariant.String),
+                                     QgsField("E_Level", QVariant.Double)])
+
+                input2.commitChanges()
+                self.updateEntranceLayer()
+
+                self.closePopUpEntrances()
+
+        else:
+            # Save to memory, no base land use layer
+            destCRS = self.canvas.mapRenderer().destinationCrs()
+            vl = QgsVectorLayer("Point?crs=" + destCRS.toWkt(), "memory:Entrances", "memory")
+            QgsMapLayerRegistry.instance().addMapLayer(vl)
+
+            if not vl:
+                msgBar = self.iface.messageBar()
+                msg = msgBar.createMessage(u'Layer failed to load!')
+                msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+
+            else:
+                msgBar = self.iface.messageBar()
+                msg = msgBar.createMessage(u'New Frontages Layer Create:')
+                msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+
+                vl.startEditing()
+
+                edit1 = vl.dataProvider()
+                edit1.addAttributes([QgsField("E_ID", QVariant.Int),
+                                     QgsField("E_Category", QVariant.String),
+                                     QgsField("E_SubCat", QVariant.String),
+                                     QgsField("E_Level", QVariant.Double)])
+
+                vl.commitChanges()
+                self.updateEntranceLayer()
+                self.closePopUpEntrances()
 
 
+    # Set layer as frontage layer and apply thematic style
+    def loadEntranceLayer(self):
+        if self.dockwidget.useExistingEntrancescomboBox.count() > 0:
+            input = self.dockwidget.setEntranceLayer()
 
+            plugin_path = os.path.dirname(__file__)
+            qml_path = plugin_path + "/entrancesThematic.qml"
+            input.loadNamedStyle(qml_path)
 
+            input.startEditing()
+
+            #input.featureAdded.connect(self.logFeatureAdded)
+            input.selectionChanged.connect(self.dockwidget.addEntranceDataFields)

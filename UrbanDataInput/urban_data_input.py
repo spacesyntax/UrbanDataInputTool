@@ -24,9 +24,10 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
 from urban_data_input_dockwidget import UrbanDataInputDockWidget
+from CreateNew_Entrance_dialog import CreateNew_EntranceDialog
 from CreateNew_dialog import CreatenewDialog
 import os.path
-from functionality_modules import FrontageTool
+from functionality_modules import FrontageTool, EntranceTool
 
 #import debug package
 is_debug = False
@@ -204,7 +205,7 @@ class UrbanDataInput:
         # disconnect interface signals
         try:
             self.frontagedlg.createNewFileCheckBox.stateChanged.disconnect(self.frontage_tool.updateLayers)
-            self.iface.mapCanvas().selectionChanged.disconnect(self.dockidget.addDataFields)
+            self.iface.mapCanvas().selectionChanged.disconnect(self.dockwidget.addDataFields)
             self.iface.legendInterface().itemRemoved.disconnect(self.frontage_tool.updateLayers)
             self.iface.legendInterface().itemAdded.disconnect(self.frontage_tool.updateLayers)
             self.frontagedlg.pushButtonNewFileDLG.clicked.disconnect(self.frontage_tool.newFrontageLayer)
@@ -267,8 +268,9 @@ class UrbanDataInput:
                 # Create the dockwidget (after translation) and keep reference
                 self.dockwidget = UrbanDataInputDockWidget(self.iface)
                 self.frontagedlg = CreatenewDialog()
+                self.entrancedlg = CreateNew_EntranceDialog()
                 self.frontage_tool = FrontageTool(self.iface, self.dockwidget,self.frontagedlg)
-
+                self.entrance_tool = EntranceTool(self.iface, self.dockwidget, self.entrancedlg)
 
 
             # connect to provide cleanup on closing of dockwidget
@@ -280,6 +282,7 @@ class UrbanDataInput:
             self.dockwidget.show()
 
             # set up GUI operation signals
+            # Frontages
             self.iface.mapCanvas().selectionChanged.connect(self.dockwidget.addDataFields)
             self.iface.legendInterface().itemRemoved.connect(self.frontage_tool.updateLayers)
             self.iface.legendInterface().itemAdded.connect(self.frontage_tool.updateLayers)
@@ -294,6 +297,7 @@ class UrbanDataInput:
             self.frontagedlg.pushButtonNewFileDLG.clicked.connect(self.frontage_tool.newFrontageLayer)
             self.frontagedlg.createNewFileCheckBox.stateChanged.connect(self.frontage_tool.updateLayers)
             self.frontagedlg.pushButtonSelectLocation.clicked.connect(self.frontage_tool.selectSaveLocation)
+
             self.dockwidget.pushButtonNewFile.clicked.connect(self.newFileDialog)
             self.dockwidget.updateIDButton.clicked.connect(self.frontage_tool.updateID)
             self.dockwidget.updateLengthButton.clicked.connect(self.frontage_tool.updateLength)
@@ -303,9 +307,21 @@ class UrbanDataInput:
             self.dockwidget.useExistingcomboBox.currentIndexChanged.connect(self.frontage_tool.loadFrontageLayer)
             self.dockwidget.hideshowButton.clicked.connect(self.frontage_tool.hideFeatures)
 
+            #Entrances
+            self.entrancedlg.pushButtonEntrancesNewFileDLG.clicked.connect(self.entrance_tool.newEntranceLayer)
+            self.entrancedlg.closePopUpEntrancesButton.clicked.connect(self.entrance_tool.closePopUpEntrances)
+            self.entrancedlg.pushButtonSelectLocationEntrance.clicked.connect(self.entrance_tool.selectSaveLocationEntrance)
+
+            self.dockwidget.ecategorylistWidget.currentRowChanged.connect(self.dockwidget.updateSubCategory)
+            self.dockwidget.pushButtonNewEntrancesFile.clicked.connect(self.newFileDialogEntrance)
+            self.dockwidget.useExistingEntrancescomboBox.currentIndexChanged.connect(self.entrance_tool.loadEntranceLayer)
+
+
             #Initialisation
             self.frontage_tool.updateFrontageLayer()
             self.frontage_tool.updateLayersPushID()
+
+            self.entrance_tool.updateEntranceLayer()
 
     def newFileDialog(self):
         """Run method that performs all the real work"""
@@ -319,6 +335,16 @@ class UrbanDataInput:
         if result:
             pass
 
+    def newFileDialogEntrance(self):
+        """Run method that performs all the real work"""
+        # show the dialog
+        self.entrancedlg.show()
+        # Run the dialog event loop
+        result = self.entrancedlg.exec_()
+        # See if OK was pressed
+        self.entrancedlg.lineEditEntrances.clear()
+        if result:
+            pass
 
 
 

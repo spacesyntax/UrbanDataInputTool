@@ -96,24 +96,8 @@
            <string>New frontage type</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_4">
-           <item row="1" column="0">
-            <widget class="QListWidget" name="frontageslistWidget">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>100</height>
-              </size>
-             </property>
-             <property name="sortingEnabled">
-              <bool>false</bool>
-             </property>
-            </widget>
+           <item row="0" column="0">
+            <widget class="QListWidget" name="frontageslistWidget"/>
            </item>
           </layout>
          </widget>
@@ -127,44 +111,7 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_2">
              <item>
-              <widget class="QTableWidget" name="tableWidgetFrontage">
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="rowCount">
-                <number>0</number>
-               </property>
-               <property name="columnCount">
-                <number>0</number>
-               </property>
-               <attribute name="horizontalHeaderVisible">
-                <bool>false</bool>
-               </attribute>
-               <attribute name="horizontalHeaderDefaultSectionSize">
-                <number>98</number>
-               </attribute>
-               <attribute name="horizontalHeaderHighlightSections">
-                <bool>true</bool>
-               </attribute>
-               <attribute name="horizontalHeaderMinimumSectionSize">
-                <number>33</number>
-               </attribute>
-               <attribute name="verticalHeaderVisible">
-                <bool>false</bool>
-               </attribute>
-               <attribute name="verticalHeaderCascadingSectionResizes">
-                <bool>false</bool>
-               </attribute>
-               <attribute name="verticalHeaderDefaultSectionSize">
-                <number>30</number>
-               </attribute>
-               <attribute name="verticalHeaderStretchLastSection">
-                <bool>true</bool>
-               </attribute>
-              </widget>
+              <widget class="QTableWidget" name="tableWidgetFrontage"/>
              </item>
             </layout>
            </item>
@@ -346,22 +293,63 @@
            <string>New entrance type</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_6">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Category</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>Sub category</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>Access level</string>
+             </property>
+            </widget>
+           </item>
            <item row="1" column="0">
-            <widget class="QListWidget" name="entranceslistWidget">
+            <widget class="QListWidget" name="ecategorylistWidget">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>100</height>
-              </size>
-             </property>
-             <property name="sortingEnabled">
+             <property name="autoFillBackground">
               <bool>false</bool>
+             </property>
+             <property name="alternatingRowColors">
+              <bool>false</bool>
+             </property>
+             <property name="selectionRectVisible">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QListWidget" name="esubcategorylistWidget">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QListWidget" name="eaccesscategorylistWidget">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
              </property>
             </widget>
            </item>
@@ -377,44 +365,7 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_3">
              <item>
-              <widget class="QTableWidget" name="tableWidgetEntrance">
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="rowCount">
-                <number>0</number>
-               </property>
-               <property name="columnCount">
-                <number>0</number>
-               </property>
-               <attribute name="horizontalHeaderVisible">
-                <bool>false</bool>
-               </attribute>
-               <attribute name="horizontalHeaderDefaultSectionSize">
-                <number>98</number>
-               </attribute>
-               <attribute name="horizontalHeaderHighlightSections">
-                <bool>true</bool>
-               </attribute>
-               <attribute name="horizontalHeaderMinimumSectionSize">
-                <number>33</number>
-               </attribute>
-               <attribute name="verticalHeaderVisible">
-                <bool>false</bool>
-               </attribute>
-               <attribute name="verticalHeaderCascadingSectionResizes">
-                <bool>false</bool>
-               </attribute>
-               <attribute name="verticalHeaderDefaultSectionSize">
-                <number>30</number>
-               </attribute>
-               <attribute name="verticalHeaderStretchLastSection">
-                <bool>true</bool>
-               </attribute>
-              </widget>
+              <widget class="QTableWidget" name="tableWidgetEntrance"/>
              </item>
             </layout>
            </item>

@@ -114,3 +114,12 @@ def isRequiredLayer(self, layer, type):
             return True
 
     return False
+
+def isRequiredEntranceLayer(self, layer, type):
+    if layer.type() == QgsMapLayer.VectorLayer \
+            and layer.geometryType() == type:
+        fieldlist = getFieldNames(layer)
+        if 'E_Category' in fieldlist and 'E_SubCat' in fieldlist:
+            return True
+
+    return False

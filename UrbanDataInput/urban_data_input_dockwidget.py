@@ -51,8 +51,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.iface = iface
         self.canvas = self.iface.mapCanvas()
         self.frontage_layer = None
-        self.LU_layer = None
-        self.frontagedlg = CreatenewDialog()
+        self.entrance_layer = None
         self.legend = self.iface.legendInterface()
 
 
@@ -63,13 +62,14 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.pushIDcomboBox.hide()
         self.updateIDPushButton.hide()
 
+        self.updateEntranceTypes()
+
     def closeEvent(self, event):
         self.closingPlugin.emit()
         event.accept()
 
-
     #######
-    #   Data functions
+    #   Frontages
     #######
 
     # Update frontage types
@@ -129,6 +129,75 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.tableWidgetFrontage.clear()
 
 
+    #######
+    #   Entrances
+    #######
+
+    def updateEntranceTypes(self):
+        self.ecategorylistWidget.clear()
+        entrance_category_list = ['Controlled', 'Uncontrolled']
+
+        entrance_access_level_list = ["Ground Floor","Upper Floor","Lower Floor"]
+
+        self.ecategorylistWidget.addItems(entrance_category_list)
+        self.eaccesscategorylistWidget.addItems(entrance_access_level_list)
+
+    def updateSubCategory(self):
+
+        entrance_sub_category_list_Controlled = ['Default', 'Fire Exit', 'Service Entrance', 'Unused']
+        entrance_sub_category_list_Uncontrolled = ['Default']
+
+        if self.ecategorylistWidget.currentRow() == 0:
+            self.esubcategorylistWidget.clear()
+            self.esubcategorylistWidget.addItems(entrance_sub_category_list_Controlled)
+
+        elif self.ecategorylistWidget.currentRow() == 1:
+            self.esubcategorylistWidget.clear()
+            self.esubcategorylistWidget.addItems(entrance_sub_category_list_Uncontrolled)
+
+
+    # Set universal Entrance layer if conditions are satisfied
+    def setEntranceLayer(self):
+        index = self.useExistingEntrancescomboBox.currentIndex()
+        self.entrance_layer = self.useExistingEntrancescomboBox.itemData(index)
+        return self.entrance_layer
+
+    def addEntranceDataFields(self):
+        self.tableClear()
+        layer = self.setEntranceLayer()
+        if layer:
+            features = layer.selectedFeatures()
+            attrs = []
+            for feat in features:
+                attr = feat.attributes()
+                attrs.append(attr)
+
+            fields = layer.pendingFields()
+            field_names = [field.name() for field in fields]
+
+            field_length = len(field_names)
+            A1 = field_length - 4
+            A2 = field_length - 3
+            A3 = field_length - 2
+            A4 = field_length - 1
+
+            self.tableWidgetFrontage.setColumnCount(4)
+            headers = ["F-ID", "Category", "Sub Category", "Level"]
+            self.tableWidgetEntrance.setHorizontalHeaderLabels(headers)
+            self.tableWidgetEntrance.setRowCount(len(attrs))
+
+            for i, item in enumerate(attrs):
+                self.tableWidgetEntrance.setItem(i, 0, QtGui.QTableWidgetItem(str(item[A1])))
+                self.tableWidgetEntrance.setItem(i, 1, QtGui.QTableWidgetItem(str(item[A2])))
+                self.tableWidgetEntrance.setItem(i, 2, QtGui.QTableWidgetItem(str(item[A3])))
+                self.tableWidgetEntrance.setItem(i, 3, QtGui.QTableWidgetItem(str(item[A4])))
+
+            self.tableWidgetEntrance.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
+            self.tableWidgetEntrance.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
+            self.tableWidgetEntrance.resizeRowsToContents()
+
+    def entrancetableClear(self):
+        self.tableWidgetFrontage.clear()
 
 
 
