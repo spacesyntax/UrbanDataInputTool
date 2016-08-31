@@ -63,6 +63,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.updateIDPushButton.hide()
 
         self.updateEntranceTypes()
+        self.eaccesscategorylistWidget.setCurrentRow(1)
 
     def closeEvent(self, event):
         self.closingPlugin.emit()
@@ -137,7 +138,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.ecategorylistWidget.clear()
         entrance_category_list = ['Controlled', 'Uncontrolled']
 
-        entrance_access_level_list = ["Ground Floor","Upper Floor","Lower Floor"]
+        entrance_access_level_list = ["Lower Floor","Ground Floor","Upper Floor"]
 
         self.ecategorylistWidget.addItems(entrance_category_list)
         self.eaccesscategorylistWidget.addItems(entrance_access_level_list)
@@ -163,7 +164,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         return self.entrance_layer
 
     def addEntranceDataFields(self):
-        self.tableClear()
+        self.entrancetableClear()
         layer = self.setEntranceLayer()
         if layer:
             features = layer.selectedFeatures()
@@ -181,8 +182,8 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             A3 = field_length - 2
             A4 = field_length - 1
 
-            self.tableWidgetFrontage.setColumnCount(4)
-            headers = ["F-ID", "Category", "Sub Category", "Level"]
+            self.tableWidgetEntrance.setColumnCount(4)
+            headers = ["E-ID", "Category", "Sub Category","Access Level"]
             self.tableWidgetEntrance.setHorizontalHeaderLabels(headers)
             self.tableWidgetEntrance.setRowCount(len(attrs))
 

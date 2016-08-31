@@ -567,5 +567,286 @@ class EntranceTool(QObject):
 
             input.startEditing()
 
-            #input.featureAdded.connect(self.logFeatureAdded)
+            input.featureAdded.connect(self.logEntranceFeatureAdded)
             input.selectionChanged.connect(self.dockwidget.addEntranceDataFields)
+
+# Draw New Feature
+    def logEntranceFeatureAdded(self, fid):
+
+        QgsMessageLog.logMessage("feature added, id = " + str(fid))
+
+        mc = self.canvas
+        v_layer = self.dockwidget.setEntranceLayer()
+        feature_Count = v_layer.featureCount()
+        features = v_layer.getFeatures()
+        inputid = 0
+
+        if feature_Count == 1:
+            for feat in features:
+                inputid = 1
+
+        elif feature_Count > 1:
+            for feat in features:
+                inputid = feature_Count
+
+        data = v_layer.dataProvider()
+        update1 = data.fieldNameIndex("E_Category")
+        update2 = data.fieldNameIndex("E_SubCat")
+        update3 = data.fieldNameIndex("E_ID")
+        update4 = data.fieldNameIndex("E_Level")
+
+
+        #Controlled + Default
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 0 and self.dockwidget.esubcategorylistWidget.currentRow() == 0 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 0:
+            v_layer.changeAttributeValue(fid, update1, "Controlled", True)
+            v_layer.changeAttributeValue(fid, update2, "Default", True)
+            v_layer.changeAttributeValue(fid, update3, inputid, True)
+            v_layer.changeAttributeValue(fid, update4, "Lower Floor", True)
+            v_layer.updateFields()
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 0 and self.dockwidget.esubcategorylistWidget.currentRow() == 0 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 1:
+            v_layer.changeAttributeValue(fid, update1, "Controlled", True)
+            v_layer.changeAttributeValue(fid, update2, "Default", True)
+            v_layer.changeAttributeValue(fid, update3, inputid, True)
+            v_layer.changeAttributeValue(fid, update4, "Ground Floor", True)
+            v_layer.updateFields()
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 0 and self.dockwidget.esubcategorylistWidget.currentRow() == 0 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 2:
+            v_layer.changeAttributeValue(fid, update1, "Controlled", True)
+            v_layer.changeAttributeValue(fid, update2, "Default", True)
+            v_layer.changeAttributeValue(fid, update3, inputid, True)
+            v_layer.changeAttributeValue(fid, update4, "Upper Floor", True)
+            v_layer.updateFields()
+
+        #Controlled + Fire Exit
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 0 and self.dockwidget.esubcategorylistWidget.currentRow() == 1 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 0:
+            v_layer.changeAttributeValue(fid, update1, "Controlled", True)
+            v_layer.changeAttributeValue(fid, update2, "Fire Exit", True)
+            v_layer.changeAttributeValue(fid, update3, inputid, True)
+            v_layer.changeAttributeValue(fid, update4, "Lower Floor", True)
+            v_layer.updateFields()
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 0 and self.dockwidget.esubcategorylistWidget.currentRow() == 1 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 1:
+            v_layer.changeAttributeValue(fid, update1, "Controlled", True)
+            v_layer.changeAttributeValue(fid, update2, "Fire Exit", True)
+            v_layer.changeAttributeValue(fid, update3, inputid, True)
+            v_layer.changeAttributeValue(fid, update4, "Ground Floor", True)
+            v_layer.updateFields()
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 0 and self.dockwidget.esubcategorylistWidget.currentRow() == 1 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 2:
+            v_layer.changeAttributeValue(fid, update1, "Controlled", True)
+            v_layer.changeAttributeValue(fid, update2, "Fire Exit", True)
+            v_layer.changeAttributeValue(fid, update3, inputid, True)
+            v_layer.changeAttributeValue(fid, update4, "Upper Floor", True)
+            v_layer.updateFields()
+
+        # Controlled + Service Entrance
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 0 and self.dockwidget.esubcategorylistWidget.currentRow() == 2 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 0:
+            v_layer.changeAttributeValue(fid, update1, "Controlled", True)
+            v_layer.changeAttributeValue(fid, update2, "Service Entrance", True)
+            v_layer.changeAttributeValue(fid, update3, inputid, True)
+            v_layer.changeAttributeValue(fid, update4, "Lower Floor", True)
+            v_layer.updateFields()
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 0 and self.dockwidget.esubcategorylistWidget.currentRow() == 2 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 1:
+            v_layer.changeAttributeValue(fid, update1, "Controlled", True)
+            v_layer.changeAttributeValue(fid, update2, "Service Entrance", True)
+            v_layer.changeAttributeValue(fid, update3, inputid, True)
+            v_layer.changeAttributeValue(fid, update4, "Ground Floor", True)
+            v_layer.updateFields()
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 0 and self.dockwidget.esubcategorylistWidget.currentRow() == 2 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 2:
+            v_layer.changeAttributeValue(fid, update1, "Controlled", True)
+            v_layer.changeAttributeValue(fid, update2, "Service Entrance", True)
+            v_layer.changeAttributeValue(fid, update3, inputid, True)
+            v_layer.changeAttributeValue(fid, update4, "Upper Floor", True)
+            v_layer.updateFields()
+
+        # Controlled + Unused
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 0 and self.dockwidget.esubcategorylistWidget.currentRow() == 3 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 0:
+            v_layer.changeAttributeValue(fid, update1, "Controlled", True)
+            v_layer.changeAttributeValue(fid, update2, "Unused", True)
+            v_layer.changeAttributeValue(fid, update3, inputid, True)
+            v_layer.changeAttributeValue(fid, update4, "Lower Floor", True)
+            v_layer.updateFields()
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 0 and self.dockwidget.esubcategorylistWidget.currentRow() == 3 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 1:
+            v_layer.changeAttributeValue(fid, update1, "Controlled", True)
+            v_layer.changeAttributeValue(fid, update2, "Unused", True)
+            v_layer.changeAttributeValue(fid, update3, inputid, True)
+            v_layer.changeAttributeValue(fid, update4, "Ground Floor", True)
+            v_layer.updateFields()
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 0 and self.dockwidget.esubcategorylistWidget.currentRow() == 3 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 2:
+            v_layer.changeAttributeValue(fid, update1, "Controlled", True)
+            v_layer.changeAttributeValue(fid, update2, "Unused", True)
+            v_layer.changeAttributeValue(fid, update3, inputid, True)
+            v_layer.changeAttributeValue(fid, update4, "Upper Floor", True)
+            v_layer.updateFields()
+
+        # Uncontrolled + Default
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 1 and self.dockwidget.esubcategorylistWidget.currentRow() == 0 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 0:
+            v_layer.changeAttributeValue(fid, update1, "Uncontrolled", True)
+            v_layer.changeAttributeValue(fid, update2, "Default", True)
+            v_layer.changeAttributeValue(fid, update3, inputid, True)
+            v_layer.changeAttributeValue(fid, update4, "Lower Floor", True)
+            v_layer.updateFields()
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 1 and self.dockwidget.esubcategorylistWidget.currentRow() == 0 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 1:
+            v_layer.changeAttributeValue(fid, update1, "Uncontrolled", True)
+            v_layer.changeAttributeValue(fid, update2, "Default", True)
+            v_layer.changeAttributeValue(fid, update3, inputid, True)
+            v_layer.changeAttributeValue(fid, update4, "Ground Floor", True)
+            v_layer.updateFields()
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 1 and self.dockwidget.esubcategorylistWidget.currentRow() == 0 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 2:
+            v_layer.changeAttributeValue(fid, update1, "Uncontrolled", True)
+            v_layer.changeAttributeValue(fid, update2, "Default", True)
+            v_layer.changeAttributeValue(fid, update3, inputid, True)
+            v_layer.changeAttributeValue(fid, update4, "Upper Floor", True)
+            v_layer.updateFields()
+
+    # Update Feature
+    def updateSelectedEntranceAttribute(self):
+        QtGui.QApplication.beep()
+        mc = self.canvas
+        layer = self.dockwidget.setEntranceLayer()
+        features = layer.selectedFeatures()
+
+        #Controlled + Default
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 0 and self.dockwidget.esubcategorylistWidget.currentRow() == 0 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 0:
+            for feat in features:
+                feat['E_Category'] = "Controlled"
+                feat['E_SubCat'] = "Default"
+                feat['E_Level'] = "Lower Floor"
+                layer.updateFeature(feat)
+                self.dockwidget.addEntranceDataFields()
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 0 and self.dockwidget.esubcategorylistWidget.currentRow() == 0 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 1:
+            for feat in features:
+                feat['E_Category'] = "Controlled"
+                feat['E_SubCat'] = "Default"
+                feat['E_Level'] = "Ground Floor"
+                layer.updateFeature(feat)
+                self.dockwidget.addEntranceDataFields()
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 0 and self.dockwidget.esubcategorylistWidget.currentRow() == 0 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 2:
+            for feat in features:
+                feat['E_Category'] = "Controlled"
+                feat['E_SubCat'] = "Default"
+                feat['E_Level'] = "Upper Floor"
+                layer.updateFeature(feat)
+                self.dockwidget.addEntranceDataFields()
+
+        #Controlled + Fire Exit
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 0 and self.dockwidget.esubcategorylistWidget.currentRow() == 1 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 0:
+            for feat in features:
+                feat['E_Category'] = "Controlled"
+                feat['E_SubCat'] = "Fire Exit"
+                feat['E_Level'] = "Lower Floor"
+                layer.updateFeature(feat)
+                self.dockwidget.addEntranceDataFields()
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 0 and self.dockwidget.esubcategorylistWidget.currentRow() == 1 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 1:
+            for feat in features:
+                feat['E_Category'] = "Controlled"
+                feat['E_SubCat'] = "Fire Exit"
+                feat['E_Level'] = "Ground Floor"
+                layer.updateFeature(feat)
+                self.dockwidget.addEntranceDataFields()
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 0 and self.dockwidget.esubcategorylistWidget.currentRow() == 1 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 2:
+            for feat in features:
+                feat['E_Category'] = "Controlled"
+                feat['E_SubCat'] = "Fire Exit"
+                feat['E_Level'] = "Upper Floor"
+                layer.updateFeature(feat)
+                self.dockwidget.addEntranceDataFields()
+
+
+        #Controlled + Service Entrance
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 0 and self.dockwidget.esubcategorylistWidget.currentRow() == 2 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 0:
+            for feat in features:
+                feat['E_Category'] = "Controlled"
+                feat['E_SubCat'] = "Service Entrance"
+                feat['E_Level'] = "Lower Floor"
+                layer.updateFeature(feat)
+                self.dockwidget.addEntranceDataFields()
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 0 and self.dockwidget.esubcategorylistWidget.currentRow() == 2 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 1:
+            for feat in features:
+                feat['E_Category'] = "Controlled"
+                feat['E_SubCat'] = "Service Entrance"
+                feat['E_Level'] = "Ground Floor"
+                layer.updateFeature(feat)
+                self.dockwidget.addEntranceDataFields()
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 0 and self.dockwidget.esubcategorylistWidget.currentRow() == 2 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 2:
+            for feat in features:
+                feat['E_Category'] = "Controlled"
+                feat['E_SubCat'] = "Service Entrance"
+                feat['E_Level'] = "Upper Floor"
+                layer.updateFeature(feat)
+                self.dockwidget.addEntranceDataFields()
+
+
+        #Controlled + Unused
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 0 and self.dockwidget.esubcategorylistWidget.currentRow() == 3 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 0:
+            for feat in features:
+                feat['E_Category'] = "Controlled"
+                feat['E_SubCat'] = "Unused"
+                feat['E_Level'] = "Upper Floor"
+                layer.updateFeature(feat)
+                self.dockwidget.addEntranceDataFields()
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 0 and self.dockwidget.esubcategorylistWidget.currentRow() == 3 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 1:
+            for feat in features:
+                feat['E_Category'] = "Controlled"
+                feat['E_SubCat'] = "Unused"
+                feat['E_Level'] = "Upper Floor"
+                layer.updateFeature(feat)
+                self.dockwidget.addEntranceDataFields()
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 0 and self.dockwidget.esubcategorylistWidget.currentRow() == 3 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 2:
+            for feat in features:
+                feat['E_Category'] = "Controlled"
+                feat['E_SubCat'] = "Unused"
+                feat['E_Level'] = "Upper Floor"
+                layer.updateFeature(feat)
+                self.dockwidget.addEntranceDataFields()
+
+
+    #Uncontrolled + Default
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 1 and self.dockwidget.esubcategorylistWidget.currentRow() == 0 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 0:
+            for feat in features:
+                feat['E_Category'] = "Uncontrolled"
+                feat['E_SubCat'] = "Default"
+                feat['E_Level'] = "Lower Floor"
+                layer.updateFeature(feat)
+                self.dockwidget.addEntranceDataFields()
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 1 and self.dockwidget.esubcategorylistWidget.currentRow() == 0 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 1:
+            for feat in features:
+                feat['E_Category'] = "Uncontrolled"
+                feat['E_SubCat'] = "Default"
+                feat['E_Level'] = "Ground Floor"
+                layer.updateFeature(feat)
+                self.dockwidget.addEntranceDataFields()
+
+        if self.dockwidget.ecategorylistWidget.currentRow() == 1 and self.dockwidget.esubcategorylistWidget.currentRow() == 0 and self.dockwidget.eaccesscategorylistWidget.currentRow() == 2:
+            for feat in features:
+                feat['E_Category'] = "Uncontrolled"
+                feat['E_SubCat'] = "Default"
+                feat['E_Level'] = "Upper Floor"
+                layer.updateFeature(feat)
+                self.dockwidget.addEntranceDataFields()

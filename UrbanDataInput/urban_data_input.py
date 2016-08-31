@@ -315,6 +315,7 @@ class UrbanDataInput:
             self.dockwidget.ecategorylistWidget.currentRowChanged.connect(self.dockwidget.updateSubCategory)
             self.dockwidget.pushButtonNewEntrancesFile.clicked.connect(self.newFileDialogEntrance)
             self.dockwidget.useExistingEntrancescomboBox.currentIndexChanged.connect(self.entrance_tool.loadEntranceLayer)
+            self.dockwidget.updateFacadeButton.clicked.connect(self.frontage_tool.updateSelectedEntranceAttribute)
 
 
             #Initialisation
