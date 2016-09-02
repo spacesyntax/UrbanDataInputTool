@@ -51,7 +51,17 @@ class FrontageTool(QObject):
     # Update the F_ID column of the Frontage layer
     def updateID(self):
         layer = self.dockwidget.setFrontageLayer()
-        uf.updateID(self.iface, layer)
+        features = layer.getFeatures()
+        i = 1
+        layer.startEditing()
+        for feat in features:
+            feat['F_ID'] = i
+            i += 1
+            layer.updateFeature(feat)
+
+        layer.commitChanges()
+        layer.startEditing()
+        layer.selectionChanged.connect(self.dockwidget.addDataFields)
 
     # Open Save file dialogue and set location in text edit
     def selectSaveLocation(self):
@@ -463,7 +473,16 @@ class EntranceTool(QObject):
     # Update the F_ID column of the Frontage layer
     def updateIDEntrances(self):
         layer = self.dockwidget.setEntranceLayer()
-        uf.updateID(self.iface, layer)
+        features = layer.getFeatures()
+        i = 1
+        layer.startEditing()
+        for feat in features:
+            feat['E_ID'] = i
+            i += 1
+            layer.updateFeature(feat)
+
+        layer.commitChanges()
+        layer.startEditing()
 
     # Open Save file dialogue and set location in text edit
     def selectSaveLocationEntrance(self):

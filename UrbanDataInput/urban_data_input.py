@@ -315,13 +315,16 @@ class UrbanDataInput:
             self.dockwidget.ecategorylistWidget.currentRowChanged.connect(self.dockwidget.updateSubCategory)
             self.dockwidget.pushButtonNewEntrancesFile.clicked.connect(self.newFileDialogEntrance)
             self.dockwidget.useExistingEntrancescomboBox.currentIndexChanged.connect(self.entrance_tool.loadEntranceLayer)
-            self.dockwidget.updateFacadeButton.clicked.connect(self.frontage_tool.updateSelectedEntranceAttribute)
+            self.dockwidget.updateEntranceButton.clicked.connect(self.entrance_tool.updateSelectedEntranceAttribute)
+            self.dockwidget.updateEntranceIDButton.clicked.connect(self.entrance_tool.updateIDEntrances)
 
 
             #Initialisation
+            # Frontages
             self.frontage_tool.updateFrontageLayer()
             self.frontage_tool.updateLayersPushID()
 
+            # Entrances
             self.entrance_tool.updateEntranceLayer()
 
     def newFileDialog(self):
