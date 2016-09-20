@@ -65,6 +65,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.updateEntranceTypes()
         self.eaccesscategorylistWidget.setCurrentRow(1)
 
+
     def closeEvent(self, event):
         self.closingPlugin.emit()
         event.accept()
@@ -151,10 +152,12 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         if self.ecategorylistWidget.currentRow() == 0:
             self.esubcategorylistWidget.clear()
             self.esubcategorylistWidget.addItems(entrance_sub_category_list_Controlled)
+            self.esubcategorylistWidget.setCurrentRow(0)
 
         elif self.ecategorylistWidget.currentRow() == 1:
             self.esubcategorylistWidget.clear()
             self.esubcategorylistWidget.addItems(entrance_sub_category_list_Uncontrolled)
+            self.esubcategorylistWidget.setCurrentRow(0)
 
 
     # Set universal Entrance layer if conditions are satisfied

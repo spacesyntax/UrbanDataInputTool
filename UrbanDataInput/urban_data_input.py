@@ -30,7 +30,7 @@ import os.path
 from functionality_modules import FrontageTool, EntranceTool
 
 #import debug package
-is_debug = False
+is_debug = True
 try:
     import pydevd
     has_pydevd = True

@@ -271,16 +271,13 @@ class FrontageTool(QObject):
         mc = self.canvas
         v_layer = self.dockwidget.setFrontageLayer()
         feature_Count = v_layer.featureCount()
-        features = v_layer.getFeatures()
         inputid = 0
 
         if feature_Count == 1:
-            for feat in features:
-                inputid = 1
+            inputid = 1
 
         elif feature_Count > 1:
-            for feat in features:
-                inputid = feature_Count
+            inputid = feature_Count
 
         data = v_layer.dataProvider()
         update1 = data.fieldNameIndex("F_Group")
@@ -601,12 +598,10 @@ class EntranceTool(QObject):
         inputid = 0
 
         if feature_Count == 1:
-            for feat in features:
-                inputid = 1
+            inputid = 1
 
         elif feature_Count > 1:
-            for feat in features:
-                inputid = feature_Count
+            inputid = feature_Count
 
         data = v_layer.dataProvider()
         update1 = data.fieldNameIndex("E_Category")
