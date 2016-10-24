@@ -25,9 +25,12 @@ from PyQt4.QtGui import *
 from qgis.core import *
 from urban_data_input_dockwidget import UrbanDataInputDockWidget
 from CreateNew_Entrance_dialog import CreateNew_EntranceDialog
+from CreateNew_LU_dialog import CreateNew_LUDialog
 from CreateNew_dialog import CreatenewDialog
 import os.path
-from functionality_modules import FrontageTool, EntranceTool
+from frontages import FrontageTool
+from entrances import EntranceTool
+from landuse import LanduseTool
 
 #import debug package
 is_debug = False
@@ -269,8 +272,10 @@ class UrbanDataInput:
                 self.dockwidget = UrbanDataInputDockWidget(self.iface)
                 self.frontagedlg = CreatenewDialog()
                 self.entrancedlg = CreateNew_EntranceDialog()
+                self.ludlg = CreateNew_LUDialog()
                 self.frontage_tool = FrontageTool(self.iface, self.dockwidget,self.frontagedlg)
                 self.entrance_tool = EntranceTool(self.iface, self.dockwidget, self.entrancedlg)
+                self.lu_tool = LanduseTool(self.iface, self.dockwidget, self.ludlg)
 
 
             # connect to provide cleanup on closing of dockwidget
@@ -318,6 +323,14 @@ class UrbanDataInput:
             self.dockwidget.updateEntranceButton.clicked.connect(self.entrance_tool.updateSelectedEntranceAttribute)
             self.dockwidget.updateEntranceIDButton.clicked.connect(self.entrance_tool.updateIDEntrances)
 
+            # Landuse
+            self.ludlg.pushButtonLUNewFileDLG.clicked.connect(self.lu_tool.newLULayer)
+            self.ludlg.closePopUpLUButton.clicked.connect(self.lu_tool.closePopUpLU)
+            self.ludlg.pushButtonSelectLocationLU.clicked.connect(self.lu_tool.selectSaveLocationLU)
+
+            self.dockwidget.lucategorylistWidget.currentRowChanged.connect(self.dockwidget.updateLUsubcat)
+            self.dockwidget.pushButtonNewLUFile.clicked.connect(self.newFileDialogLU)
+
 
             #Initialisation
             # Frontages
@@ -326,6 +339,9 @@ class UrbanDataInput:
 
             # Entrances
             self.entrance_tool.updateEntranceLayer()
+
+            # Landuse
+            self.lu_tool.updateLULayer()
 
     def newFileDialog(self):
         """Run method that performs all the real work"""
@@ -349,6 +365,19 @@ class UrbanDataInput:
         self.entrancedlg.lineEditEntrances.clear()
         if result:
             pass
+
+    def newFileDialogLU(self):
+        """Run method that performs all the real work"""
+        # show the dialog
+        self.ludlg.show()
+        # Run the dialog event loop
+        result = self.ludlg.exec_()
+        # See if OK was pressed
+        if result:
+            # Do something useful here - delete the line containing pass and
+            # substitute with your code.
+            pass
+
 
 
 

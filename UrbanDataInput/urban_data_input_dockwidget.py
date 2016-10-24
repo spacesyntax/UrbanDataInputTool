@@ -52,6 +52,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.canvas = self.iface.mapCanvas()
         self.frontage_layer = None
         self.entrance_layer = None
+        self.LU_layer = None
         self.legend = self.iface.legendInterface()
 
 
@@ -64,6 +65,8 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         self.updateEntranceTypes()
         self.eaccesscategorylistWidget.setCurrentRow(1)
+
+        self.updateLUTypes()
 
     def closeEvent(self, event):
         self.closingPlugin.emit()
@@ -201,9 +204,162 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.tableWidgetFrontage.clear()
 
 
+        #######
+        #   Land Use
+        #######
+
+    def updateLUTypes(self):
+        self.lucategorylistWidget.clear()
+        lu_category_list = ["Agriculture","Community","Catering",
+                            "Education","Government","Hotels",
+                            "Industry","Leisure","Medical",
+                            "Offices","Parking","Retail",
+                            "Residential","Services","Storage",
+                            "Transport","Utilities", "Under Construction",
+                            "Under Developed", "Unknown/Undefined","Vacant Building"]
+
+        self.lucategorylistWidget.addItems(lu_category_list)
+
+    def updateLUsubcat(self):
+
+        lu_sub_category_list_catering = ["Restaurant and Cafes","Drinking Establishments",
+                                         "Hot Food Takeaways"]
+        lu_sub_category_list_leisure = ["Art and Culture","Amusement or Sports"]
+        lu_sub_category_list_medical = ["Hospitals","Health centres"]
+        lu_sub_category_list_parking = ["Car Parks","Other Vehicles"]
+        lu_sub_category_list_residential = ["Institutions","Dwellings"]
+        lu_sub_category_list_services = ["Commercial","Financial"]
+        lu_sub_category_list_transport = ["Transport Terminals","Goods Terminals"]
+        lu_sub_category_list_empty = []
+
+        if self.lucategorylistWidget.currentRow() == 0:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+
+        elif self.lucategorylistWidget.currentRow() == 1:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+
+        elif self.lucategorylistWidget.currentRow() == 2:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_catering)
+
+        elif self.lucategorylistWidget.currentRow() == 3:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+
+        elif self.lucategorylistWidget.currentRow() == 4:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+
+        elif self.lucategorylistWidget.currentRow() == 5:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+
+        elif self.lucategorylistWidget.currentRow() == 6:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+
+        elif self.lucategorylistWidget.currentRow() == 7:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_leisure)
+
+        elif self.lucategorylistWidget.currentRow() == 8:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_medical)
+
+        elif self.lucategorylistWidget.currentRow() == 9:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+
+        elif self.lucategorylistWidget.currentRow() == 10:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_parking)
+
+        elif self.lucategorylistWidget.currentRow() == 11:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+
+        elif self.lucategorylistWidget.currentRow() == 12:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_residential)
+
+        elif self.lucategorylistWidget.currentRow() == 13:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_services)
+
+        elif self.lucategorylistWidget.currentRow() == 14:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+
+        elif self.lucategorylistWidget.currentRow() == 15:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_transport)
+
+        elif self.lucategorylistWidget.currentRow() == 16:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+
+        elif self.lucategorylistWidget.currentRow() == 17:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+
+        elif self.lucategorylistWidget.currentRow() == 18:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+
+        elif self.lucategorylistWidget.currentRow() == 19:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+
+        elif self.lucategorylistWidget.currentRow() == 20:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
 
 
+    # Set universal Entrance layer if conditions are satisfied
 
+    def setLULayer(self):
+        index = self.useExistingLUcomboBox.currentIndex()
+        self.LU_layer = self.useExistingLUcomboBox.itemData(index)
+        return self.LU_layer
+
+    def addLUDataFields(self):
+        self.LUtableClear()
+        layer = self.setLULayer()
+        if layer:
+            features = layer.selectedFeatures()
+            attrs = []
+            for feat in features:
+                attr = feat.attributes()
+                attrs.append(attr)
+
+            fields = layer.pendingFields()
+            field_names = [field.name() for field in fields]
+
+            field_length = len(field_names)
+            A1 = field_length - 4
+            A2 = field_length - 3
+            A3 = field_length - 2
+            A4 = field_length - 1
+
+            self.tableWidgetEntrance.setColumnCount(4)
+            headers = ["LU-ID", "Category", "Sub Category", "Floor"]
+            self.tableWidgetEntrance.setHorizontalHeaderLabels(headers)
+            self.tableWidgetEntrance.setRowCount(len(attrs))
+
+            for i, item in enumerate(attrs):
+                self.tableWidgetEntrance.setItem(i, 0, QtGui.QTableWidgetItem(str(item[A1])))
+                self.tableWidgetEntrance.setItem(i, 1, QtGui.QTableWidgetItem(str(item[A2])))
+                self.tableWidgetEntrance.setItem(i, 2, QtGui.QTableWidgetItem(str(item[A3])))
+                self.tableWidgetEntrance.setItem(i, 3, QtGui.QTableWidgetItem(str(item[A4])))
+
+            self.tableWidgetEntrance.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
+            self.tableWidgetEntrance.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
+            self.tableWidgetEntrance.resizeRowsToContents()
+
+    def LUtableClear(self):
+        self.tableWidgetFrontage.clear()
 
 
 
