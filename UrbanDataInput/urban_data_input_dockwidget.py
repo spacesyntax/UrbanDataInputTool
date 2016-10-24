@@ -66,10 +66,8 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.updateEntranceTypes()
         self.eaccesscategorylistWidget.setCurrentRow(1)
 
-<<<<<<< HEAD
         self.updateLUTypes()
-=======
->>>>>>> origin/Entrances/Restructuring-Code
+
 
     def closeEvent(self, event):
         self.closingPlugin.emit()
