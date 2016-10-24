@@ -33,7 +33,7 @@ from entrances import EntranceTool
 from landuse import LanduseTool
 
 #import debug package
-is_debug = False
+is_debug = True
 try:
     import pydevd
     has_pydevd = True

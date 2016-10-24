@@ -6,8 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
+<<<<<<< HEAD
     <width>463</width>
     <height>770</height>
+=======
+    <width>441</width>
+    <height>639</height>
+>>>>>>> origin/Entrances/Restructuring-Code
    </rect>
   </property>
   <property name="minimumSize">
@@ -314,6 +319,29 @@
              </property>
             </widget>
            </item>
+           <item row="1" column="1">
+            <widget class="QListWidget" name="esubcategorylistWidget">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="currentRow">
+              <number>-1</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QListWidget" name="eaccesscategorylistWidget">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
            <item row="1" column="0">
             <widget class="QListWidget" name="ecategorylistWidget">
              <property name="sizePolicy">
@@ -330,26 +358,6 @@
              </property>
              <property name="selectionRectVisible">
               <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QListWidget" name="esubcategorylistWidget">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2">
-            <widget class="QListWidget" name="eaccesscategorylistWidget">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
              </property>
             </widget>
            </item>
