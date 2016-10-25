@@ -204,7 +204,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.tableWidgetEntrance.resizeRowsToContents()
 
     def entrancetableClear(self):
-        self.tableWidgetFrontage.clear()
+        self.tableWidgetEntrance.clear()
 
 
         #######
@@ -346,23 +346,23 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             A3 = field_length - 2
             A4 = field_length - 1
 
-            self.tableWidgetEntrance.setColumnCount(4)
+            self.tableWidgetlanduse.setColumnCount(4)
             headers = ["LU-ID", "Category", "Sub Category", "Floor"]
-            self.tableWidgetEntrance.setHorizontalHeaderLabels(headers)
-            self.tableWidgetEntrance.setRowCount(len(attrs))
+            self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
+            self.tableWidgetlanduse.setRowCount(len(attrs))
 
             for i, item in enumerate(attrs):
-                self.tableWidgetEntrance.setItem(i, 0, QtGui.QTableWidgetItem(str(item[A1])))
-                self.tableWidgetEntrance.setItem(i, 1, QtGui.QTableWidgetItem(str(item[A2])))
-                self.tableWidgetEntrance.setItem(i, 2, QtGui.QTableWidgetItem(str(item[A3])))
-                self.tableWidgetEntrance.setItem(i, 3, QtGui.QTableWidgetItem(str(item[A4])))
+                self.tableWidgetlanduse.setItem(i, 0, QtGui.QTableWidgetItem(str(item[A1])))
+                self.tableWidgetlanduse.setItem(i, 1, QtGui.QTableWidgetItem(str(item[A2])))
+                self.tableWidgetlanduse.setItem(i, 2, QtGui.QTableWidgetItem(str(item[A3])))
+                self.tableWidgetlanduse.setItem(i, 3, QtGui.QTableWidgetItem(str(item[A4])))
 
-            self.tableWidgetEntrance.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
-            self.tableWidgetEntrance.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
-            self.tableWidgetEntrance.resizeRowsToContents()
+            self.tableWidgetlandusee.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
+            self.tableWidgetlanduse.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
+            self.tableWidgetlanduse.resizeRowsToContents()
 
     def LUtableClear(self):
-        self.tableWidgetFrontage.clear()
+        self.tableWidgetlanduse.clear()
 
 
 

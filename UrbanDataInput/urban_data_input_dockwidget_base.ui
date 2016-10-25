@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>441</width>
-    <height>770</height>
+    <height>874</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>441</width>
-    <height>579</height>
+    <height>592</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -22,25 +22,25 @@
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QTabWidget" name="tabWidget">
+     <widget class="QTabWidget" name="urbandatainputtabwidget">
       <property name="tabShape">
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <property name="usesScrollButtons">
        <bool>true</bool>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
-        <string>Frontages</string>
+        <string>Frontage</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,3,0">
         <item>
          <layout class="QGridLayout" name="gridLayout">
           <item row="0" column="0">
-           <widget class="QLabel" name="label_2">
+           <widget class="QLabel" name="label_frontagelayer">
             <property name="text">
              <string>Frontage layer</string>
             </property>
@@ -79,7 +79,7 @@
          </layout>
         </item>
         <item>
-         <widget class="QGroupBox" name="groupBox_3">
+         <widget class="QGroupBox" name="groupBox_newfrontagetype">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
             <horstretch>0</horstretch>
@@ -119,9 +119,9 @@
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="groupBox_2">
+         <widget class="QGroupBox" name="groupBox_updatefrontages">
           <property name="title">
-           <string>Update frontages</string>
+           <string>Update frontage</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <item>
@@ -284,13 +284,13 @@
       </widget>
       <widget class="QWidget" name="tab_2">
        <attribute name="title">
-        <string>Entrances</string>
+        <string>Entrance</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_4">
         <item>
          <layout class="QGridLayout" name="gridLayout_5">
           <item row="0" column="1">
-           <widget class="QPushButton" name="EntpushButtonNewFile">
+           <widget class="QPushButton" name="pushButtonNewEntrancesFile">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -303,16 +303,16 @@
            </widget>
           </item>
           <item row="1" column="0" colspan="2">
-           <widget class="QComboBox" name="comboBox"/>
+           <widget class="QComboBox" name="useExistingEntrancescomboBox"/>
           </item>
           <item row="0" column="0">
-           <widget class="QLabel" name="label">
+           <widget class="QLabel" name="label_entrancelayer">
             <property name="text">
              <string>Entrance Layer</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
+          <item row="2" column="0" colspan="2">
            <widget class="Line" name="line_3">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -322,19 +322,25 @@
          </layout>
         </item>
         <item>
-         <widget class="QGroupBox" name="groupBox">
+         <widget class="QGroupBox" name="groupBox_newentrancetype">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="maximumSize">
+           <size>
+            <width>399</width>
+            <height>133</height>
+           </size>
+          </property>
           <property name="title">
            <string>New entrance type</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_6">
            <item row="0" column="0">
-            <widget class="QListWidget" name="frontageslistWidget_2">
+            <widget class="QListWidget" name="ecategorylistWidget">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
                <horstretch>0</horstretch>
@@ -352,26 +358,32 @@
              </property>
             </widget>
            </item>
+           <item row="0" column="1">
+            <widget class="QListWidget" name="esubcategorylistWidget"/>
+           </item>
+           <item row="0" column="2">
+            <widget class="QListWidget" name="eaccesscategorylistWidget"/>
+           </item>
           </layout>
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="groupBox_4">
+         <widget class="QGroupBox" name="groupBox_updateentrances">
           <property name="title">
-           <string>Update entrances</string>
+           <string>Update entrance</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_7">
            <item row="0" column="0">
             <layout class="QHBoxLayout" name="horizontalLayout_4">
              <item>
-              <widget class="QTableWidget" name="tableWidget"/>
+              <widget class="QTableWidget" name="tableWidgetEntrance"/>
              </item>
             </layout>
            </item>
            <item row="1" column="0">
-            <layout class="QHBoxLayout" name="horizontalLayout">
-             <item>
-              <widget class="QPushButton" name="pushButton_2">
+            <layout class="QGridLayout" name="gridLayout_8">
+             <item row="0" column="0">
+              <widget class="QPushButton" name="updateEntranceButton">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -383,8 +395,8 @@
                </property>
               </widget>
              </item>
-             <item>
-              <widget class="QPushButton" name="pushButton_3">
+             <item row="0" column="1">
+              <widget class="QPushButton" name="updateEntranceIDButton">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -406,6 +418,230 @@
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_3">
+       <attribute name="title">
+        <string>Land Use</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <item>
+         <layout class="QGridLayout" name="gridLayout_10">
+          <item row="0" column="1">
+           <widget class="QPushButton" name="pushButtonNewLUFile">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Create New</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="2">
+           <widget class="QComboBox" name="useExistingLUcomboBox"/>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_landuselayer">
+            <property name="text">
+             <string>Land Use Layer</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="2">
+           <widget class="Line" name="line_5">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_newlandusetype">
+          <property name="maximumSize">
+           <size>
+            <width>391</width>
+            <height>298</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>New land use type</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_9">
+           <item row="0" column="0" colspan="2">
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
+              <widget class="QRadioButton" name="radioButton">
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>17</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Ground floor</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radioButton_2">
+               <property name="text">
+                <string>Lower floor</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radioButton_3">
+               <property name="text">
+                <string>Upper floor</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLabel" name="label_lusubcategory">
+             <property name="text">
+              <string>Sub Category</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_Lucategory">
+             <property name="text">
+              <string>Category</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QListWidget" name="lucategorylistWidget">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>182</width>
+               <height>100</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>182</width>
+               <height>100</height>
+              </size>
+             </property>
+             <property name="sortingEnabled">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_lufloors">
+             <property name="text">
+              <string>Floors</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0" colspan="2">
+            <widget class="QTextEdit" name="textEdit">
+             <property name="maximumSize">
+              <size>
+               <width>371</width>
+               <height>51</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_ludescription">
+             <property name="text">
+              <string>Description</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QListWidget" name="lusubcategorylistWidget">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>183</width>
+               <height>100</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>183</width>
+               <height>100</height>
+              </size>
+             </property>
+             <property name="sortingEnabled">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0" colspan="2">
+            <widget class="QSpinBox" name="spinBoxlufloors"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_updatelanduse">
+          <property name="title">
+           <string>Update land use</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_11">
+           <item row="0" column="0">
+            <layout class="QHBoxLayout" name="horizontalLayout_5">
+             <item>
+              <widget class="QTableWidget" name="tableWidgetlanduse"/>
+             </item>
+            </layout>
+           </item>
+           <item row="1" column="0">
+            <layout class="QGridLayout" name="gridLayout_12">
+             <item row="0" column="0">
+              <widget class="QPushButton" name="updateEntranceButton_2">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Update Type</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QPushButton" name="updateEntranceIDButton_2">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Update ID</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>
