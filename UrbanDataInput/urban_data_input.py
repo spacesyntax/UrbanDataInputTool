@@ -303,6 +303,7 @@ class UrbanDataInput:
             self.frontagedlg.createNewFileCheckBox.stateChanged.connect(self.frontage_tool.updateLayers)
             self.frontagedlg.pushButtonSelectLocation.clicked.connect(self.frontage_tool.selectSaveLocation)
 
+            self.dockwidget.frontagescatlistWidget.currentRowChanged.connect(self.dockwidget.updateFrontageSubTypes)
             self.dockwidget.pushButtonNewFile.clicked.connect(self.newFileDialog)
             self.dockwidget.updateIDButton.clicked.connect(self.frontage_tool.updateID)
             self.dockwidget.updateLengthButton.clicked.connect(self.frontage_tool.updateLength)
@@ -313,6 +314,8 @@ class UrbanDataInput:
             self.dockwidget.hideshowButton.clicked.connect(self.frontage_tool.hideFeatures)
 
             #Entrances
+            self.iface.mapCanvas().selectionChanged.connect(self.dockwidget.addEntranceDataFields)
+
             self.entrancedlg.pushButtonEntrancesNewFileDLG.clicked.connect(self.entrance_tool.newEntranceLayer)
             self.entrancedlg.closePopUpEntrancesButton.clicked.connect(self.entrance_tool.closePopUpEntrances)
             self.entrancedlg.pushButtonSelectLocationEntrance.clicked.connect(self.entrance_tool.selectSaveLocationEntrance)
@@ -324,11 +327,17 @@ class UrbanDataInput:
             self.dockwidget.updateEntranceIDButton.clicked.connect(self.entrance_tool.updateIDEntrances)
 
             # Landuse
+            self.iface.mapCanvas().selectionChanged.connect(self.dockwidget.addLUDataFields)
+
             self.ludlg.pushButtonLUNewFileDLG.clicked.connect(self.lu_tool.newLULayer)
             self.ludlg.closePopUpLUButton.clicked.connect(self.lu_tool.closePopUpLU)
+            self.dockwidget.useExistingLUcomboBox.currentIndexChanged.connect(self.lu_tool.loadLULayer)
             self.ludlg.pushButtonSelectLocationLU.clicked.connect(self.lu_tool.selectSaveLocationLU)
 
             self.dockwidget.lucategorylistWidget.currentRowChanged.connect(self.dockwidget.updateLUsubcat)
+            self.dockwidget.lucategorylistWidget.currentRowChanged.connect(self.dockwidget.updateLUCodes)
+
+            self.dockwidget.lusubcategorylistWidget.currentRowChanged.connect(self.dockwidget.updateLUCodes)
             self.dockwidget.pushButtonNewLUFile.clicked.connect(self.newFileDialogLU)
 
 

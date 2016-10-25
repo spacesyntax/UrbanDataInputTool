@@ -67,6 +67,9 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.eaccesscategorylistWidget.setCurrentRow(1)
 
         self.updateLUTypes()
+        #self.lineEdit_luSSx.hide()
+        #self.lineEdit_luNLUD.hide()
+        #self.lineEdit_luTCPA.hide()
 
 
     def closeEvent(self, event):
@@ -79,12 +82,26 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
     # Update frontage types
     def updateFrontageTypes(self):
-        self.frontageslistWidget.clear()
-        frontage_list = ['Transparent', 'Semi Transparent', 'Blank',
-                          'High Opaque Fence', 'High See Through Fence',
-                          'Low Fence']
+        self.frontagescatlistWidget.clear()
 
-        self.frontageslistWidget.addItems(frontage_list)
+        frontage_list_cat = ['Building', 'Fences']
+
+        self.frontagescatlistWidget.addItems(frontage_list_cat)
+
+    def updateFrontageSubTypes(self):
+
+        frontage_sub_category_list_Building = ['Transparent', 'Semi Transparent', 'Blank']
+        frontage_sub_category_list_Fences = ['High Opaque Fence', 'High See Through Fence','Low Fence']
+
+        if self.frontagescatlistWidget.currentRow() == 0:
+            self.frontagessubcatlistWidget.clear()
+            self.frontagessubcatlistWidget.addItems(frontage_sub_category_list_Building)
+            self.frontagessubcatlistWidget.setCurrentRow(0)
+
+        elif self.frontagescatlistWidget.currentRow() == 1:
+            self.frontagessubcatlistWidget.clear()
+            self.frontagessubcatlistWidget.addItems(frontage_sub_category_list_Fences)
+            self.frontagessubcatlistWidget.setCurrentRow(0)
 
     # Set universal Frontage layer if conditions are satisfied
     def setFrontageLayer(self):
@@ -115,9 +132,10 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             A1 = field_length - 4
             A2 = field_length - 3
             A3 = field_length - 2
+            A4 = field_length - 1
 
-            self.tableWidgetFrontage.setColumnCount(3)
-            headers = ["F-ID", "Group", "Type"]
+            self.tableWidgetFrontage.setColumnCount(4)
+            headers = ["F-ID", "Group", "Type", "Length"]
             self.tableWidgetFrontage.setHorizontalHeaderLabels(headers)
             self.tableWidgetFrontage.setRowCount(len(attrs))
 
@@ -125,6 +143,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.tableWidgetFrontage.setItem(i, 0, QtGui.QTableWidgetItem(str(item[A1])))
                 self.tableWidgetFrontage.setItem(i, 1, QtGui.QTableWidgetItem(str(item[A2])))
                 self.tableWidgetFrontage.setItem(i, 2, QtGui.QTableWidgetItem(str(item[A3])))
+                self.tableWidgetFrontage.setItem(i, 3, QtGui.QTableWidgetItem(str(item[A4])))
 
             self.tableWidgetFrontage.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
             self.tableWidgetFrontage.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
@@ -189,7 +208,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             A4 = field_length - 1
 
             self.tableWidgetEntrance.setColumnCount(4)
-            headers = ["E-ID", "Category", "Sub Category","Access Level"]
+            headers = ["E-ID", "Category", "Sub Category", "Access Level"]
             self.tableWidgetEntrance.setHorizontalHeaderLabels(headers)
             self.tableWidgetEntrance.setRowCount(len(attrs))
 
@@ -233,91 +252,112 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         lu_sub_category_list_residential = ["Institutions","Dwellings"]
         lu_sub_category_list_services = ["Commercial","Financial"]
         lu_sub_category_list_transport = ["Transport Terminals","Goods Terminals"]
-        lu_sub_category_list_empty = []
+        lu_sub_category_list_empty = [""]
 
         if self.lucategorylistWidget.currentRow() == 0:
             self.lusubcategorylistWidget.clear()
             self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+            self.lusubcategorylistWidget.setCurrentRow(0)
 
         elif self.lucategorylistWidget.currentRow() == 1:
             self.lusubcategorylistWidget.clear()
             self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+            self.lusubcategorylistWidget.setCurrentRow(0)
 
         elif self.lucategorylistWidget.currentRow() == 2:
             self.lusubcategorylistWidget.clear()
             self.lusubcategorylistWidget.addItems(lu_sub_category_list_catering)
+            self.lusubcategorylistWidget.setCurrentRow(0)
 
         elif self.lucategorylistWidget.currentRow() == 3:
             self.lusubcategorylistWidget.clear()
             self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+            self.lusubcategorylistWidget.setCurrentRow(0)
 
         elif self.lucategorylistWidget.currentRow() == 4:
             self.lusubcategorylistWidget.clear()
             self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+            self.lusubcategorylistWidget.setCurrentRow(0)
 
         elif self.lucategorylistWidget.currentRow() == 5:
             self.lusubcategorylistWidget.clear()
             self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+            self.lusubcategorylistWidget.setCurrentRow(0)
 
         elif self.lucategorylistWidget.currentRow() == 6:
             self.lusubcategorylistWidget.clear()
             self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+            self.lusubcategorylistWidget.setCurrentRow(0)
 
         elif self.lucategorylistWidget.currentRow() == 7:
             self.lusubcategorylistWidget.clear()
             self.lusubcategorylistWidget.addItems(lu_sub_category_list_leisure)
+            self.lusubcategorylistWidget.setCurrentRow(0)
 
         elif self.lucategorylistWidget.currentRow() == 8:
             self.lusubcategorylistWidget.clear()
             self.lusubcategorylistWidget.addItems(lu_sub_category_list_medical)
+            self.lusubcategorylistWidget.setCurrentRow(0)
 
         elif self.lucategorylistWidget.currentRow() == 9:
             self.lusubcategorylistWidget.clear()
             self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+            self.lusubcategorylistWidget.setCurrentRow(0)
 
         elif self.lucategorylistWidget.currentRow() == 10:
             self.lusubcategorylistWidget.clear()
             self.lusubcategorylistWidget.addItems(lu_sub_category_list_parking)
+            self.lusubcategorylistWidget.setCurrentRow(0)
 
         elif self.lucategorylistWidget.currentRow() == 11:
             self.lusubcategorylistWidget.clear()
             self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+            self.lusubcategorylistWidget.setCurrentRow(0)
 
         elif self.lucategorylistWidget.currentRow() == 12:
             self.lusubcategorylistWidget.clear()
             self.lusubcategorylistWidget.addItems(lu_sub_category_list_residential)
+            self.lusubcategorylistWidget.setCurrentRow(0)
 
         elif self.lucategorylistWidget.currentRow() == 13:
             self.lusubcategorylistWidget.clear()
             self.lusubcategorylistWidget.addItems(lu_sub_category_list_services)
+            self.lusubcategorylistWidget.setCurrentRow(0)
 
         elif self.lucategorylistWidget.currentRow() == 14:
             self.lusubcategorylistWidget.clear()
             self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+            self.lusubcategorylistWidget.setCurrentRow(0)
 
         elif self.lucategorylistWidget.currentRow() == 15:
             self.lusubcategorylistWidget.clear()
             self.lusubcategorylistWidget.addItems(lu_sub_category_list_transport)
+            self.lusubcategorylistWidget.setCurrentRow(0)
 
         elif self.lucategorylistWidget.currentRow() == 16:
             self.lusubcategorylistWidget.clear()
             self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+            self.lusubcategorylistWidget.setCurrentRow(0)
 
         elif self.lucategorylistWidget.currentRow() == 17:
             self.lusubcategorylistWidget.clear()
             self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+            self.lusubcategorylistWidget.setCurrentRow(0)
 
         elif self.lucategorylistWidget.currentRow() == 18:
             self.lusubcategorylistWidget.clear()
             self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+            self.lusubcategorylistWidget.setCurrentRow(0)
 
         elif self.lucategorylistWidget.currentRow() == 19:
             self.lusubcategorylistWidget.clear()
             self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+            self.lusubcategorylistWidget.setCurrentRow(0)
 
         elif self.lucategorylistWidget.currentRow() == 20:
             self.lusubcategorylistWidget.clear()
             self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+        self.lusubcategorylistWidget.setCurrentRow(0)
 
 
     # Set universal Entrance layer if conditions are satisfied
@@ -330,6 +370,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
     def addLUDataFields(self):
         self.LUtableClear()
         layer = self.setLULayer()
+        fieldlist = uf.getFieldNames(layer)
         if layer:
             features = layer.selectedFeatures()
             attrs = []
@@ -337,17 +378,25 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 attr = feat.attributes()
                 attrs.append(attr)
 
+        if 'GF_Category' in fieldlist and 'LF_Category' in fieldlist and 'UF_Category' in fieldlist:
+
             fields = layer.pendingFields()
             field_names = [field.name() for field in fields]
-
             field_length = len(field_names)
-            A1 = field_length - 4
-            A2 = field_length - 3
-            A3 = field_length - 2
-            A4 = field_length - 1
+            A1 = field_length - 9
+            A2 = field_length - 8
+            A3 = field_length - 7
+            A4 = field_length - 6
+            A5 = field_length - 5
+            A6 = field_length - 4
+            A7 = field_length - 3
+            A8 = field_length - 2
+            A9 = field_length - 1
 
-            self.tableWidgetlanduse.setColumnCount(4)
-            headers = ["LU-ID", "Category", "Sub Category", "Floor"]
+            self.tableWidgetlanduse.setColumnCount(9)
+            headers = ["LU-ID", "Floors", "Area", "GF Category", "GF Sub Category",
+                       "LFCategory", "LF Sub Category", "UF Category", "UF Sub Category"]
+
             self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
             self.tableWidgetlanduse.setRowCount(len(attrs))
 
@@ -356,13 +405,266 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.tableWidgetlanduse.setItem(i, 1, QtGui.QTableWidgetItem(str(item[A2])))
                 self.tableWidgetlanduse.setItem(i, 2, QtGui.QTableWidgetItem(str(item[A3])))
                 self.tableWidgetlanduse.setItem(i, 3, QtGui.QTableWidgetItem(str(item[A4])))
+                self.tableWidgetlanduse.setItem(i, 4, QtGui.QTableWidgetItem(str(item[A5])))
+                self.tableWidgetlanduse.setItem(i, 5, QtGui.QTableWidgetItem(str(item[A6])))
+                self.tableWidgetlanduse.setItem(i, 6, QtGui.QTableWidgetItem(str(item[A7])))
+                self.tableWidgetlanduse.setItem(i, 7, QtGui.QTableWidgetItem(str(item[A8])))
+                self.tableWidgetlanduse.setItem(i, 8, QtGui.QTableWidgetItem(str(item[A9])))
 
-            self.tableWidgetlandusee.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
+            self.tableWidgetlanduse.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
             self.tableWidgetlanduse.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
             self.tableWidgetlanduse.resizeRowsToContents()
 
+        elif 'GF_Category' in fieldlist and 'LF_Category' in fieldlist:
+
+            fields = layer.pendingFields()
+            field_names = [field.name() for field in fields]
+            field_length = len(field_names)
+            A1 = field_length - 7
+            A2 = field_length - 6
+            A3 = field_length - 5
+            A4 = field_length - 4
+            A5 = field_length - 3
+            A6 = field_length - 2
+            A7 = field_length - 1
+
+            self.tableWidgetlanduse.setColumnCount(7)
+            headers = ["LU-ID", "Floors", "Area", "GF Category", "GF Sub Category",
+                       "LF Category", "LF Sub Category"]
+
+            self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
+            self.tableWidgetlanduse.setRowCount(len(attrs))
+
+            for i, item in enumerate(attrs):
+                self.tableWidgetlanduse.setItem(i, 0, QtGui.QTableWidgetItem(str(item[A1])))
+                self.tableWidgetlanduse.setItem(i, 1, QtGui.QTableWidgetItem(str(item[A2])))
+                self.tableWidgetlanduse.setItem(i, 2, QtGui.QTableWidgetItem(str(item[A3])))
+                self.tableWidgetlanduse.setItem(i, 3, QtGui.QTableWidgetItem(str(item[A4])))
+                self.tableWidgetlanduse.setItem(i, 4, QtGui.QTableWidgetItem(str(item[A5])))
+                self.tableWidgetlanduse.setItem(i, 5, QtGui.QTableWidgetItem(str(item[A6])))
+                self.tableWidgetlanduse.setItem(i, 6, QtGui.QTableWidgetItem(str(item[A7])))
+
+            self.tableWidgetlanduse.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
+            self.tableWidgetlanduse.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
+            self.tableWidgetlanduse.resizeRowsToContents()
+
+        elif 'GF_Category' in fieldlist and 'UF_Category' in fieldlist:
+
+            fields = layer.pendingFields()
+            field_names = [field.name() for field in fields]
+            field_length = len(field_names)
+            A1 = field_length - 7
+            A2 = field_length - 6
+            A3 = field_length - 5
+            A4 = field_length - 4
+            A5 = field_length - 3
+            A6 = field_length - 2
+            A7 = field_length - 1
+
+            self.tableWidgetlanduse.setColumnCount(7)
+            headers = ["LU-ID", "Floors", "Area", "GF Category", "GF Sub Category",
+                       "UF Category", "UF Sub Category"]
+
+            self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
+            self.tableWidgetlanduse.setRowCount(len(attrs))
+
+            for i, item in enumerate(attrs):
+                self.tableWidgetlanduse.setItem(i, 0, QtGui.QTableWidgetItem(str(item[A1])))
+                self.tableWidgetlanduse.setItem(i, 1, QtGui.QTableWidgetItem(str(item[A2])))
+                self.tableWidgetlanduse.setItem(i, 2, QtGui.QTableWidgetItem(str(item[A3])))
+                self.tableWidgetlandusee.setItem(i, 3, QtGui.QTableWidgetItem(str(item[A4])))
+                self.tableWidgetlanduse.setItem(i, 4, QtGui.QTableWidgetItem(str(item[A5])))
+                self.tableWidgetlanduse.setItem(i, 5, QtGui.QTableWidgetItem(str(item[A6])))
+                self.tableWidgetlanduse.setItem(i, 6, QtGui.QTableWidgetItem(str(item[A7])))
+
+            self.tableWidgetlanduse.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
+            self.tableWidgetlanduse.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
+            self.tableWidgetlanduse.resizeRowsToContents()
+
+        else:
+            fields = layer.pendingFields()
+            field_names = [field.name() for field in fields]
+            field_length = len(field_names)
+            A1 = field_length - 5
+            A2 = field_length - 4
+            A3 = field_length - 3
+            A4 = field_length - 2
+            A5 = field_length - 1
+
+            self.tableWidgetEntrance.setColumnCount(5)
+            headers = ["LU-ID", "Floors", "Area", "GF Category", "GF Sub Category"]
+
+            self.tableWidgetEntrance.setHorizontalHeaderLabels(headers)
+            self.tableWidgetEntrance.setRowCount(len(attrs))
+
+            for i, item in enumerate(attrs):
+                self.tableWidgetEntrance.setItem(i, 0, QtGui.QTableWidgetItem(str(item[A1])))
+                self.tableWidgetEntrance.setItem(i, 1, QtGui.QTableWidgetItem(str(item[A2])))
+                self.tableWidgetEntrance.setItem(i, 2, QtGui.QTableWidgetItem(str(item[A3])))
+                self.tableWidgetEntrance.setItem(i, 3, QtGui.QTableWidgetItem(str(item[A4])))
+                self.tableWidgetEntrance.setItem(i, 4, QtGui.QTableWidgetItem(str(item[A5])))
+
+            self.tableWidgetEntrance.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
+            self.tableWidgetEntrance.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
+            self.tableWidgetEntrance.resizeRowsToContents()
+
     def LUtableClear(self):
         self.tableWidgetlanduse.clear()
+
+
+    def updateLUCodes(self):
+        if self.lucategorylistWidget.currentRow() == 0:
+            self.lineEdit_luSSx.setText("AG")
+            self.lineEdit_luNLUD.setText("U010")
+            self.lineEdit_luTCPA.setText("B2")
+
+        if self.lucategorylistWidget.currentRow() == 1:
+            self.lineEdit_luSSx.setText("C")
+            self.lineEdit_luNLUD.setText("U082")
+            self.lineEdit_luTCPA.setText("D1")
+
+        if self.lucategorylistWidget.currentRow() == 2 and self.lusubcategorylistWidget.currentRow() == 0:
+            self.lineEdit_luSSx.setText("CA")
+            self.lineEdit_luNLUD.setText("U093")
+            self.lineEdit_luTCPA.setText("A3")
+
+        elif self.lucategorylistWidget.currentRow() == 2 and self.lusubcategorylistWidget.currentRow() == 1:
+            self.lineEdit_luSSx.clear()
+            self.lineEdit_luNLUD.clear()
+            self.lineEdit_luTCPA.clear()
+
+            self.lineEdit_luSSx.setText("CA")
+            self.lineEdit_luNLUD.setText("U094")
+            self.lineEdit_luTCPA.setText("A4")
+
+        elif self.lucategorylistWidget.currentRow() == 2 and self.lusubcategorylistWidget.currentRow() == 2:
+            self.lineEdit_luSSx.clear()
+            self.lineEdit_luNLUD.clear()
+            self.lineEdit_luTCPA.clear()
+
+            self.lineEdit_luSSx.setText("CA")
+            self.lineEdit_luNLUD.setText("")
+            self.lineEdit_luTCPA.setText("A5")
+
+        if self.lucategorylistWidget.currentRow() == 3:
+            self.lineEdit_luSSx.setText("ED")
+            self.lineEdit_luNLUD.setText("U083")
+            self.lineEdit_luTCPA.setText("D1")
+
+        if self.lucategorylistWidget.currentRow() == 4:
+            self.lineEdit_luSSx.setText("GOV")
+            self.lineEdit_luNLUD.setText("U120")
+            self.lineEdit_luTCPA.setText("")
+
+        if self.lucategorylistWidget.currentRow() == 5:
+            self.lineEdit_luSSx.setText("H")
+            self.lineEdit_luNLUD.setText("U072")
+            self.lineEdit_luTCPA.setText("C1")
+
+        if self.lucategorylistWidget.currentRow() == 6:
+            self.lineEdit_luSSx.setText("I")
+            self.lineEdit_luNLUD.setText("U101")
+            self.lineEdit_luTCPA.setText("B2")
+
+        if self.lucategorylistWidget.currentRow() == 7 and self.lusubcategorylistWidget.currentRow() == 0:
+            self.lineEdit_luSSx.setText("LE")
+            self.lineEdit_luNLUD.setText("U040")
+            self.lineEdit_luTCPA.setText("D1")
+
+        elif self.lucategorylistWidget.currentRow() == 7 and self.lusubcategorylistWidget.currentRow() == 1:
+            self.lineEdit_luSSx.setText("LE")
+            self.lineEdit_luNLUD.setText("")
+            self.lineEdit_luTCPA.setText("D2")
+
+        if self.lucategorylistWidget.currentRow() == 8 and self.lusubcategorylistWidget.currentRow() == 0:
+            self.lineEdit_luSSx.setText("M")
+            self.lineEdit_luNLUD.setText("U081")
+            self.lineEdit_luTCPA.setText("C2")
+
+        elif self.lucategorylistWidget.currentRow() == 8 and self.lusubcategorylistWidget.currentRow() == 1:
+            self.lineEdit_luSSx.setText("M")
+            self.lineEdit_luNLUD.setText("")
+            self.lineEdit_luTCPA.setText("D1")
+
+        if self.lucategorylistWidget.currentRow() == 9:
+            self.lineEdit_luSSx.setText("O")
+            self.lineEdit_luNLUD.setText("U102")
+            self.lineEdit_luTCPA.setText("B1")
+
+        if self.lucategorylistWidget.currentRow() == 10 and self.lusubcategorylistWidget.currentRow() == 0:
+            self.lineEdit_luSSx.setText("P")
+            self.lineEdit_luNLUD.setText("U053")
+            self.lineEdit_luTCPA.setText("")
+
+        elif self.lucategorylistWidget.currentRow() == 10 and self.lusubcategorylistWidget.currentRow() == 1:
+            self.lineEdit_luSSx.setText("P")
+            self.lineEdit_luNLUD.setText("U053")
+            self.lineEdit_luTCPA.setText("")
+
+        if self.lucategorylistWidget.currentRow() == 11:
+            self.lineEdit_luSSx.setText("R")
+            self.lineEdit_luNLUD.setText("U091")
+            self.lineEdit_luTCPA.setText("A1")
+
+        if self.lucategorylistWidget.currentRow() == 12 and self.lusubcategorylistWidget.currentRow() == 0:
+            self.lineEdit_luSSx.setText("RE")
+            self.lineEdit_luNLUD.setText("U071")
+            self.lineEdit_luTCPA.setText("C2")
+
+        elif self.lucategorylistWidget.currentRow() == 12 and self.lusubcategorylistWidget.currentRow() == 1:
+            self.lineEdit_luSSx.setText("RE")
+            self.lineEdit_luNLUD.setText("U073")
+            self.lineEdit_luTCPA.setText("C2")
+
+        if self.lucategorylistWidget.currentRow() == 13 and self.lusubcategorylistWidget.currentRow() == 0:
+            self.lineEdit_luSSx.setText("S")
+            self.lineEdit_luNLUD.setText("U092")
+            self.lineEdit_luTCPA.setText("A1")
+
+        elif self.lucategorylistWidget.currentRow() == 13 and self.lusubcategorylistWidget.currentRow() == 1:
+            self.lineEdit_luSSx.setText("S")
+            self.lineEdit_luNLUD.setText("")
+            self.lineEdit_luTCPA.setText("A2")
+
+        if self.lucategorylistWidget.currentRow() == 14:
+            self.lineEdit_luSSx.setText("ST")
+            self.lineEdit_luNLUD.setText("U103")
+            self.lineEdit_luTCPA.setText("B8")
+
+        if self.lucategorylistWidget.currentRow() == 15 and self.lusubcategorylistWidget.currentRow() == 0:
+            self.lineEdit_luSSx.setText("TR")
+            self.lineEdit_luNLUD.setText("U052")
+            self.lineEdit_luTCPA.setText("")
+
+        elif self.lucategorylistWidget.currentRow() == 15 and self.lusubcategorylistWidget.currentRow() == 1:
+            self.lineEdit_luSSx.setText("TR")
+            self.lineEdit_luNLUD.setText("U055")
+            self.lineEdit_luTCPA.setText("")
+
+        if self.lucategorylistWidget.currentRow() == 16:
+            self.lineEdit_luSSx.setText("U")
+            self.lineEdit_luNLUD.setText("U060")
+            self.lineEdit_luTCPA.setText("")
+
+        if self.lucategorylistWidget.currentRow() == 17:
+            self.lineEdit_luSSx.setText("UC")
+            self.lineEdit_luNLUD.setText("")
+            self.lineEdit_luTCPA.setText("")
+
+        if self.lucategorylistWidget.currentRow() == 18:
+            self.lineEdit_luSSx.setText("UD")
+            self.lineEdit_luNLUD.setText("U130")
+            self.lineEdit_luTCPA.setText("")
+
+        if self.lucategorylistWidget.currentRow() == 19:
+            self.lineEdit_luSSx.setText("UN")
+            self.lineEdit_luNLUD.setText("")
+            self.lineEdit_luTCPA.setText("")
+
+        if self.lucategorylistWidget.currentRow() == 20:
+            self.lineEdit_luSSx.setText("V")
+            self.lineEdit_luNLUD.setText("U110")
+            self.lineEdit_luTCPA.setText("")
 
 
 

@@ -274,54 +274,31 @@ class FrontageTool(QObject):
         features = v_layer.getFeatures()
         inputid = 0
 
+        for feat in features:
+            geom = feat.geometry()
+            frontagelength = geom.length()
+
         if feature_Count == 1:
-            for feat in features:
-                inputid = 1
+            inputid = 1
 
         elif feature_Count > 1:
-            for feat in features:
-                inputid = feature_Count
+            inputid = feature_Count
 
         data = v_layer.dataProvider()
         update1 = data.fieldNameIndex("F_Group")
         update2 = data.fieldNameIndex("F_Type")
         update3 = data.fieldNameIndex("F_ID")
+        update4 = data.fieldNameIndex("F_Length")
 
-        if self.dockwidget.frontageslistWidget.currentRow() == 0:
-            v_layer.changeAttributeValue(fid, update1, "Building", True)
-            v_layer.changeAttributeValue(fid, update2, "Transparent", True)
-            v_layer.changeAttributeValue(fid, update3, inputid, True)
-            v_layer.updateFields()
+        categorytext = self.dockwidget.frontagescatlistWidget.currentItem().text()
+        subcategorytext = self.dockwidget.frontagessubcatlistWidget.currentItem().text()
 
-        if self.dockwidget.frontageslistWidget.currentRow() == 1:
-            v_layer.changeAttributeValue(fid, update1, "Building", True)
-            v_layer.changeAttributeValue(fid, update2, "Semi Transparent", True)
-            v_layer.changeAttributeValue(fid, update3, inputid, True)
-            v_layer.updateFields()
+        v_layer.changeAttributeValue(fid, update1, categorytext, True)
+        v_layer.changeAttributeValue(fid, update2, subcategorytext, True)
+        v_layer.changeAttributeValue(fid, update3, inputid, True)
+        v_layer.changeAttributeValue(fid, update4, frontagelength, True)
+        v_layer.updateFields()
 
-        if self.dockwidget.frontageslistWidget.currentRow() == 2:
-            v_layer.changeAttributeValue(fid, update1, "Building", True)
-            v_layer.changeAttributeValue(fid, update2, "Blank", True)
-            v_layer.changeAttributeValue(fid, update3, inputid, True)
-            v_layer.updateFields()
-
-        if self.dockwidget.frontageslistWidget.currentRow() == 3:
-            v_layer.changeAttributeValue(fid, update1, "Fence", True)
-            v_layer.changeAttributeValue(fid, update2, "High Opaque Fence", True)
-            v_layer.changeAttributeValue(fid, update3, inputid, True)
-            v_layer.updateFields()
-
-        if self.dockwidget.frontageslistWidget.currentRow() == 4:
-            v_layer.changeAttributeValue(fid, update1, "Fence", True)
-            v_layer.changeAttributeValue(fid, update2, "High See Through Fence", True)
-            v_layer.changeAttributeValue(fid, update3, inputid, True)
-            v_layer.updateFields()
-
-        if self.dockwidget.frontageslistWidget.currentRow() == 5:
-            v_layer.changeAttributeValue(fid, update1, "Fence", True)
-            v_layer.changeAttributeValue(fid, update2, "Low Fence", True)
-            v_layer.changeAttributeValue(fid, update3, inputid, True)
-            v_layer.updateFields()
 
     # Update Feature Length
     def updateLength(self):
@@ -342,59 +319,17 @@ class FrontageTool(QObject):
         layer = self.dockwidget.setFrontageLayer()
         features = layer.selectedFeatures()
 
-        if self.dockwidget.frontageslistWidget.currentRow() == 0:
-            for feat in features:
-                feat['F_Group'] = "Building"
-                feat['F_Type'] = "Transparent"
-                geom = feat.geometry()
-                feat['F_Length'] = geom.length()
-                layer.updateFeature(feat)
-                self.dockwidget.addDataFields()
+        categorytext = self.dockwidget.frontagescatlistWidget.currentItem().text()
+        subcategorytext = self.dockwidget.frontagessubcatlistWidget.currentItem().text()
 
-        if self.dockwidget.frontageslistWidget.currentRow() == 1:
-            for feat in features:
-                feat['F_Group'] = "Building"
-                feat['F_Type'] = "Semi Transparent"
-                geom = feat.geometry()
-                feat['F_Length'] = geom.length()
-                layer.updateFeature(feat)
-                self.dockwidget.addDataFields()
+        for feat in features:
+            feat['F_Group'] = categorytext
+            feat['F_Type'] = subcategorytext
+            geom = feat.geometry()
+            feat['F_Length'] = geom.length()
+            layer.updateFeature(feat)
+            self.dockwidget.addDataFields()
 
-        if self.dockwidget.frontageslistWidget.currentRow() == 2:
-            for feat in features:
-                feat['F_Group'] = "Building"
-                feat['F_Type'] = "Blank"
-                geom = feat.geometry()
-                feat['F_Length'] = geom.length()
-                layer.updateFeature(feat)
-                self.dockwidget.addDataFields()
-
-        if self.dockwidget.frontageslistWidget.currentRow() == 3:
-            for feat in features:
-                feat['F_Group'] = "Fence"
-                feat['F_Type'] = "High Opaque Fence"
-                geom = feat.geometry()
-                feat['F_Length'] = geom.length()
-                layer.updateFeature(feat)
-                self.dockwidget.addDataFields()
-
-        if self.dockwidget.frontageslistWidget.currentRow() == 4:
-            for feat in features:
-                feat['F_Group'] = "Fence"
-                feat['F_Type'] = "High See Through Fence"
-                geom = feat.geometry()
-                feat['F_Length'] = geom.length()
-                layer.updateFeature(feat)
-                self.dockwidget.addDataFields()
-
-        if self.dockwidget.frontageslistWidget.currentRow() == 5:
-            for feat in features:
-                feat['F_Group'] = "Fence"
-                feat['F_Type'] = "Low Fence"
-                geom = feat.geometry()
-                feat['F_Length'] = geom.length()
-                layer.updateFeature(feat)
-                self.dockwidget.addDataFields()
 
     # Hide features with NULL value
     def hideFeatures(self):

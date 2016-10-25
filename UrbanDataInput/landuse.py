@@ -226,11 +226,11 @@ class LanduseTool(QObject):
 # Set layer as frontage layer and apply thematic style
     def loadLULayer(self):
         if self.dockwidget.useExistingLUcomboBox.count() > 0:
-            input = self.dockwidget.setEntranceLayer()
+            input = self.dockwidget.setLULayer()
 
-            plugin_path = os.path.dirname(__file__)
-            qml_path = plugin_path + "/landuseThematic.qml"
-            input.loadNamedStyle(qml_path)
+            #plugin_path = os.path.dirname(__file__)
+            #qml_path = plugin_path + "/landuseThematic.qml"
+            #input.loadNamedStyle(qml_path)
 
             input.startEditing()
 
@@ -243,23 +243,30 @@ class LanduseTool(QObject):
 
         QgsMessageLog.logMessage("feature added, id = " + str(fid))
 
-        mc = self.canvas
         v_layer = self.dockwidget.setLULayer()
         feature_Count = v_layer.featureCount()
         features = v_layer.getFeatures()
         inputid = 0
 
         if feature_Count == 1:
-            for feat in features:
-                inputid = 1
+            inputid = 1
 
         elif feature_Count > 1:
-            for feat in features:
-                inputid = feature_Count
+            inputid = feature_Count
+
+        for feat in features:
+            geom = feat.geometry()
+            luarea = geom.area()
 
         data = v_layer.dataProvider()
-        floortext = self.dockwidget.LUfloorlineEdit.text()
+        categorytext = self.dockwidget.lucategorylistWidget.currentItem().text()
+        subcategorytext = self.dockwidget.lusubcategorylistWidget.currentItem().text()
+        floortext = self.dockwidget.spinBoxlufloors.value()
         description = self.dockwidget.LUdesclineEdit.text()
+        ssxcode = self.dockwidget.lineEdit_luSSx.text()
+        nludcode = self.dockwidget.lineEdit_luNLUD.text()
+        tcpacode = self.dockwidget.lineEdit_luTCPA.text()
+
 
         updateID = data.fieldNameIndex("LU_ID")
         updatefloors = data.fieldNameIndex("Floors")
@@ -268,9 +275,9 @@ class LanduseTool(QObject):
         GFupdate1 = data.fieldNameIndex("GF_Category")
         GFupdate2 = data.fieldNameIndex("GF_SubCategory")
         GFupdate3 = data.fieldNameIndex("GF_SSx_Code")
-        GFupdate4 = data.fieldNameIndex("UF_NLUD_Code")
-        GFupdate5 = data.fieldNameIndex("UF_TCPA_Code")
-        GFupdate6 = data.fieldNameIndex("UF_Description")
+        GFupdate4 = data.fieldNameIndex("GF_NLUD_Code")
+        GFupdate5 = data.fieldNameIndex("GF_TCPA_Code")
+        GFupdate6 = data.fieldNameIndex("GF_Description")
 
         LFupdate1 = data.fieldNameIndex("LF_Category")
         LFupdate2 = data.fieldNameIndex("LF_SubCategory")
@@ -286,39 +293,35 @@ class LanduseTool(QObject):
         UFupdate5 = data.fieldNameIndex("UF_TCPA_Code")
         UFupdate6 = data.fieldNameIndex("UF_Description")
 
-        #For GF
-        if self.dockwidget.lucategorylistWidget.currentRow() == 0:
-            v_layer.changeAttributeValue(fid, updateID, inputid, True)
-            v_layer.changeAttributeValue(fid, updatefloors, floortext, True)
+        v_layer.changeAttributeValue(fid, updateID, inputid, True)
+        v_layer.changeAttributeValue(fid, updatefloors, floortext, True)
+        v_layer.changeAttributeValue(fid, updatearea, luarea, True)
+        v_layer.updateFields()
 
-            if self.dockwidget.LUGroundfloorradioButton.isChecked():
-                v_layer.changeAttributeValue(fid, GFupdate1, "Agriculture", True)
-                v_layer.changeAttributeValue(fid, GFupdate2, "", True)
-                v_layer.changeAttributeValue(fid, GFupdate3, "AG", True)
-                v_layer.changeAttributeValue(fid, GFupdate4, "U010", True)
-                v_layer.changeAttributeValue(fid, GFupdate5, "B2", True)
-                v_layer.changeAttributeValue(fid, GFupdate6, description, True)
-                v_layer.updateFields()
+        if self.dockwidget.LUGroundfloorradioButton.isChecked():
+            v_layer.changeAttributeValue(fid, GFupdate1, categorytext, True)
+            v_layer.changeAttributeValue(fid, GFupdate2, subcategorytext, True)
+            v_layer.changeAttributeValue(fid, GFupdate3, ssxcode, True)
+            v_layer.changeAttributeValue(fid, GFupdate4, nludcode, True)
+            v_layer.changeAttributeValue(fid, GFupdate5, tcpacode, True)
+            v_layer.changeAttributeValue(fid, GFupdate6, description, True)
+            v_layer.updateFields()
 
-            elif self.dockwidget.LULowerfloorradioButton.isChecked():
-                v_layer.changeAttributeValue(fid, updateID, inputid, True)
-                v_layer.changeAttributeValue(fid, updatefloors, floortext, True)
-                v_layer.changeAttributeValue(fid, LFupdate1, "Agriculture", True)
-                v_layer.changeAttributeValue(fid, LFupdate2, "", True)
-                v_layer.changeAttributeValue(fid, LFupdate3, "AG", True)
-                v_layer.changeAttributeValue(fid, LFupdate4, "U010", True)
-                v_layer.changeAttributeValue(fid, LFupdate5, "B2", True)
-                v_layer.changeAttributeValue(fid, LFupdate6, description, True)
-                v_layer.updateFields()
+        if self.dockwidget.LULowerfloorradioButton.isChecked():
+            v_layer.changeAttributeValue(fid, LFupdate1, categorytext, True)
+            v_layer.changeAttributeValue(fid, LFupdate2, subcategorytext, True)
+            v_layer.changeAttributeValue(fid, LFupdate3, ssxcode, True)
+            v_layer.changeAttributeValue(fid, LFupdate4, nludcode, True)
+            v_layer.changeAttributeValue(fid, LFupdate5, tcpacode, True)
+            v_layer.changeAttributeValue(fid, LFupdate6, description, True)
+            v_layer.updateFields()
 
-            elif self.dockwidget.LUUpperfloorradioButton.isChecked():
-                v_layer.changeAttributeValue(fid, updateID, inputid, True)
-                v_layer.changeAttributeValue(fid, updatefloors, floortext, True)
-                v_layer.changeAttributeValue(fid, UFupdate1, "Agriculture", True)
-                v_layer.changeAttributeValue(fid, UFupdate2, "", True)
-                v_layer.changeAttributeValue(fid, UFupdate3, inputid, True)
-                v_layer.changeAttributeValue(fid, UFupdate4, inputid, True)
-                v_layer.changeAttributeValue(fid, UFupdate5, inputid, True)
-                v_layer.changeAttributeValue(fid, UFupdate6, description, True)
-                v_layer.updateFields()
+        if self.dockwidget.LUUpperfloorradioButton.isChecked():
+            v_layer.changeAttributeValue(fid, UFupdate1, categorytext, True)
+            v_layer.changeAttributeValue(fid, UFupdate2, subcategorytext, True)
+            v_layer.changeAttributeValue(fid, UFupdate3, ssxcode, True)
+            v_layer.changeAttributeValue(fid, UFupdate4, nludcode, True)
+            v_layer.changeAttributeValue(fid, UFupdate5, tcpacode, True)
+            v_layer.changeAttributeValue(fid, UFupdate6, description, True)
+            v_layer.updateFields()
 
