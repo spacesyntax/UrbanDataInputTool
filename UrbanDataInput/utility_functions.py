@@ -115,7 +115,7 @@ def isRequiredLULayer(self, layer, type):
     if layer.type() == QgsMapLayer.VectorLayer \
             and layer.geometryType() == type:
         fieldlist = getFieldNames(layer)
-        if 'GF_Category' in fieldlist and 'GF_SubCategory' in fieldlist:
+        if 'GF_Cat' in fieldlist and 'GF_SubCat' in fieldlist:
             return True
 
     return False

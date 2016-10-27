@@ -31,6 +31,8 @@ import os.path
 from frontages import FrontageTool
 from entrances import EntranceTool
 from landuse import LanduseTool
+import resources
+
 
 #import debug package
 is_debug = True
@@ -114,18 +116,17 @@ class UrbanDataInput:
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate('UrbanDataInput', message)
 
-
     def add_action(
-        self,
-        icon_path,
-        text,
-        callback,
-        enabled_flag=True,
-        add_to_menu=True,
-        add_to_toolbar=True,
-        status_tip=None,
-        whats_this=None,
-        parent=None):
+            self,
+            icon_path,
+            text,
+            callback,
+            enabled_flag=True,
+            add_to_menu=True,
+            add_to_toolbar=True,
+            status_tip=None,
+            whats_this=None,
+            parent=None):
         """Add a toolbar icon to the toolbar.
 
         :param icon_path: Path to the icon for this action. Can be a resource
@@ -197,8 +198,7 @@ class UrbanDataInput:
             text=self.tr(u'&Urban Data Input'),
             callback=self.run,
             parent=self.iface.mainWindow(),
-            status_tip='urban Data Input'
-        )
+            status_tip='urban Data Input')
 
     #--------------------------------------------------------------------------
 
@@ -316,7 +316,6 @@ class UrbanDataInput:
                 self.entrance_tool = EntranceTool(self.iface, self.dockwidget, self.entrancedlg)
                 self.lu_tool = LanduseTool(self.iface, self.dockwidget, self.ludlg)
 
-
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
 
@@ -353,6 +352,9 @@ class UrbanDataInput:
             self.dockwidget.hideshowButton.clicked.connect(self.frontage_tool.hideFeatures)
 
             #Entrances
+            self.iface.legendInterface().itemRemoved.connect(self.entrance_tool.updateEntranceLayer)
+            self.iface.legendInterface().itemAdded.connect(self.entrance_tool.updateEntranceLayer)
+
             self.iface.mapCanvas().selectionChanged.connect(self.dockwidget.addEntranceDataFields)
 
             self.entrancedlg.pushButtonEntrancesNewFileDLG.clicked.connect(self.entrance_tool.newEntranceLayer)
@@ -366,6 +368,9 @@ class UrbanDataInput:
             self.dockwidget.updateEntranceIDButton.clicked.connect(self.entrance_tool.updateIDEntrances)
 
             # Landuse
+            self.iface.legendInterface().itemRemoved.connect(self.lu_tool.updateLULayer)
+            self.iface.legendInterface().itemAdded.connect(self.lu_tool.updateLULayer)
+
             self.iface.mapCanvas().selectionChanged.connect(self.dockwidget.addLUDataFields)
 
             self.ludlg.pushButtonLUNewFileDLG.clicked.connect(self.lu_tool.newLULayer)

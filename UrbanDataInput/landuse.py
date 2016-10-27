@@ -39,6 +39,7 @@ class LanduseTool(QObject):
         self.ludlg = ludlg
         self.canvas = self.iface.mapCanvas()
         self.dockwidget = dockwidget
+        self.ludlg.LUincGFcheckBox.setChecked(1)
 
 
 
@@ -99,17 +100,17 @@ class LanduseTool(QObject):
                 location = os.path.abspath(path)
 
                 destCRS = self.canvas.mapRenderer().destinationCrs()
-                vl = QgsVectorLayer("Polygon?crs=" + destCRS.toWkt(), "memory:Land Use", "memory")
+                vl = QgsVectorLayer("Polygon?crs=" + destCRS.toWkt(), "memory:Land use", "memory")
                 QgsMapLayerRegistry.instance().addMapLayer(vl)
 
                 QgsVectorFileWriter.writeAsVectorFormat(vl, location, "CP1250", None, "ESRI Shapefile")
 
                 QgsMapLayerRegistry.instance().removeMapLayers([vl.id()])
 
-                vl = self.iface.addVectorLayer(location, filename, "ogr")
-                QgsMapLayerRegistry.instance().addMapLayer(vl)
+                input2 = self.iface.addVectorLayer(location, filename, "ogr")
+                QgsMapLayerRegistry.instance().addMapLayer(input2)
 
-                if not vl:
+                if not input2:
                     msgBar = self.iface.messageBar()
                     msg = msgBar.createMessage(u'Layer failed to load!' + location)
                     msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
@@ -119,58 +120,53 @@ class LanduseTool(QObject):
                     msg = msgBar.createMessage(u'New Land Use Layer Created:' + location)
                     msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
 
-                    vl.startEditing()
+                    input2.startEditing()
 
-                    edit1 = vl.dataProvider()
+                    edit1 = input2.dataProvider()
                     edit1.addAttributes([QgsField("LU_ID", QVariant.Int),
                                      QgsField("Floors", QVariant.Int),
                                      QgsField("Area", QVariant.Double)])
 
                     if self.ludlg.LUincGFcheckBox.checkState() == 2:
                         edit1.addAttributes([QgsField("Floors", QVariant.Int),
-                                            QgsField("GF_Category", QVariant.String),
-                                            QgsField("GF_SubCategory", QVariant.String),
-                                            QgsField("GF_SSx_Code", QVariant.String),
-                                            QgsField("GF_NLUD_Code", QVariant.String),
-                                            QgsField("GF_TCPA_Code", QVariant.String),
-                                            QgsField("GF_Description", QVariant.String)])
+                                            QgsField("GF_Cat", QVariant.String),
+                                            QgsField("GF_SubCat", QVariant.String),
+                                            QgsField("GF_SSx", QVariant.String),
+                                            QgsField("GF_NLUD", QVariant.String),
+                                            QgsField("GF_TCPA", QVariant.String),
+                                            QgsField("GF_Descrip", QVariant.String)])
 
-                        vl.commitChanges()
-                        vl.startEditing()
+                        input2.commitChanges()
                         self.updateLULayer()
                         self.dockwidget.LUGroundfloorradioButton.setEnabled(1)
 
                     if self.ludlg.LUincLFcheckBox.checkState() == 2:
-                        edit1.addAttributes([QgsField("LF_Category", QVariant.String),
-                                            QgsField("LF_SubCategory", QVariant.String),
-                                            QgsField("LF_SSx_Code", QVariant.String),
-                                            QgsField("LF_NLUD_Code", QVariant.String),
-                                            QgsField("LF_TCPA_Code", QVariant.String),
-                                            QgsField("LF_Description", QVariant.String)])
+                        edit1.addAttributes([QgsField("LF_Cat", QVariant.String),
+                                            QgsField("LF_SubCat", QVariant.String),
+                                            QgsField("LF_SSx", QVariant.String),
+                                            QgsField("LF_NLUD", QVariant.String),
+                                            QgsField("LF_TCPA", QVariant.String),
+                                            QgsField("LF_Descrip", QVariant.String)])
 
-                        vl.commitChanges()
-                        vl.startEditing()
+                        input2.commitChanges()
                         self.updateLULayer()
                         self.dockwidget.LULowerfloorradioButton.setEnabled(1)
 
                     if self.ludlg.LUincUFcheckBox.checkState() == 2:
                         edit1.addAttributes([QgsField("Floors", QVariant.Int),
-                                            QgsField("UF_Category", QVariant.String),
-                                            QgsField("UF_SubCategory", QVariant.String),
-                                            QgsField("UF_SSx_Code", QVariant.String),
-                                            QgsField("UF_NLUD_Code", QVariant.String),
-                                            QgsField("UF_TCPA_Code", QVariant.String),
-                                            QgsField("UF_Description", QVariant.String)])
+                                            QgsField("UF_Cat", QVariant.String),
+                                            QgsField("UF_SubCat", QVariant.String),
+                                            QgsField("UF_SSx", QVariant.String),
+                                            QgsField("UF_NLUD", QVariant.String),
+                                            QgsField("UF_TCPA", QVariant.String),
+                                            QgsField("UF_Descrip", QVariant.String)])
 
-                        vl.commitChanges()
-                        vl.startEditing()
+                        input2.commitChanges()
                         self.updateLULayer()
                         self.dockwidget.LUUpperfloorradioButton.setEnabled(1)
 
-
-
-
                 self.closePopUpLU()
+                self.ludlg.lineEditLU.clear()
 
             else:
                 # Save to memory, no base land use layer
@@ -196,12 +192,12 @@ class LanduseTool(QObject):
                                         QgsField("Area", QVariant.Double)])
 
                     if self.ludlg.LUincGFcheckBox.checkState() == 2:
-                        edit1.addAttributes([QgsField("GF_Category", QVariant.String),
-                                            QgsField("GF_SubCategory", QVariant.String),
-                                            QgsField("GF_SSx_Code", QVariant.String),
-                                            QgsField("GF_NLUD_Code", QVariant.String),
-                                            QgsField("GF_TCPA_Code", QVariant.String),
-                                            QgsField("GF_Description", QVariant.String)])
+                        edit1.addAttributes([QgsField("GF_Cat", QVariant.String),
+                                            QgsField("GF_SubCat", QVariant.String),
+                                            QgsField("GF_SSx", QVariant.String),
+                                            QgsField("GF_NLUD", QVariant.String),
+                                            QgsField("GF_TCPA", QVariant.String),
+                                            QgsField("GF_Descrip", QVariant.String)])
 
                         vl.commitChanges()
                         vl.startEditing()
@@ -209,12 +205,12 @@ class LanduseTool(QObject):
                         self.dockwidget.LUGroundfloorradioButton.setEnabled(1)
 
                     if self.ludlg.LUincLFcheckBox.checkState() == 2:
-                        edit1.addAttributes([QgsField("LF_Category", QVariant.String),
-                                            QgsField("LF_SubCategory", QVariant.String),
-                                            QgsField("LF_SSx_Code", QVariant.String),
-                                            QgsField("LF_NLUD_Code", QVariant.String),
-                                            QgsField("LF_TCPA_Code", QVariant.String),
-                                            QgsField("LF_Description", QVariant.String)])
+                        edit1.addAttributes([QgsField("LF_Cat", QVariant.String),
+                                            QgsField("LF_SubCat", QVariant.String),
+                                            QgsField("LF_SSx", QVariant.String),
+                                            QgsField("LF_NLUD", QVariant.String),
+                                            QgsField("LF_TCPA", QVariant.String),
+                                            QgsField("LF_Descrip", QVariant.String)])
 
                         vl.commitChanges()
                         vl.startEditing()
@@ -222,12 +218,12 @@ class LanduseTool(QObject):
                         self.dockwidget.LULowerfloorradioButton.setEnabled(1)
 
                     if self.ludlg.LUincUFcheckBox.checkState() == 2:
-                        edit1.addAttributes([QgsField("UF_Category", QVariant.String),
-                                            QgsField("UF_SubCategory", QVariant.String),
-                                            QgsField("UF_SSx_Code", QVariant.String),
-                                            QgsField("UF_NLUD_Code", QVariant.String),
-                                            QgsField("UF_TCPA_Code", QVariant.String),
-                                            QgsField("UF_Description", QVariant.String)])
+                        edit1.addAttributes([QgsField("UF_Cat", QVariant.String),
+                                            QgsField("UF_SubCat", QVariant.String),
+                                            QgsField("UF_SSx", QVariant.String),
+                                            QgsField("UF_NLUD", QVariant.String),
+                                            QgsField("UF_TCPA", QVariant.String),
+                                            QgsField("UF_Descrip", QVariant.String)])
 
                         vl.commitChanges()
                         vl.startEditing()
@@ -235,6 +231,7 @@ class LanduseTool(QObject):
                         self.dockwidget.LUUpperfloorradioButton.setEnabled(1)
 
                 self.closePopUpLU()
+                self.ludlg.lineEditLU.clear()
 
 
 # Set layer as frontage layer and apply thematic style

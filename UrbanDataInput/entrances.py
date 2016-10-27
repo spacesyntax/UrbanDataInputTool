@@ -121,7 +121,6 @@ class EntranceTool(QObject):
 
                 input2.commitChanges()
                 self.updateEntranceLayer()
-
                 self.closePopUpEntrances()
 
         else:

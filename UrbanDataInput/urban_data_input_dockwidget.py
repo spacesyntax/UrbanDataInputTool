@@ -71,7 +71,6 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.lineEdit_luSSx.hide()
         self.lineEdit_luNLUD.hide()
         self.lineEdit_luTCPA.hide()
-
         self.LUGroundfloorradioButton.setEnabled(0)
         self.LULowerfloorradioButton.setEnabled(0)
         self.LUUpperfloorradioButton.setEnabled(0)

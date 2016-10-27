@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'CreateNew_dialog_base.ui'
 #
-# Created: Mon Oct 24 18:27:41 2016
+# Created: Thu Oct 27 15:31:27 2016
 #      by: PyQt4 UI code generator 4.10.2
 #
 # WARNING! All changes made in this file will be lost!
