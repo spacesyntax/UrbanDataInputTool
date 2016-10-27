@@ -13,7 +13,7 @@
   <property name="minimumSize">
    <size>
     <width>441</width>
-    <height>680</height>
+    <height>752</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -452,12 +452,12 @@
          </layout>
         </item>
         <item row="1" column="0">
-         <widget class="QGroupBox" name="groupBox_2">
+         <widget class="QGroupBox" name="groupBox_3">
           <property name="title">
-           <string>GroupBox</string>
+           <string>Select Floor</string>
           </property>
-          <layout class="QGridLayout" name="gridLayout_6">
-           <item row="0" column="0" colspan="2">
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
             <layout class="QHBoxLayout" name="horizontalLayout">
              <item>
               <widget class="QRadioButton" name="LUGroundfloorradioButton">
@@ -488,21 +488,23 @@
              </item>
             </layout>
            </item>
-           <item row="1" column="0">
+          </layout>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QGroupBox" name="groupBox_2">
+          <property name="title">
+           <string>New land use type</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_6">
+           <item row="0" column="0">
             <widget class="QLabel" name="label_Lucategory">
              <property name="text">
               <string>Category</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
-            <widget class="QLabel" name="label_lusubcategory">
-             <property name="text">
-              <string>Sub Category</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
+           <item row="1" column="0">
             <widget class="QListWidget" name="lucategorylistWidget">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
@@ -527,7 +529,14 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_lufloors">
+             <property name="text">
+              <string>Floors</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
             <widget class="QListWidget" name="lusubcategorylistWidget">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
@@ -552,14 +561,17 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="label_lufloors">
+           <item row="0" column="1">
+            <widget class="QLabel" name="label_lusubcategory">
              <property name="text">
-              <string>Floors</string>
+              <string>Sub Category</string>
              </property>
             </widget>
            </item>
-           <item row="5" column="0">
+           <item row="3" column="0" colspan="2">
+            <widget class="QSpinBox" name="spinBoxlufloors"/>
+           </item>
+           <item row="4" column="0">
             <widget class="QLabel" name="label_ludescription">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
@@ -572,23 +584,20 @@
              </property>
             </widget>
            </item>
-           <item row="6" column="0" colspan="2">
-            <widget class="QLineEdit" name="LUdesclineEdit">
-             <property name="minimumSize">
+           <item row="5" column="0" colspan="2">
+            <widget class="QPlainTextEdit" name="plainTextEdit">
+             <property name="maximumSize">
               <size>
-               <width>371</width>
-               <height>61</height>
+               <width>373</width>
+               <height>71</height>
               </size>
              </property>
             </widget>
            </item>
-           <item row="4" column="0" colspan="2">
-            <widget class="QSpinBox" name="spinBoxlufloors"/>
-           </item>
           </layout>
          </widget>
         </item>
-        <item row="2" column="0">
+        <item row="3" column="0">
          <widget class="QGroupBox" name="groupBox_updatelanduse">
           <property name="title">
            <string>Update land use</string>
@@ -604,7 +613,7 @@
            <item row="1" column="0">
             <layout class="QGridLayout" name="gridLayout_12">
              <item row="0" column="0">
-              <widget class="QPushButton" name="updateEntranceButton_2">
+              <widget class="QPushButton" name="updateLUButton">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -617,7 +626,7 @@
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QPushButton" name="updateEntranceIDButton_2">
+              <widget class="QPushButton" name="updateLUIDButton">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -634,13 +643,13 @@
           </layout>
          </widget>
         </item>
-        <item row="3" column="0">
+        <item row="4" column="0">
          <widget class="QLineEdit" name="lineEdit_luSSx"/>
         </item>
-        <item row="4" column="0">
+        <item row="5" column="0">
          <widget class="QLineEdit" name="lineEdit_luNLUD"/>
         </item>
-        <item row="5" column="0">
+        <item row="6" column="0">
          <widget class="QLineEdit" name="lineEdit_luTCPA"/>
         </item>
        </layout>

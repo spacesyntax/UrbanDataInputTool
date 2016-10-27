@@ -67,9 +67,14 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.eaccesscategorylistWidget.setCurrentRow(1)
 
         self.updateLUTypes()
-        #self.lineEdit_luSSx.hide()
-        #self.lineEdit_luNLUD.hide()
-        #self.lineEdit_luTCPA.hide()
+        self.LUGroundfloorradioButton.setChecked(1)
+        self.lineEdit_luSSx.hide()
+        self.lineEdit_luNLUD.hide()
+        self.lineEdit_luTCPA.hide()
+
+        self.LUGroundfloorradioButton.setEnabled(0)
+        self.LULowerfloorradioButton.setEnabled(0)
+        self.LUUpperfloorradioButton.setEnabled(0)
 
 
     def closeEvent(self, event):
@@ -370,6 +375,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
     def addLUDataFields(self):
         self.LUtableClear()
         layer = self.setLULayer()
+        dp = layer.dataProvider()
         fieldlist = uf.getFieldNames(layer)
         if layer:
             features = layer.selectedFeatures()
@@ -378,135 +384,73 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 attr = feat.attributes()
                 attrs.append(attr)
 
-        if 'GF_Category' in fieldlist and 'LF_Category' in fieldlist and 'UF_Category' in fieldlist:
+            idfieldindex = dp.fieldNameIndex('LU_ID')
+            floorfieldindex = dp.fieldNameIndex('Floors')
+            areafieldindex = dp.fieldNameIndex('Area')
+            gfcatfieldindex = dp.fieldNameIndex('GF_Category')
+            gfsubcatfieldindex = dp.fieldNameIndex('GF_SubCategory')
+            lfcatfieldindex = dp.fieldNameIndex('LF_Category')
+            lfsubcatfieldindex = dp.fieldNameIndex('LF_SubCategory')
+            ufcatfieldindex = dp.fieldNameIndex('UF_Category')
+            ufsubcatfieldindex = dp.fieldNameIndex('UF_SubCategory')
 
-            fields = layer.pendingFields()
-            field_names = [field.name() for field in fields]
-            field_length = len(field_names)
-            A1 = field_length - 9
-            A2 = field_length - 8
-            A3 = field_length - 7
-            A4 = field_length - 6
-            A5 = field_length - 5
-            A6 = field_length - 4
-            A7 = field_length - 3
-            A8 = field_length - 2
-            A9 = field_length - 1
+            if self.LUGroundfloorradioButton.isChecked():
 
-            self.tableWidgetlanduse.setColumnCount(9)
-            headers = ["LU-ID", "Floors", "Area", "GF Category", "GF Sub Category",
-                       "LFCategory", "LF Sub Category", "UF Category", "UF Sub Category"]
+                self.tableWidgetlanduse.setColumnCount(5)
+                headers = ["LU-ID", "Floors", "Area", "GF Category", "GF Sub Category"]
 
-            self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
-            self.tableWidgetlanduse.setRowCount(len(attrs))
+                self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
+                self.tableWidgetlanduse.setRowCount(len(attrs))
 
-            for i, item in enumerate(attrs):
-                self.tableWidgetlanduse.setItem(i, 0, QtGui.QTableWidgetItem(str(item[A1])))
-                self.tableWidgetlanduse.setItem(i, 1, QtGui.QTableWidgetItem(str(item[A2])))
-                self.tableWidgetlanduse.setItem(i, 2, QtGui.QTableWidgetItem(str(item[A3])))
-                self.tableWidgetlanduse.setItem(i, 3, QtGui.QTableWidgetItem(str(item[A4])))
-                self.tableWidgetlanduse.setItem(i, 4, QtGui.QTableWidgetItem(str(item[A5])))
-                self.tableWidgetlanduse.setItem(i, 5, QtGui.QTableWidgetItem(str(item[A6])))
-                self.tableWidgetlanduse.setItem(i, 6, QtGui.QTableWidgetItem(str(item[A7])))
-                self.tableWidgetlanduse.setItem(i, 7, QtGui.QTableWidgetItem(str(item[A8])))
-                self.tableWidgetlanduse.setItem(i, 8, QtGui.QTableWidgetItem(str(item[A9])))
+                for i, item in enumerate(attrs):
+                    self.tableWidgetlanduse.setItem(i, 0, QtGui.QTableWidgetItem(str(item[idfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 1, QtGui.QTableWidgetItem(str(item[floorfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 2, QtGui.QTableWidgetItem(str(item[areafieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 3, QtGui.QTableWidgetItem(str(item[gfcatfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 4, QtGui.QTableWidgetItem(str(item[gfsubcatfieldindex])))
 
-            self.tableWidgetlanduse.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
-            self.tableWidgetlanduse.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
-            self.tableWidgetlanduse.resizeRowsToContents()
+                self.tableWidgetlanduse.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
+                self.tableWidgetlanduse.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
+                self.tableWidgetlanduse.resizeRowsToContents()
 
-        elif 'GF_Category' in fieldlist and 'LF_Category' in fieldlist:
+            if self.LULowerfloorradioButton.isChecked():
 
-            fields = layer.pendingFields()
-            field_names = [field.name() for field in fields]
-            field_length = len(field_names)
-            A1 = field_length - 7
-            A2 = field_length - 6
-            A3 = field_length - 5
-            A4 = field_length - 4
-            A5 = field_length - 3
-            A6 = field_length - 2
-            A7 = field_length - 1
+                self.tableWidgetlanduse.setColumnCount(5)
+                headers = ["LU-ID", "Floors", "Area", "LF Category", "LF Sub Category"]
 
-            self.tableWidgetlanduse.setColumnCount(7)
-            headers = ["LU-ID", "Floors", "Area", "GF Category", "GF Sub Category",
-                       "LF Category", "LF Sub Category"]
+                self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
+                self.tableWidgetlanduse.setRowCount(len(attrs))
 
-            self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
-            self.tableWidgetlanduse.setRowCount(len(attrs))
+                for i, item in enumerate(attrs):
+                    self.tableWidgetlanduse.setItem(i, 0, QtGui.QTableWidgetItem(str(item[idfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 1, QtGui.QTableWidgetItem(str(item[floorfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 2, QtGui.QTableWidgetItem(str(item[areafieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 3, QtGui.QTableWidgetItem(str(item[lfcatfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 4, QtGui.QTableWidgetItem(str(item[lfsubcatfieldindex])))
 
-            for i, item in enumerate(attrs):
-                self.tableWidgetlanduse.setItem(i, 0, QtGui.QTableWidgetItem(str(item[A1])))
-                self.tableWidgetlanduse.setItem(i, 1, QtGui.QTableWidgetItem(str(item[A2])))
-                self.tableWidgetlanduse.setItem(i, 2, QtGui.QTableWidgetItem(str(item[A3])))
-                self.tableWidgetlanduse.setItem(i, 3, QtGui.QTableWidgetItem(str(item[A4])))
-                self.tableWidgetlanduse.setItem(i, 4, QtGui.QTableWidgetItem(str(item[A5])))
-                self.tableWidgetlanduse.setItem(i, 5, QtGui.QTableWidgetItem(str(item[A6])))
-                self.tableWidgetlanduse.setItem(i, 6, QtGui.QTableWidgetItem(str(item[A7])))
+                self.tableWidgetlanduse.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
+                self.tableWidgetlanduse.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
+                self.tableWidgetlanduse.resizeRowsToContents()
 
-            self.tableWidgetlanduse.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
-            self.tableWidgetlanduse.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
-            self.tableWidgetlanduse.resizeRowsToContents()
+            if self.LUUpperfloorradioButton.isChecked():
 
-        elif 'GF_Category' in fieldlist and 'UF_Category' in fieldlist:
+                self.tableWidgetlanduse.setColumnCount(5)
+                headers = ["LU-ID", "Floors", "Area","UF Category", "UF Sub Category"]
 
-            fields = layer.pendingFields()
-            field_names = [field.name() for field in fields]
-            field_length = len(field_names)
-            A1 = field_length - 7
-            A2 = field_length - 6
-            A3 = field_length - 5
-            A4 = field_length - 4
-            A5 = field_length - 3
-            A6 = field_length - 2
-            A7 = field_length - 1
+                self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
+                self.tableWidgetlanduse.setRowCount(len(attrs))
 
-            self.tableWidgetlanduse.setColumnCount(7)
-            headers = ["LU-ID", "Floors", "Area", "GF Category", "GF Sub Category",
-                       "UF Category", "UF Sub Category"]
+                for i, item in enumerate(attrs):
+                    self.tableWidgetlanduse.setItem(i, 0, QtGui.QTableWidgetItem(str(item[idfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 1, QtGui.QTableWidgetItem(str(item[floorfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 2, QtGui.QTableWidgetItem(str(item[areafieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 3, QtGui.QTableWidgetItem(str(item[ufcatfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 4, QtGui.QTableWidgetItem(str(item[ufsubcatfieldindex])))
 
-            self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
-            self.tableWidgetlanduse.setRowCount(len(attrs))
+                self.tableWidgetlanduse.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
+                self.tableWidgetlanduse.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
+                self.tableWidgetlanduse.resizeRowsToContents()
 
-            for i, item in enumerate(attrs):
-                self.tableWidgetlanduse.setItem(i, 0, QtGui.QTableWidgetItem(str(item[A1])))
-                self.tableWidgetlanduse.setItem(i, 1, QtGui.QTableWidgetItem(str(item[A2])))
-                self.tableWidgetlanduse.setItem(i, 2, QtGui.QTableWidgetItem(str(item[A3])))
-                self.tableWidgetlandusee.setItem(i, 3, QtGui.QTableWidgetItem(str(item[A4])))
-                self.tableWidgetlanduse.setItem(i, 4, QtGui.QTableWidgetItem(str(item[A5])))
-                self.tableWidgetlanduse.setItem(i, 5, QtGui.QTableWidgetItem(str(item[A6])))
-                self.tableWidgetlanduse.setItem(i, 6, QtGui.QTableWidgetItem(str(item[A7])))
-
-            self.tableWidgetlanduse.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
-            self.tableWidgetlanduse.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
-            self.tableWidgetlanduse.resizeRowsToContents()
-
-        else:
-            fields = layer.pendingFields()
-            field_names = [field.name() for field in fields]
-            field_length = len(field_names)
-            A1 = field_length - 5
-            A2 = field_length - 4
-            A3 = field_length - 3
-            A4 = field_length - 2
-            A5 = field_length - 1
-
-            self.tableWidgetEntrance.setColumnCount(5)
-            headers = ["LU-ID", "Floors", "Area", "GF Category", "GF Sub Category"]
-
-            self.tableWidgetEntrance.setHorizontalHeaderLabels(headers)
-            self.tableWidgetEntrance.setRowCount(len(attrs))
-
-            for i, item in enumerate(attrs):
-                self.tableWidgetEntrance.setItem(i, 0, QtGui.QTableWidgetItem(str(item[A1])))
-                self.tableWidgetEntrance.setItem(i, 1, QtGui.QTableWidgetItem(str(item[A2])))
-                self.tableWidgetEntrance.setItem(i, 2, QtGui.QTableWidgetItem(str(item[A3])))
-                self.tableWidgetEntrance.setItem(i, 3, QtGui.QTableWidgetItem(str(item[A4])))
-                self.tableWidgetEntrance.setItem(i, 4, QtGui.QTableWidgetItem(str(item[A5])))
-
-            self.tableWidgetEntrance.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
-            self.tableWidgetEntrance.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
-            self.tableWidgetEntrance.resizeRowsToContents()
 
     def LUtableClear(self):
         self.tableWidgetlanduse.clear()

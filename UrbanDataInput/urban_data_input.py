@@ -207,21 +207,62 @@ class UrbanDataInput:
         self.dockwidget.closingPlugin.disconnect(self.onClosePlugin)
         # disconnect interface signals
         try:
-            self.frontagedlg.createNewFileCheckBox.stateChanged.disconnect(self.frontage_tool.updateLayers)
             self.iface.mapCanvas().selectionChanged.disconnect(self.dockwidget.addDataFields)
+
             self.iface.legendInterface().itemRemoved.disconnect(self.frontage_tool.updateLayers)
             self.iface.legendInterface().itemAdded.disconnect(self.frontage_tool.updateLayers)
-            self.frontagedlg.pushButtonNewFileDLG.clicked.disconnect(self.frontage_tool.newFrontageLayer)
-            self.frontagedlg.pushButtonSelectLocation.clicked.disconnect(self.frontage_tool.selectSaveLocation)
-            self.dockwidget.pushIDcomboBox.currentIndexChanged.disconnect(self.frontage_tool.updatepushWidgetList)
-            self.dockwidget.useExistingcomboBox.currentIndexChanged.disconnect(self.frontage_tool.loadFrontageLayer)
-            self.dockwidget.hideshowButton.clicked.disconnect(self.frontage_tool.hideFeatures)
             self.iface.legendInterface().itemRemoved.disconnect(self.frontage_tool.updateFrontageLayer)
             self.iface.legendInterface().itemAdded.disconnect(self.frontage_tool.updateFrontageLayer)
             self.iface.legendInterface().itemRemoved.disconnect(self.frontage_tool.updateLayersPushID)
             self.iface.legendInterface().itemAdded.disconnect(self.frontage_tool.updateLayersPushID)
             self.iface.projectRead.disconnect(self.frontage_tool.updateLayersPushID)
             self.iface.newProjectCreated.disconnect(self.frontage_tool.updateLayersPushID)
+
+            self.frontagedlg.closePopUpButton.clicked.disconnect(self.frontage_tool.closePopUp)
+            self.frontagedlg.pushButtonNewFileDLG.clicked.disconnect(self.frontage_tool.newFrontageLayer)
+            self.frontagedlg.createNewFileCheckBox.stateChanged.disconnect(self.frontage_tool.updateLayers)
+            self.frontagedlg.pushButtonSelectLocation.clicked.disconnect(self.frontage_tool.selectSaveLocation)
+
+            self.dockwidget.frontagescatlistWidget.currentRowChanged.disconnect(self.dockwidget.updateFrontageSubTypes)
+            self.dockwidget.pushButtonNewFile.clicked.disconnect(self.newFileDialog)
+            self.dockwidget.updateIDButton.clicked.disconnect(self.frontage_tool.updateID)
+            self.dockwidget.updateLengthButton.clicked.disconnect(self.frontage_tool.updateLength)
+            self.dockwidget.updateFacadeButton.clicked.disconnect(self.frontage_tool.updateSelectedFrontageAttribute)
+            self.dockwidget.updateIDPushButton.clicked.disconnect(self.frontage_tool.pushID)
+            self.dockwidget.pushIDcomboBox.currentIndexChanged.disconnect(self.frontage_tool.updatepushWidgetList)
+            self.dockwidget.useExistingcomboBox.currentIndexChanged.disconnect(self.frontage_tool.loadFrontageLayer)
+            self.dockwidget.hideshowButton.clicked.disconnect(self.frontage_tool.hideFeatures)
+
+            # Entrances
+            self.iface.mapCanvas().selectionChanged.disconnect(self.dockwidget.addEntranceDataFields)
+
+            self.entrancedlg.pushButtonEntrancesNewFileDLG.clicked.disconnect(self.entrance_tool.newEntranceLayer)
+            self.entrancedlg.closePopUpEntrancesButton.clicked.disconnect(self.entrance_tool.closePopUpEntrances)
+            self.entrancedlg.pushButtonSelectLocationEntrance.clicked.disconnect(self.entrance_tool.selectSaveLocationEntrance)
+
+            self.dockwidget.ecategorylistWidget.currentRowChanged.disconnect(self.dockwidget.updateSubCategory)
+            self.dockwidget.pushButtonNewEntrancesFile.clicked.disconnect(self.newFileDialogEntrance)
+            self.dockwidget.useExistingEntrancescomboBox.currentIndexChanged.disconnect(self.entrance_tool.loadEntranceLayer)
+            self.dockwidget.updateEntranceButton.clicked.disconnect(self.entrance_tool.updateSelectedEntranceAttribute)
+            self.dockwidget.updateEntranceIDButton.clicked.disconnect(self.entrance_tool.updateIDEntrances)
+
+            # Landuse
+            self.iface.mapCanvas().selectionChanged.disconnect(self.dockwidget.addLUDataFields)
+
+            self.ludlg.pushButtonLUNewFileDLG.clicked.disconnect(self.lu_tool.newLULayer)
+            self.ludlg.closePopUpLUButton.clicked.disconnect(self.lu_tool.closePopUpLU)
+            self.ludlg.pushButtonSelectLocationLU.clicked.disconnect(self.lu_tool.selectSaveLocationLU)
+
+            self.dockwidget.lucategorylistWidget.currentRowChanged.disconnect(self.dockwidget.updateLUsubcat)
+            self.dockwidget.lucategorylistWidget.currentRowChanged.disconnect(self.dockwidget.updateLUCodes)
+            self.dockwidget.LUGroundfloorradioButton.toggled.disconnect(self.dockwidget.addLUDataFields)
+            self.dockwidget.LULowerfloorradioButton.toggled.disconnect(self.dockwidget.addLUDataFields)
+            self.dockwidget.LUUpperfloorradioButton.toggled.disconnect(self.dockwidget.addLUDataFields)
+            self.dockwidget.lusubcategorylistWidget.currentRowChanged.disconnect(self.dockwidget.updateLUCodes)
+            self.dockwidget.updateLUIDButton.clicked.disconnect(self.lu_tool.updateIDLU)
+            self.dockwidget.useExistingLUcomboBox.currentIndexChanged.disconnect(self.lu_tool.loadLULayer)
+            self.dockwidget.pushButtonNewLUFile.clicked.disconnect(self.newFileDialogLU)
+            self.dockwidget.updateLUButton.clicked.disconnect(self.lu_tool.updateSelectedLUAttribute)
 
         except:
             pass
@@ -232,13 +273,11 @@ class UrbanDataInput:
 
         # disconnects
 
-
         # remove this statement if dockwidget is to remain
         # for reuse if plugin is reopened
         # Commented next statement since it causes QGIS crashe
         # when closing the docked window:
         self.dockwidget = None
-
         self.pluginIsActive = False
 
 
@@ -331,14 +370,20 @@ class UrbanDataInput:
 
             self.ludlg.pushButtonLUNewFileDLG.clicked.connect(self.lu_tool.newLULayer)
             self.ludlg.closePopUpLUButton.clicked.connect(self.lu_tool.closePopUpLU)
-            self.dockwidget.useExistingLUcomboBox.currentIndexChanged.connect(self.lu_tool.loadLULayer)
             self.ludlg.pushButtonSelectLocationLU.clicked.connect(self.lu_tool.selectSaveLocationLU)
 
             self.dockwidget.lucategorylistWidget.currentRowChanged.connect(self.dockwidget.updateLUsubcat)
             self.dockwidget.lucategorylistWidget.currentRowChanged.connect(self.dockwidget.updateLUCodes)
-
+            self.dockwidget.LUGroundfloorradioButton.toggled.connect(self.dockwidget.addLUDataFields)
+            self.dockwidget.LULowerfloorradioButton.toggled.connect(self.dockwidget.addLUDataFields)
+            self.dockwidget.LUUpperfloorradioButton.toggled.connect(self.dockwidget.addLUDataFields)
             self.dockwidget.lusubcategorylistWidget.currentRowChanged.connect(self.dockwidget.updateLUCodes)
+            self.dockwidget.updateLUIDButton.clicked.connect(self.lu_tool.updateIDLU)
+            self.dockwidget.useExistingLUcomboBox.currentIndexChanged.connect(self.lu_tool.loadLULayer)
             self.dockwidget.pushButtonNewLUFile.clicked.connect(self.newFileDialogLU)
+            self.dockwidget.updateLUButton.clicked.connect(self.lu_tool.updateSelectedLUAttribute)
+
+
 
 
             #Initialisation
