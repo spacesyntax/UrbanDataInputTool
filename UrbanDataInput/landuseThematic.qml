@@ -1,6 +1,36 @@
 <!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
 <qgis version="2.16.1-Nødebo" simplifyAlgorithm="0" minimumScale="100000" maximumScale="1e+08" simplifyDrawingHints="1" minLabelScale="0" maxLabelScale="1e+08" simplifyDrawingTol="1" simplifyMaxScale="1" hasScaleBasedVisibilityFlag="0" simplifyLocal="1" scaleBasedLabelVisibilityFlag="0">
   <edittypes>
+    <edittype widgetv2type="TextEdit" name="Theme">
+      <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+    </edittype>
+    <edittype widgetv2type="TextEdit" name="FeatureCod">
+      <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+    </edittype>
+    <edittype widgetv2type="TextEdit" name="Calculated">
+      <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+    </edittype>
+    <edittype widgetv2type="TextEdit" name="ReasonForC">
+      <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+    </edittype>
+    <edittype widgetv2type="TextEdit" name="ChangeDate">
+      <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+    </edittype>
+    <edittype widgetv2type="TextEdit" name="Descriptiv">
+      <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+    </edittype>
+    <edittype widgetv2type="TextEdit" name="Descript_1">
+      <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+    </edittype>
+    <edittype widgetv2type="TextEdit" name="Make">
+      <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+    </edittype>
+    <edittype widgetv2type="TextEdit" name="PhysicalLe">
+      <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+    </edittype>
+    <edittype widgetv2type="TextEdit" name="PhysicalPr">
+      <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+    </edittype>
     <edittype widgetv2type="TextEdit" name="LU_ID">
       <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
     </edittype>
@@ -10,26 +40,62 @@
     <edittype widgetv2type="TextEdit" name="Area">
       <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
     </edittype>
-    <edittype widgetv2type="TextEdit" name="GF_Category">
+    <edittype widgetv2type="TextEdit" name="GF_Cat">
       <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
     </edittype>
-    <edittype widgetv2type="TextEdit" name="GF_SubCategory">
+    <edittype widgetv2type="TextEdit" name="GF_SubCat">
       <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
     </edittype>
-    <edittype widgetv2type="TextEdit" name="GF_SSx_Code">
+    <edittype widgetv2type="TextEdit" name="GF_SSx">
       <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
     </edittype>
-    <edittype widgetv2type="TextEdit" name="GF_NLUD_Code">
+    <edittype widgetv2type="TextEdit" name="GF_NLUD">
       <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
     </edittype>
-    <edittype widgetv2type="TextEdit" name="GF_TCPA_Code">
+    <edittype widgetv2type="TextEdit" name="GF_TCPA">
       <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
     </edittype>
-    <edittype widgetv2type="TextEdit" name="GF_Description">
+    <edittype widgetv2type="TextEdit" name="GF_Descrip">
+      <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+    </edittype>
+    <edittype widgetv2type="TextEdit" name="LF_Cat">
+      <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+    </edittype>
+    <edittype widgetv2type="TextEdit" name="LF_SubCat">
+      <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+    </edittype>
+    <edittype widgetv2type="TextEdit" name="LF_SSx">
+      <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+    </edittype>
+    <edittype widgetv2type="TextEdit" name="LF_NLUD">
+      <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+    </edittype>
+    <edittype widgetv2type="TextEdit" name="LF_TCPA">
+      <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+    </edittype>
+    <edittype widgetv2type="TextEdit" name="LF_Descrip">
+      <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+    </edittype>
+    <edittype widgetv2type="TextEdit" name="UF_Cat">
+      <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+    </edittype>
+    <edittype widgetv2type="TextEdit" name="UF_SubCat">
+      <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+    </edittype>
+    <edittype widgetv2type="TextEdit" name="UF_SSx">
+      <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+    </edittype>
+    <edittype widgetv2type="TextEdit" name="UF_NLUD">
+      <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+    </edittype>
+    <edittype widgetv2type="TextEdit" name="UF_TCPA">
+      <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+    </edittype>
+    <edittype widgetv2type="TextEdit" name="UF_Descrip">
       <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
     </edittype>
   </edittypes>
-  <renderer-v2 attr="GF_Category" forceraster="0" symbollevels="0" type="categorizedSymbol" enableorderby="0">
+  <renderer-v2 attr="GF_Cat" forceraster="0" symbollevels="0" type="categorizedSymbol" enableorderby="0">
     <categories>
       <category render="true" symbol="0" value="Agriculture" label="Agriculture"/>
       <category render="true" symbol="1" value="Catering" label="Catering"/>
@@ -403,8 +469,6 @@
         </layer>
       </symbol>
     </source-symbol>
-    <colorramp type="randomcolors" name="[source]"/>
-    <invertedcolorramp value="0"/>
     <rotation/>
     <sizescale scalemethod="diameter"/>
   </renderer-v2>
@@ -578,6 +642,7 @@
   <SingleCategoryDiagramRenderer diagramType="Histogram" sizeLegend="0" attributeLegend="1">
     <DiagramCategory penColor="#000000" labelPlacementMethod="XHeight" penWidth="0" diagramOrientation="Up" sizeScale="0,0,0,0,0,0" minimumSize="0" barWidth="5" penAlpha="255" maxScaleDenominator="1e+08" backgroundColor="#ffffff" transparency="0" width="15" scaleDependency="Area" backgroundAlpha="255" angleOffset="1440" scaleBasedVisibility="0" enabled="0" height="15" lineSizeScale="0,0,0,0,0,0" sizeType="MM" lineSizeType="MM" minScaleDenominator="100000">
       <fontProperties description="MS Shell Dlg 2,8.25,-1,5,50,0,0,0,0,0" style=""/>
+      <attribute field="" color="#000000" label=""/>
     </DiagramCategory>
     <symbol alpha="1" clip_to_extent="1" type="marker" name="sizeSymbol">
       <layer pass="0" class="SimpleMarker" locked="0">
@@ -612,13 +677,35 @@
       <column width="-1" hidden="0" type="field" name="LU_ID"/>
       <column width="-1" hidden="0" type="field" name="Floors"/>
       <column width="-1" hidden="0" type="field" name="Area"/>
-      <column width="-1" hidden="0" type="field" name="GF_Category"/>
-      <column width="-1" hidden="0" type="field" name="GF_SubCategory"/>
-      <column width="-1" hidden="0" type="field" name="GF_SSx_Code"/>
-      <column width="-1" hidden="0" type="field" name="GF_NLUD_Code"/>
-      <column width="-1" hidden="0" type="field" name="GF_TCPA_Code"/>
-      <column width="-1" hidden="0" type="field" name="GF_Description"/>
       <column width="-1" hidden="1" type="actions"/>
+      <column width="-1" hidden="0" type="field" name="Theme"/>
+      <column width="-1" hidden="0" type="field" name="FeatureCod"/>
+      <column width="-1" hidden="0" type="field" name="Calculated"/>
+      <column width="-1" hidden="0" type="field" name="ReasonForC"/>
+      <column width="-1" hidden="0" type="field" name="ChangeDate"/>
+      <column width="-1" hidden="0" type="field" name="Descriptiv"/>
+      <column width="-1" hidden="0" type="field" name="Descript_1"/>
+      <column width="-1" hidden="0" type="field" name="Make"/>
+      <column width="-1" hidden="0" type="field" name="PhysicalLe"/>
+      <column width="-1" hidden="0" type="field" name="PhysicalPr"/>
+      <column width="-1" hidden="0" type="field" name="GF_Cat"/>
+      <column width="-1" hidden="0" type="field" name="GF_SubCat"/>
+      <column width="-1" hidden="0" type="field" name="GF_SSx"/>
+      <column width="-1" hidden="0" type="field" name="GF_NLUD"/>
+      <column width="-1" hidden="0" type="field" name="GF_TCPA"/>
+      <column width="-1" hidden="0" type="field" name="GF_Descrip"/>
+      <column width="-1" hidden="0" type="field" name="LF_Cat"/>
+      <column width="-1" hidden="0" type="field" name="LF_SubCat"/>
+      <column width="-1" hidden="0" type="field" name="LF_SSx"/>
+      <column width="-1" hidden="0" type="field" name="LF_NLUD"/>
+      <column width="-1" hidden="0" type="field" name="LF_TCPA"/>
+      <column width="-1" hidden="0" type="field" name="LF_Descrip"/>
+      <column width="-1" hidden="0" type="field" name="UF_Cat"/>
+      <column width="-1" hidden="0" type="field" name="UF_SubCat"/>
+      <column width="-1" hidden="0" type="field" name="UF_SSx"/>
+      <column width="-1" hidden="0" type="field" name="UF_NLUD"/>
+      <column width="-1" hidden="0" type="field" name="UF_TCPA"/>
+      <column width="-1" hidden="0" type="field" name="UF_Descrip"/>
     </columns>
   </attributetableconfig>
   <editform></editform>

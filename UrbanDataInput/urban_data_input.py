@@ -207,6 +207,7 @@ class UrbanDataInput:
         self.dockwidget.closingPlugin.disconnect(self.onClosePlugin)
         # disconnect interface signals
         try:
+            #Frontages
             self.iface.mapCanvas().selectionChanged.disconnect(self.dockwidget.addDataFields)
 
             self.iface.legendInterface().itemRemoved.disconnect(self.frontage_tool.updateLayers)
@@ -248,6 +249,14 @@ class UrbanDataInput:
 
             # Landuse
             self.iface.mapCanvas().selectionChanged.disconnect(self.dockwidget.addLUDataFields)
+            self.iface.projectRead.disconnect(self.lu_tool.loadLULayer)
+            self.iface.newProjectCreated.disconnect(self.lu_tool.loadLULayer)
+            self.iface.legendInterface().itemRemoved.disconnect(self.lu_tool.loadLULayer)
+            self.iface.legendInterface().itemAdded.disconnect(self.lu_tool.loadLULayer)
+            self.iface.legendInterface().itemRemoved.disconnect(self.lu_tool.updatebuildingLayers)
+            self.iface.legendInterface().itemAdded.disconnect(self.lu_tool.updatebuildingLayers)
+            self.iface.legendInterface().itemRemoved.disconnect(self.lu_tool.updateLULayer)
+            self.iface.legendInterface().itemAdded.disconnect(self.lu_tool.updateLULayer)
 
             self.ludlg.pushButtonLUNewFileDLG.clicked.disconnect(self.lu_tool.newLULayer)
             self.ludlg.closePopUpLUButton.clicked.disconnect(self.lu_tool.closePopUpLU)
@@ -368,6 +377,12 @@ class UrbanDataInput:
             self.dockwidget.updateEntranceIDButton.clicked.connect(self.entrance_tool.updateIDEntrances)
 
             # Landuse
+            self.iface.projectRead.connect(self.lu_tool.loadLULayer)
+            self.iface.newProjectCreated.connect(self.lu_tool.loadLULayer)
+            self.iface.legendInterface().itemRemoved.connect(self.lu_tool.loadLULayer)
+            self.iface.legendInterface().itemAdded.connect(self.lu_tool.loadLULayer)
+            self.iface.legendInterface().itemRemoved.connect(self.lu_tool.updatebuildingLayers)
+            self.iface.legendInterface().itemAdded.connect(self.lu_tool.updatebuildingLayers)
             self.iface.legendInterface().itemRemoved.connect(self.lu_tool.updateLULayer)
             self.iface.legendInterface().itemAdded.connect(self.lu_tool.updateLULayer)
 
@@ -376,6 +391,7 @@ class UrbanDataInput:
             self.ludlg.pushButtonLUNewFileDLG.clicked.connect(self.lu_tool.newLULayer)
             self.ludlg.closePopUpLUButton.clicked.connect(self.lu_tool.closePopUpLU)
             self.ludlg.pushButtonSelectLocationLU.clicked.connect(self.lu_tool.selectSaveLocationLU)
+            self.ludlg.createNewLUFileCheckBox.stateChanged.connect(self.lu_tool.updatebuildingLayers)
 
             self.dockwidget.lucategorylistWidget.currentRowChanged.connect(self.dockwidget.updateLUsubcat)
             self.dockwidget.lucategorylistWidget.currentRowChanged.connect(self.dockwidget.updateLUCodes)
@@ -432,6 +448,8 @@ class UrbanDataInput:
         # Run the dialog event loop
         result = self.ludlg.exec_()
         # See if OK was pressed
+        self.ludlg.lineEditLU.clear()
+        self.lu_tool.updatebuildingLayers()
         if result:
             # Do something useful here - delete the line containing pass and
             # substitute with your code.

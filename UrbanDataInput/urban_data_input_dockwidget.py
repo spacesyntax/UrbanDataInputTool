@@ -386,12 +386,12 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             idfieldindex = dp.fieldNameIndex('LU_ID')
             floorfieldindex = dp.fieldNameIndex('Floors')
             areafieldindex = dp.fieldNameIndex('Area')
-            gfcatfieldindex = dp.fieldNameIndex('GF_Category')
-            gfsubcatfieldindex = dp.fieldNameIndex('GF_SubCategory')
-            lfcatfieldindex = dp.fieldNameIndex('LF_Category')
-            lfsubcatfieldindex = dp.fieldNameIndex('LF_SubCategory')
-            ufcatfieldindex = dp.fieldNameIndex('UF_Category')
-            ufsubcatfieldindex = dp.fieldNameIndex('UF_SubCategory')
+            gfcatfieldindex = dp.fieldNameIndex('GF_Cat')
+            gfsubcatfieldindex = dp.fieldNameIndex('GF_SubCat')
+            lfcatfieldindex = dp.fieldNameIndex('LF_Cat')
+            lfsubcatfieldindex = dp.fieldNameIndex('LF_SubCat')
+            ufcatfieldindex = dp.fieldNameIndex('UF_Cat')
+            ufsubcatfieldindex = dp.fieldNameIndex('UF_SubCat')
 
             if self.LUGroundfloorradioButton.isChecked():
 

@@ -27,7 +27,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <property name="usesScrollButtons">
        <bool>true</bool>
@@ -358,9 +358,6 @@
             <widget class="QListWidget" name="eaccesscategorylistWidget"/>
            </item>
           </layout>
-          <zorder>ecategorylistWidget</zorder>
-          <zorder>esubcategorylistWidget</zorder>
-          <zorder>eaccesscategorylistWidget</zorder>
           <zorder>ecategorylistWidget</zorder>
           <zorder>esubcategorylistWidget</zorder>
           <zorder>eaccesscategorylistWidget</zorder>
