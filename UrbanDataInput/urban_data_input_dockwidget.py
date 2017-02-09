@@ -22,18 +22,10 @@
 """
 
 import os
-import time
 from PyQt4 import QtGui, uic
-from PyQt4.QtCore import pyqtSignal
-import os.path
-from . import utility_functions as uf
-from qgis.core import *
-from qgis.gui import *
 from PyQt4.QtCore import *
-from PyQt4.QtGui import *
 from CreateNew_dialog import CreatenewDialog
-import processing
-
+from . import utility_functions as uf
 
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -59,178 +51,69 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.iface = iface
         self.canvas = self.iface.mapCanvas()
         self.frontage_layer = None
-
-        self.frontagedlg = CreatenewDialog()
-
-        # set up GUI operation signals
-        self.frontagedlg.closePopUpButton.clicked.connect(self.closePopUp)
-        self.frontagedlg.pushButtonNewFileDLG.clicked.connect(self.newFrontageLayer)
-        self.pushButtonNewFile.clicked.connect(self.newFileDialog)
-        self.updateIDButton.clicked.connect(self.updateID)
-        self.updateLengthButton.clicked.connect(self.updateLength)
-        self.frontagedlg.createNewFileCheckBox.stateChanged.connect(self.updateLayers)
-        self.updateFacadeButton.clicked.connect(self.updateSelectedFrontageAttribute)
-        self.updateIDPushButton.clicked.connect(self.pushID)
-        self.iface.mapCanvas().selectionChanged.connect(self.addDataFields)
-        self.iface.legendInterface().itemRemoved.connect(self.updateLayers)
-        self.iface.legendInterface().itemAdded.connect(self.updateLayers)
-        self.frontagedlg.pushButtonSelectLocation.clicked.connect(self.selectSaveLocation)
-        self.pushIDcomboBox.currentIndexChanged.connect(self.updatepushWidgetList)
-        self.useExistingcomboBox.currentIndexChanged.connect(self.loadFrontageLayer)
-        self.hideshowButton.clicked.connect(self.hideFeatures)
-        self.iface.legendInterface().itemRemoved.connect(self.updateFrontageLayer)
-        self.iface.legendInterface().itemAdded.connect(self.updateFrontageLayer)
-        self.iface.legendInterface().itemRemoved.connect(self.updateLayersPushID)
-        self.iface.legendInterface().itemAdded.connect(self.updateLayersPushID)
-        self.iface.projectRead.connect(self.updateLayersPushID)
-        self.iface.newProjectCreated.connect(self.updateLayersPushID)
+        self.entrance_layer = None
+        self.LU_layer = None
+        self.legend = self.iface.legendInterface()
 
 
         # initialisation
-        self.updateFrontageLayer()
-        self.updateLayersPushID()
+
         self.updateFrontageTypes()
         self.pushIDlistWidget.hide()
         self.pushIDcomboBox.hide()
         self.updateIDPushButton.hide()
 
-        # add button icons
+        self.updateEntranceTypes()
+        self.eaccesscategorylistWidget.setCurrentRow(1)
 
-        #initial button state
+        self.updateLUTypes()
+        self.LUGroundfloorradioButton.setChecked(1)
+        self.lineEdit_luSSx.hide()
+        self.lineEdit_luNLUD.hide()
+        self.lineEdit_luTCPA.hide()
+        self.LUGroundfloorradioButton.setEnabled(0)
+        self.LULowerfloorradioButton.setEnabled(0)
+        self.LUUpperfloorradioButton.setEnabled(0)
 
-        # override setting
-        QSettings().setValue('/qgis/digitizing/disable_enter_attribute_values_dialog', True)
-        QSettings().setValue('/qgis/crs/enable_use_project_crs', True)
 
     def closeEvent(self, event):
-        # disconnect interface signals
-        try:
-            self.frontagedlg.createNewFileCheckBox.stateChanged.disconnect(self.updateLayers)
-            self.iface.mapCanvas().selectionChanged.disconnect(self.addDataFields)
-            self.iface.legendInterface().itemRemoved.disconnect(self.updateLayers)
-            self.iface.legendInterface().itemAdded.disconnect(self.updateLayers)
-            self.frontagedlg.pushButtonNewFileDLG.clicked.disconnect(self.newFrontageLayer)
-            self.frontagedlg.pushButtonSelectLocation.clicked.disconnect(self.selectSaveLocation)
-            self.pushIDcomboBox.currentIndexChanged.disconnect(self.updatepushWidgetList)
-            self.useExistingcomboBox.currentIndexChanged.disconnect(self.loadFrontageLayer)
-            self.hideshowButton.clicked.disconnect(self.hideFeatures)
-            self.iface.legendInterface().itemRemoved.disconnect(self.updateFrontageLayer)
-            self.iface.legendInterface().itemAdded.disconnect(self.updateFrontageLayer)
-            self.iface.legendInterface().itemRemoved.disconnect(self.updateLayersPushID)
-            self.iface.legendInterface().itemAdded.disconnect(self.updateLayersPushID)
-            self.iface.projectRead.disconnect(self.updateLayersPushID)
-            self.iface.newProjectCreated.disconnect(self.updateLayersPushID)
-
-        except:
-            pass
-
         self.closingPlugin.emit()
         event.accept()
 
-
     #######
-    #   Data functions
+    #   Frontages
     #######
 
+    # Update frontage types
+    def updateFrontageTypes(self):
+        self.frontagescatlistWidget.clear()
 
+        frontage_list_cat = ['Building', 'Fences']
 
-    def closePopUp(self):
-        self.frontagedlg.close()
+        self.frontagescatlistWidget.addItems(frontage_list_cat)
 
-    def updateID(self):
-        layer = self.setFrontageLayer()
-        uf.updateID(self.iface, layer)
+    def updateFrontageSubTypes(self):
 
+        frontage_sub_category_list_Building = ['Transparent', 'Semi Transparent', 'Blank']
+        frontage_sub_category_list_Fences = ['High Opaque Fence', 'High See Through Fence','Low Fence']
 
-    def getSelectedLayer(self):
-        layer_name = self.frontagedlg.selectLUCombo.currentText()
-        layer = uf.getLegendLayerByName(self.iface, layer_name)
-        return layer
+        if self.frontagescatlistWidget.currentRow() == 0:
+            self.frontagessubcatlistWidget.clear()
+            self.frontagessubcatlistWidget.addItems(frontage_sub_category_list_Building)
+            self.frontagessubcatlistWidget.setCurrentRow(0)
 
+        elif self.frontagescatlistWidget.currentRow() == 1:
+            self.frontagessubcatlistWidget.clear()
+            self.frontagessubcatlistWidget.addItems(frontage_sub_category_list_Fences)
+            self.frontagessubcatlistWidget.setCurrentRow(0)
 
-    def selectSaveLocation(self):
-        filename = QFileDialog.getSaveFileName(self, "Select Save Location ","", '*.shp')
-        self.frontagedlg.lineEditFrontages.setText(filename)
-
-
-    def newFileDialog(self):
-        """Run method that performs all the real work"""
-        # show the dialog
-        self.frontagedlg.show()
-        # Run the dialog event loop
-        result = self.frontagedlg.exec_()
-        # See if OK was pressed
-        self.frontagedlg.lineEditFrontages.clear()
-        if result:
-            pass
-
-    def updateFrontageLayer(self):
-        self.useExistingcomboBox.clear()
-        self.useExistingcomboBox.setEnabled(False)
-        layers = self.iface.legendInterface().layers()
-        for lyr in layers:
-            if self.isFrontageLayer(lyr):
-                self.useExistingcomboBox.addItem(lyr.name(), lyr)
-
-        if self.useExistingcomboBox.count() > 0:
-            self.useExistingcomboBox.setEnabled(True)
-            self.setFrontageLayer()
-            print self.frontage_layer
-
-    def isFrontageLayer(self, layer):
-        if layer.type() == QgsMapLayer.VectorLayer \
-           and layer.geometryType() == QGis.Line:
-            fieldlist = uf.getFieldNames(layer)
-            if 'F_Group' in fieldlist and 'F_Type' in fieldlist:
-                return True
-
-        return False
-
+    # Set universal Frontage layer if conditions are satisfied
     def setFrontageLayer(self):
         index = self.useExistingcomboBox.currentIndex()
         self.frontage_layer = self.useExistingcomboBox.itemData(index)
         return self.frontage_layer
 
-    def updateLayers(self):
-        self.frontagedlg.selectLUCombo.clear()
-        layers = self.iface.legendInterface().layers()
-        layer_list = []
-
-        if self.frontagedlg.createNewFileCheckBox.checkState() == 2:
-
-            for layer in layers:
-                if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Polygon:
-                    layer_list.append(layer.name())
-                    self.frontagedlg.selectLUCombo.setEnabled(True)
-
-            self.frontagedlg.selectLUCombo.addItems(layer_list)
-
-
-    def updateLayersPushID(self):
-        self.pushIDcomboBox.clear()
-        layers = self.iface.legendInterface().layers()
-        layer_list = []
-
-        for layer in layers:
-            if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Polygon:
-                self.pushIDcomboBox.setEnabled(False)
-                self.pushIDcomboBox.addItem(layer.name(),layer)
-
-
-    def updateFrontageTypes(self):
-        self.frontageslistWidget.clear()
-        frontage_list = ['Transparent', 'Semi Transparent', 'Blank',
-                          'High Opaque Fence', 'High See Through Fence',
-                          'Low Fence']
-
-        self.frontageslistWidget.addItems(frontage_list)
-
-
-    def getSelectedLayerLoad(self):
-        layer_name = self.useExistingcomboBox.currentText()
-        layer1 = uf.getLegendLayerByName(self.iface, layer_name)
-        return layer1
-
+    # Get building layer based on name
     def getSelectedLayerPushID(self):
         layer_name = self.pushIDcomboBox.currentText()
         layer = uf.getLegendLayerByName(self.iface, layer_name)
@@ -253,9 +136,10 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             A1 = field_length - 4
             A2 = field_length - 3
             A3 = field_length - 2
+            A4 = field_length - 1
 
-            self.tableWidgetFrontage.setColumnCount(3)
-            headers = ["F-ID","Group","Type"]
+            self.tableWidgetFrontage.setColumnCount(4)
+            headers = ["F-ID", "Group", "Type", "Length"]
             self.tableWidgetFrontage.setHorizontalHeaderLabels(headers)
             self.tableWidgetFrontage.setRowCount(len(attrs))
 
@@ -263,8 +147,8 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.tableWidgetFrontage.setItem(i, 0, QtGui.QTableWidgetItem(str(item[A1])))
                 self.tableWidgetFrontage.setItem(i, 1, QtGui.QTableWidgetItem(str(item[A2])))
                 self.tableWidgetFrontage.setItem(i, 2, QtGui.QTableWidgetItem(str(item[A3])))
+                self.tableWidgetFrontage.setItem(i, 3, QtGui.QTableWidgetItem(str(item[A4])))
 
-            self.tableWidgetFrontage.horizontalHeader().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
             self.tableWidgetFrontage.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
             self.tableWidgetFrontage.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
             self.tableWidgetFrontage.resizeRowsToContents()
@@ -273,347 +157,457 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.tableWidgetFrontage.clear()
 
 
+    #######
+    #   Entrances
+    #######
+
+    def updateEntranceTypes(self):
+        self.ecategorylistWidget.clear()
+        entrance_category_list = ['Controlled', 'Uncontrolled']
+
+        entrance_access_level_list = ["Lower Floor","Ground Floor","Upper Floor"]
+
+        self.ecategorylistWidget.addItems(entrance_category_list)
+        self.eaccesscategorylistWidget.addItems(entrance_access_level_list)
+
+    def updateSubCategory(self):
+
+        entrance_sub_category_list_Controlled = ['Default', 'Fire Exit', 'Service Entrance', 'Unused']
+        entrance_sub_category_list_Uncontrolled = ['Default']
+
+        if self.ecategorylistWidget.currentRow() == 0:
+            self.esubcategorylistWidget.clear()
+            self.esubcategorylistWidget.addItems(entrance_sub_category_list_Controlled)
+            self.esubcategorylistWidget.setCurrentRow(0)
+
+        elif self.ecategorylistWidget.currentRow() == 1:
+            self.esubcategorylistWidget.clear()
+            self.esubcategorylistWidget.addItems(entrance_sub_category_list_Uncontrolled)
+            self.esubcategorylistWidget.setCurrentRow(0)
 
 
+    # Set universal Entrance layer if conditions are satisfied
+    def setEntranceLayer(self):
+        index = self.useExistingEntrancescomboBox.currentIndex()
+        self.entrance_layer = self.useExistingEntrancescomboBox.itemData(index)
+        return self.entrance_layer
 
-        #######
-        #   Frontages
-        #######
-    def newFrontageLayer(self):
-        mc = self.canvas
-        if self.frontagedlg.createNewFileCheckBox.checkState() == 0:
-
-            if self.frontagedlg.lineEditFrontages.text() != "":
-                path = self.frontagedlg.lineEditFrontages.text()
-                filename = os.path.basename(path)
-                location = os.path.abspath(path)
-
-                destCRS = self.canvas.mapRenderer().destinationCrs()
-                vl = QgsVectorLayer("LineString?crs=" + destCRS.toWkt(), "memory:Frontages", "memory")
-                QgsMapLayerRegistry.instance().addMapLayer(vl)
-
-                QgsVectorFileWriter.writeAsVectorFormat(vl, location, "CP1250", None, "ESRI Shapefile")
-
-                QgsMapLayerRegistry.instance().removeMapLayers([vl.id()])
-
-                input2 = self.iface.addVectorLayer(location, filename, "ogr")
-                QgsMapLayerRegistry.instance().addMapLayer(input2)
-
-                if not input2:
-                    msgBar = self.iface.messageBar()
-                    msg = msgBar.createMessage(u'Layer failed to load!' + location)
-                    msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
-
-                else:
-                    msgBar = self.iface.messageBar()
-                    msg = msgBar.createMessage(u'New Frontages Layer Created:' + location)
-                    msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
-
-                    input2.startEditing()
-
-                    edit1 = input2.dataProvider()
-                    edit1.addAttributes([QgsField("F_ID", QVariant.Int),
-                                         QgsField("F_Group", QVariant.String),
-                                         QgsField("F_Type", QVariant.String),
-                                         QgsField("F_Length", QVariant.Double)])
-
-                    input2.commitChanges()
-                    self.updateFrontageLayer()
-
-                    self.frontagedlg.close()
-
-
-            else:
-                destCRS = self.canvas.mapRenderer().destinationCrs()
-                vl = QgsVectorLayer("LineString?crs=" + destCRS.toWkt(), "memory:Frontages", "memory")
-                QgsMapLayerRegistry.instance().addMapLayer(vl)
-
-                if not vl:
-                    msgBar = self.iface.messageBar()
-                    msg = msgBar.createMessage(u'Layer failed to load!')
-                    msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
-
-                else:
-                    msgBar = self.iface.messageBar()
-                    msg = msgBar.createMessage(u'New Frontages Layer Create:')
-                    msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
-
-                    vl.startEditing()
-
-                    edit1 = vl.dataProvider()
-                    edit1.addAttributes([QgsField("F_ID", QVariant.Int),
-                                         QgsField("F_Group", QVariant.String),
-                                         QgsField("F_Type", QVariant.String),
-                                         QgsField("F_Length", QVariant.Double)])
-
-                    vl.commitChanges()
-                    self.updateFrontageLayer()
-
-
-        elif self.frontagedlg.createNewFileCheckBox.checkState() == 2:
-            input1 = self.getSelectedLayer()
-            if input1:
-                # create a new file
-                if self.frontagedlg.lineEditFrontages.text() != "":
-                    # prepare save file path
-                    path = self.frontagedlg.lineEditFrontages.text()
-                    filename = os.path.basename(path)
-                    location = os.path.abspath(path)
-                    # process input geometries
-                    lines_from_polys = processing.runalg("qgis:polygonstolines", input1, None)
-                    exploded_lines = processing.runalg("qgis:explodelines", lines_from_polys['OUTPUT'], path)
-                    result_layer = self.iface.addVectorLayer(location, filename, "ogr")
-                # create a memory layer
-                else:
-                    # process input geometries
-                    lines_from_polys = processing.runalg("qgis:polygonstolines", input1, None)
-                    exploded_lines = processing.runalg("qgis:explodelines", lines_from_polys['OUTPUT'], None)
-                    filename = os.path.basename(exploded_lines['OUTPUT'])
-                    location = os.path.abspath(exploded_lines['OUTPUT'])
-                    result_layer = self.iface.addVectorLayer(location,filename,"ogr")
-                    result_layer.setLayerName("memory:Frontages")
-
-                if not result_layer:
-                    msgBar = self.iface.messageBar()
-                    msg = msgBar.createMessage(u'Layer failed to load!' + location)
-                    msgBar.pushWidget(msg, QgsMessageBar.INFO, 5)
-                else:
-                    msgBar = self.iface.messageBar()
-                    msg = msgBar.createMessage(u'New Frontages Layer Created:' + location)
-                    msgBar.pushWidget(msg, QgsMessageBar.INFO, 5)
-
-                    # Add new fields
-                    provider = result_layer.dataProvider()
-                    provider.addAttributes([QgsField("F_ID", QVariant.Int),
-                                         QgsField("F_Group", QVariant.String),
-                                         QgsField("F_Type", QVariant.String),
-                                         QgsField("F_Length", QVariant.Double)])
-                    result_layer.updateFields()
-                    # Update new fields with values
-                    result_layer.startEditing()
-                    features = result_layer.getFeatures()
-                    for feat in features:
-                        feat['F_ID'] = feat.id()
-                        result_layer.updateFeature(feat)
-                    result_layer.commitChanges()
-                    # Add layer to panel
-                    QgsMapLayerRegistry.instance().addMapLayer(result_layer)
-                    self.updateFrontageLayer()
-                    # TODO: updateLength function should receive a layer as input. It would be used earlier
-                    self.updateLength()
-
-        self.frontagedlg.close()
-
-
-    # Load File
-
-    def loadFrontageLayer(self):
-        if self.useExistingcomboBox.count() > 0:
-            input = self.setFrontageLayer()
-
-            plugin_path = os.path.dirname(__file__)
-            qml_path = plugin_path + "/frontagesThematic.qml"
-            input.loadNamedStyle(qml_path)
-
-            input.startEditing()
-
-            input.featureAdded.connect(self.logFeatureAdded)
-            input.selectionChanged.connect(self.addDataFields)
-
-        # Draw/Update Feature
-    def logFeatureAdded(self, fid):
-
-        QgsMessageLog.logMessage("feature added, id = " + str(fid))
-
-        mc = self.canvas
-        v_layer = self.setFrontageLayer()
-        feature_Count = v_layer.featureCount()
-        features = v_layer.getFeatures()
-        inputid = 0
-
-        if feature_Count == 1:
+    def addEntranceDataFields(self):
+        self.entrancetableClear()
+        layer = self.setEntranceLayer()
+        if layer:
+            features = layer.selectedFeatures()
+            attrs = []
             for feat in features:
-                inputid = 1
+                attr = feat.attributes()
+                attrs.append(attr)
 
-        elif feature_Count > 1:
-            for feat in features:
-                inputid = feature_Count
-
-        data = v_layer.dataProvider()
-        update1 = data.fieldNameIndex("F_Group")
-        update2 = data.fieldNameIndex("F_Type")
-        update3 = data.fieldNameIndex("F_ID")
-
-        if self.frontageslistWidget.currentRow() == 0:
-            v_layer.changeAttributeValue(fid, update1, "Building", True)
-            v_layer.changeAttributeValue(fid, update2, "Transparent", True)
-            v_layer.changeAttributeValue(fid, update3, inputid, True)
-            v_layer.updateFields()
-
-        if self.frontageslistWidget.currentRow() == 1:
-            v_layer.changeAttributeValue(fid, update1, "Building", True)
-            v_layer.changeAttributeValue(fid, update2, "Semi Transparent", True)
-            v_layer.changeAttributeValue(fid, update3, inputid, True)
-            v_layer.updateFields()
-
-        if self.frontageslistWidget.currentRow() == 2:
-            v_layer.changeAttributeValue(fid, update1, "Building", True)
-            v_layer.changeAttributeValue(fid, update2, "Blank", True)
-            v_layer.changeAttributeValue(fid, update3, inputid, True)
-            v_layer.updateFields()
-
-        if self.frontageslistWidget.currentRow() == 3:
-            v_layer.changeAttributeValue(fid, update1, "Fence", True)
-            v_layer.changeAttributeValue(fid, update2, "High Opaque Fence", True)
-            v_layer.changeAttributeValue(fid, update3, inputid, True)
-            v_layer.updateFields()
-
-        if self.frontageslistWidget.currentRow() == 4:
-            v_layer.changeAttributeValue(fid, update1, "Fence", True)
-            v_layer.changeAttributeValue(fid, update2, "High See Through Fence", True)
-            v_layer.changeAttributeValue(fid, update3, inputid, True)
-            v_layer.updateFields()
-
-        if self.frontageslistWidget.currentRow() == 5:
-            v_layer.changeAttributeValue(fid, update1, "Fence", True)
-            v_layer.changeAttributeValue(fid, update2, "Low Fence", True)
-            v_layer.changeAttributeValue(fid, update3, inputid, True)
-            v_layer.updateFields()
-            
-    def updateLength(self):
-        mc = self.canvas
-        layer = self.setFrontageLayer()
-        v_layer = layer
-        features = v_layer.getFeatures()
-
-        for feat in features:
-            geom = feat.geometry()
-            feat['F_Length'] = geom.length()
-            v_layer.updateFeature(feat)
-
-    def updateSelectedFrontageAttribute(self):
-        QApplication.beep()
-        mc = self.canvas
-        layer = self.setFrontageLayer()
-        features = layer.selectedFeatures()
-
-        if self.frontageslistWidget.currentRow() == 0:
-            for feat in features:
-                feat['F_Group'] = "Building"
-                feat['F_Type'] = "Transparent"
-                geom = feat.geometry()
-                feat['F_Length'] = geom.length()
-                layer.updateFeature(feat)
-                self.addDataFields()
-
-        if self.frontageslistWidget.currentRow() == 1:
-            for feat in features:
-                feat['F_Group'] = "Building"
-                feat['F_Type'] = "Semi Transparent"
-                geom = feat.geometry()
-                feat['F_Length'] = geom.length()
-                layer.updateFeature(feat)
-                self.addDataFields()
-
-        if self.frontageslistWidget.currentRow() == 2:
-            for feat in features:
-                feat['F_Group'] = "Building"
-                feat['F_Type'] = "Blank"
-                geom = feat.geometry()
-                feat['F_Length'] = geom.length()
-                layer.updateFeature(feat)
-                self.addDataFields()
-
-        if self.frontageslistWidget.currentRow() == 3:
-            for feat in features:
-                feat['F_Group'] = "Fence"
-                feat['F_Type'] = "High Opaque Fence"
-                geom = feat.geometry()
-                feat['F_Length'] = geom.length()
-                layer.updateFeature(feat)
-                self.addDataFields()
-
-        if self.frontageslistWidget.currentRow() == 4:
-            for feat in features:
-                feat['F_Group'] = "Fence"
-                feat['F_Type'] = "High See Through Fence"
-                geom = feat.geometry()
-                feat['F_Length'] = geom.length()
-                layer.updateFeature(feat)
-                self.addDataFields()
-
-        if self.frontageslistWidget.currentRow() == 5:
-            for feat in features:
-                feat['F_Group'] = "Fence"
-                feat['F_Type'] = "Low Fence"
-                geom = feat.geometry()
-                feat['F_Length'] = geom.length()
-                layer.updateFeature(feat)
-                self.addDataFields()
-
-    def hideFeatures(self):
-        mc = self.canvas
-        layer = self.setFrontageLayer()
-        if self.hideshowButton.isChecked():
-            plugin_path = os.path.dirname(__file__)
-            qml_path = plugin_path + "/frontagesThematic_NULL.qml"
-            layer.loadNamedStyle(qml_path)
-            mc.refresh()
-
-        else:
-            plugin_path = os.path.dirname(__file__)
-            qml_path = plugin_path + "/frontagesThematic.qml"
-            layer.loadNamedStyle(qml_path)
-            mc.refresh()
-
-
-    def updatepushWidgetList(self):
-        self.pushIDlistWidget.clear()
-        buildinglayer = self.getSelectedLayerPushID()
-        if buildinglayer:
-            fields = buildinglayer.pendingFields()
+            fields = layer.pendingFields()
             field_names = [field.name() for field in fields]
-            self.pushIDlistWidget.addItems(field_names)
 
-        else:
-            self.pushIDlistWidget.clear()
+            field_length = len(field_names)
+            A1 = field_length - 4
+            A2 = field_length - 3
+            A3 = field_length - 2
+            A4 = field_length - 1
 
+            self.tableWidgetEntrance.setColumnCount(4)
+            headers = ["E-ID", "Category", "Sub Category", "Access Level"]
+            self.tableWidgetEntrance.setHorizontalHeaderLabels(headers)
+            self.tableWidgetEntrance.setRowCount(len(attrs))
 
-    def pushID(self):
-        buildinglayer = self.getSelectedLayerPushID()
+            for i, item in enumerate(attrs):
+                self.tableWidgetEntrance.setItem(i, 0, QtGui.QTableWidgetItem(str(item[A1])))
+                self.tableWidgetEntrance.setItem(i, 1, QtGui.QTableWidgetItem(str(item[A2])))
+                self.tableWidgetEntrance.setItem(i, 2, QtGui.QTableWidgetItem(str(item[A3])))
+                self.tableWidgetEntrance.setItem(i, 3, QtGui.QTableWidgetItem(str(item[A4])))
 
-        mc = self.canvas
-        frontlayer = self.setFrontageLayer()
-        frontlayer.startEditing()
+            self.tableWidgetEntrance.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
+            self.tableWidgetEntrance.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
+            self.tableWidgetEntrance.resizeRowsToContents()
 
-        buildingID = self.pushIDlistWidget.currentItem().text()
-        print buildingID
-        newColumn = "B_" + buildingID
-        frontlayer_pr = frontlayer.dataProvider()
-        frontlayer_pr.addAttributes([QgsField( newColumn, QVariant.Int)])
-        frontlayer.commitChanges()
-        frontlayer.startEditing()
-        frontlayer_caps = frontlayer_pr.capabilities()
-
-        for buildfeat in buildinglayer.getFeatures():
-            for frontfeat in frontlayer.getFeatures():
-                if frontfeat.geometry().intersects(buildfeat.geometry()) == True:
-                    frontlayer.startEditing()
-
-                    if frontlayer_caps & QgsVectorDataProvider.ChangeAttributeValues:
-                        frontfeat[newColumn] = buildfeat[buildingID]
-                        frontlayer.updateFeature(frontfeat)
-                        frontlayer.commitChanges()
+    def entrancetableClear(self):
+        self.tableWidgetEntrance.clear()
 
 
+        #######
+        #   Land Use
+        #######
+
+    def updateLUTypes(self):
+        self.lucategorylistWidget.clear()
+        lu_category_list = ["Agriculture","Community","Catering",
+                            "Education","Government","Hotels",
+                            "Industry","Leisure","Medical",
+                            "Offices","Parking","Retail",
+                            "Residential","Services","Storage",
+                            "Transport","Utilities", "Under Construction",
+                            "Under Developed", "Unknown/Undefined","Vacant Building"]
+
+        self.lucategorylistWidget.addItems(lu_category_list)
+
+    def updateLUsubcat(self):
+
+        lu_sub_category_list_catering = ["Restaurant and Cafes","Drinking Establishments",
+                                         "Hot Food Takeaways"]
+        lu_sub_category_list_leisure = ["Art and Culture","Amusement or Sports"]
+        lu_sub_category_list_medical = ["Hospitals","Health centres"]
+        lu_sub_category_list_parking = ["Car Parks","Other Vehicles"]
+        lu_sub_category_list_residential = ["Institutions","Dwellings"]
+        lu_sub_category_list_services = ["Commercial","Financial"]
+        lu_sub_category_list_transport = ["Transport Terminals","Goods Terminals"]
+        lu_sub_category_list_empty = [""]
+
+        if self.lucategorylistWidget.currentRow() == 0:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+            self.lusubcategorylistWidget.setCurrentRow(0)
+
+        elif self.lucategorylistWidget.currentRow() == 1:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+            self.lusubcategorylistWidget.setCurrentRow(0)
+
+        elif self.lucategorylistWidget.currentRow() == 2:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_catering)
+            self.lusubcategorylistWidget.setCurrentRow(0)
+
+        elif self.lucategorylistWidget.currentRow() == 3:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+            self.lusubcategorylistWidget.setCurrentRow(0)
+
+        elif self.lucategorylistWidget.currentRow() == 4:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+            self.lusubcategorylistWidget.setCurrentRow(0)
+
+        elif self.lucategorylistWidget.currentRow() == 5:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+            self.lusubcategorylistWidget.setCurrentRow(0)
+
+        elif self.lucategorylistWidget.currentRow() == 6:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+            self.lusubcategorylistWidget.setCurrentRow(0)
+
+        elif self.lucategorylistWidget.currentRow() == 7:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_leisure)
+            self.lusubcategorylistWidget.setCurrentRow(0)
+
+        elif self.lucategorylistWidget.currentRow() == 8:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_medical)
+            self.lusubcategorylistWidget.setCurrentRow(0)
+
+        elif self.lucategorylistWidget.currentRow() == 9:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+            self.lusubcategorylistWidget.setCurrentRow(0)
+
+        elif self.lucategorylistWidget.currentRow() == 10:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_parking)
+            self.lusubcategorylistWidget.setCurrentRow(0)
+
+        elif self.lucategorylistWidget.currentRow() == 11:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+            self.lusubcategorylistWidget.setCurrentRow(0)
+
+        elif self.lucategorylistWidget.currentRow() == 12:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_residential)
+            self.lusubcategorylistWidget.setCurrentRow(0)
+
+        elif self.lucategorylistWidget.currentRow() == 13:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_services)
+            self.lusubcategorylistWidget.setCurrentRow(0)
+
+        elif self.lucategorylistWidget.currentRow() == 14:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+            self.lusubcategorylistWidget.setCurrentRow(0)
+
+        elif self.lucategorylistWidget.currentRow() == 15:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_transport)
+            self.lusubcategorylistWidget.setCurrentRow(0)
+
+        elif self.lucategorylistWidget.currentRow() == 16:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+            self.lusubcategorylistWidget.setCurrentRow(0)
+
+        elif self.lucategorylistWidget.currentRow() == 17:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+            self.lusubcategorylistWidget.setCurrentRow(0)
+
+        elif self.lucategorylistWidget.currentRow() == 18:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+            self.lusubcategorylistWidget.setCurrentRow(0)
+
+        elif self.lucategorylistWidget.currentRow() == 19:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+            self.lusubcategorylistWidget.setCurrentRow(0)
+
+        elif self.lucategorylistWidget.currentRow() == 20:
+            self.lusubcategorylistWidget.clear()
+            self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
+        self.lusubcategorylistWidget.setCurrentRow(0)
 
 
+    # Set universal Entrance layer if conditions are satisfied
+
+    def setLULayer(self):
+        index = self.useExistingLUcomboBox.currentIndex()
+        self.LU_layer = self.useExistingLUcomboBox.itemData(index)
+        return self.LU_layer
+
+    def addLUDataFields(self):
+        self.LUtableClear()
+        layer = self.setLULayer()
+        dp = layer.dataProvider()
+        fieldlist = uf.getFieldNames(layer)
+        if layer:
+            features = layer.selectedFeatures()
+            attrs = []
+            for feat in features:
+                attr = feat.attributes()
+                attrs.append(attr)
+
+            idfieldindex = dp.fieldNameIndex('LU_ID')
+            floorfieldindex = dp.fieldNameIndex('Floors')
+            areafieldindex = dp.fieldNameIndex('Area')
+            gfcatfieldindex = dp.fieldNameIndex('GF_Cat')
+            gfsubcatfieldindex = dp.fieldNameIndex('GF_SubCat')
+            lfcatfieldindex = dp.fieldNameIndex('LF_Cat')
+            lfsubcatfieldindex = dp.fieldNameIndex('LF_SubCat')
+            ufcatfieldindex = dp.fieldNameIndex('UF_Cat')
+            ufsubcatfieldindex = dp.fieldNameIndex('UF_SubCat')
+
+            if self.LUGroundfloorradioButton.isChecked():
+
+                self.tableWidgetlanduse.setColumnCount(5)
+                headers = ["LU-ID", "Floors", "Area", "GF Category", "GF Sub Category"]
+
+                self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
+                self.tableWidgetlanduse.setRowCount(len(attrs))
+
+                for i, item in enumerate(attrs):
+                    self.tableWidgetlanduse.setItem(i, 0, QtGui.QTableWidgetItem(str(item[idfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 1, QtGui.QTableWidgetItem(str(item[floorfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 2, QtGui.QTableWidgetItem(str(item[areafieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 3, QtGui.QTableWidgetItem(str(item[gfcatfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 4, QtGui.QTableWidgetItem(str(item[gfsubcatfieldindex])))
+
+                self.tableWidgetlanduse.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
+                self.tableWidgetlanduse.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
+                self.tableWidgetlanduse.resizeRowsToContents()
+
+            if self.LULowerfloorradioButton.isChecked():
+
+                self.tableWidgetlanduse.setColumnCount(5)
+                headers = ["LU-ID", "Floors", "Area", "LF Category", "LF Sub Category"]
+
+                self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
+                self.tableWidgetlanduse.setRowCount(len(attrs))
+
+                for i, item in enumerate(attrs):
+                    self.tableWidgetlanduse.setItem(i, 0, QtGui.QTableWidgetItem(str(item[idfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 1, QtGui.QTableWidgetItem(str(item[floorfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 2, QtGui.QTableWidgetItem(str(item[areafieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 3, QtGui.QTableWidgetItem(str(item[lfcatfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 4, QtGui.QTableWidgetItem(str(item[lfsubcatfieldindex])))
+
+                self.tableWidgetlanduse.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
+                self.tableWidgetlanduse.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
+                self.tableWidgetlanduse.resizeRowsToContents()
+
+            if self.LUUpperfloorradioButton.isChecked():
+
+                self.tableWidgetlanduse.setColumnCount(5)
+                headers = ["LU-ID", "Floors", "Area","UF Category", "UF Sub Category"]
+
+                self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
+                self.tableWidgetlanduse.setRowCount(len(attrs))
+
+                for i, item in enumerate(attrs):
+                    self.tableWidgetlanduse.setItem(i, 0, QtGui.QTableWidgetItem(str(item[idfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 1, QtGui.QTableWidgetItem(str(item[floorfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 2, QtGui.QTableWidgetItem(str(item[areafieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 3, QtGui.QTableWidgetItem(str(item[ufcatfieldindex])))
+                    self.tableWidgetlanduse.setItem(i, 4, QtGui.QTableWidgetItem(str(item[ufsubcatfieldindex])))
+
+                self.tableWidgetlanduse.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
+                self.tableWidgetlanduse.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
+                self.tableWidgetlanduse.resizeRowsToContents()
 
 
+    def LUtableClear(self):
+        self.tableWidgetlanduse.clear()
 
 
+    def updateLUCodes(self):
+        if self.lucategorylistWidget.currentRow() == 0:
+            self.lineEdit_luSSx.setText("AG")
+            self.lineEdit_luNLUD.setText("U010")
+            self.lineEdit_luTCPA.setText("B2")
 
+        if self.lucategorylistWidget.currentRow() == 1:
+            self.lineEdit_luSSx.setText("C")
+            self.lineEdit_luNLUD.setText("U082")
+            self.lineEdit_luTCPA.setText("D1")
 
+        if self.lucategorylistWidget.currentRow() == 2 and self.lusubcategorylistWidget.currentRow() == 0:
+            self.lineEdit_luSSx.setText("CA")
+            self.lineEdit_luNLUD.setText("U093")
+            self.lineEdit_luTCPA.setText("A3")
+
+        elif self.lucategorylistWidget.currentRow() == 2 and self.lusubcategorylistWidget.currentRow() == 1:
+            self.lineEdit_luSSx.clear()
+            self.lineEdit_luNLUD.clear()
+            self.lineEdit_luTCPA.clear()
+
+            self.lineEdit_luSSx.setText("CA")
+            self.lineEdit_luNLUD.setText("U094")
+            self.lineEdit_luTCPA.setText("A4")
+
+        elif self.lucategorylistWidget.currentRow() == 2 and self.lusubcategorylistWidget.currentRow() == 2:
+            self.lineEdit_luSSx.clear()
+            self.lineEdit_luNLUD.clear()
+            self.lineEdit_luTCPA.clear()
+
+            self.lineEdit_luSSx.setText("CA")
+            self.lineEdit_luNLUD.setText("")
+            self.lineEdit_luTCPA.setText("A5")
+
+        if self.lucategorylistWidget.currentRow() == 3:
+            self.lineEdit_luSSx.setText("ED")
+            self.lineEdit_luNLUD.setText("U083")
+            self.lineEdit_luTCPA.setText("D1")
+
+        if self.lucategorylistWidget.currentRow() == 4:
+            self.lineEdit_luSSx.setText("GOV")
+            self.lineEdit_luNLUD.setText("U120")
+            self.lineEdit_luTCPA.setText("")
+
+        if self.lucategorylistWidget.currentRow() == 5:
+            self.lineEdit_luSSx.setText("H")
+            self.lineEdit_luNLUD.setText("U072")
+            self.lineEdit_luTCPA.setText("C1")
+
+        if self.lucategorylistWidget.currentRow() == 6:
+            self.lineEdit_luSSx.setText("I")
+            self.lineEdit_luNLUD.setText("U101")
+            self.lineEdit_luTCPA.setText("B2")
+
+        if self.lucategorylistWidget.currentRow() == 7 and self.lusubcategorylistWidget.currentRow() == 0:
+            self.lineEdit_luSSx.setText("LE")
+            self.lineEdit_luNLUD.setText("U040")
+            self.lineEdit_luTCPA.setText("D1")
+
+        elif self.lucategorylistWidget.currentRow() == 7 and self.lusubcategorylistWidget.currentRow() == 1:
+            self.lineEdit_luSSx.setText("LE")
+            self.lineEdit_luNLUD.setText("")
+            self.lineEdit_luTCPA.setText("D2")
+
+        if self.lucategorylistWidget.currentRow() == 8 and self.lusubcategorylistWidget.currentRow() == 0:
+            self.lineEdit_luSSx.setText("M")
+            self.lineEdit_luNLUD.setText("U081")
+            self.lineEdit_luTCPA.setText("C2")
+
+        elif self.lucategorylistWidget.currentRow() == 8 and self.lusubcategorylistWidget.currentRow() == 1:
+            self.lineEdit_luSSx.setText("M")
+            self.lineEdit_luNLUD.setText("")
+            self.lineEdit_luTCPA.setText("D1")
+
+        if self.lucategorylistWidget.currentRow() == 9:
+            self.lineEdit_luSSx.setText("O")
+            self.lineEdit_luNLUD.setText("U102")
+            self.lineEdit_luTCPA.setText("B1")
+
+        if self.lucategorylistWidget.currentRow() == 10 and self.lusubcategorylistWidget.currentRow() == 0:
+            self.lineEdit_luSSx.setText("P")
+            self.lineEdit_luNLUD.setText("U053")
+            self.lineEdit_luTCPA.setText("")
+
+        elif self.lucategorylistWidget.currentRow() == 10 and self.lusubcategorylistWidget.currentRow() == 1:
+            self.lineEdit_luSSx.setText("P")
+            self.lineEdit_luNLUD.setText("U053")
+            self.lineEdit_luTCPA.setText("")
+
+        if self.lucategorylistWidget.currentRow() == 11:
+            self.lineEdit_luSSx.setText("R")
+            self.lineEdit_luNLUD.setText("U091")
+            self.lineEdit_luTCPA.setText("A1")
+
+        if self.lucategorylistWidget.currentRow() == 12 and self.lusubcategorylistWidget.currentRow() == 0:
+            self.lineEdit_luSSx.setText("RE")
+            self.lineEdit_luNLUD.setText("U071")
+            self.lineEdit_luTCPA.setText("C2")
+
+        elif self.lucategorylistWidget.currentRow() == 12 and self.lusubcategorylistWidget.currentRow() == 1:
+            self.lineEdit_luSSx.setText("RE")
+            self.lineEdit_luNLUD.setText("U073")
+            self.lineEdit_luTCPA.setText("C2")
+
+        if self.lucategorylistWidget.currentRow() == 13 and self.lusubcategorylistWidget.currentRow() == 0:
+            self.lineEdit_luSSx.setText("S")
+            self.lineEdit_luNLUD.setText("U092")
+            self.lineEdit_luTCPA.setText("A1")
+
+        elif self.lucategorylistWidget.currentRow() == 13 and self.lusubcategorylistWidget.currentRow() == 1:
+            self.lineEdit_luSSx.setText("S")
+            self.lineEdit_luNLUD.setText("")
+            self.lineEdit_luTCPA.setText("A2")
+
+        if self.lucategorylistWidget.currentRow() == 14:
+            self.lineEdit_luSSx.setText("ST")
+            self.lineEdit_luNLUD.setText("U103")
+            self.lineEdit_luTCPA.setText("B8")
+
+        if self.lucategorylistWidget.currentRow() == 15 and self.lusubcategorylistWidget.currentRow() == 0:
+            self.lineEdit_luSSx.setText("TR")
+            self.lineEdit_luNLUD.setText("U052")
+            self.lineEdit_luTCPA.setText("")
+
+        elif self.lucategorylistWidget.currentRow() == 15 and self.lusubcategorylistWidget.currentRow() == 1:
+            self.lineEdit_luSSx.setText("TR")
+            self.lineEdit_luNLUD.setText("U055")
+            self.lineEdit_luTCPA.setText("")
+
+        if self.lucategorylistWidget.currentRow() == 16:
+            self.lineEdit_luSSx.setText("U")
+            self.lineEdit_luNLUD.setText("U060")
+            self.lineEdit_luTCPA.setText("")
+
+        if self.lucategorylistWidget.currentRow() == 17:
+            self.lineEdit_luSSx.setText("UC")
+            self.lineEdit_luNLUD.setText("")
+            self.lineEdit_luTCPA.setText("")
+
+        if self.lucategorylistWidget.currentRow() == 18:
+            self.lineEdit_luSSx.setText("UD")
+            self.lineEdit_luNLUD.setText("U130")
+            self.lineEdit_luTCPA.setText("")
+
+        if self.lucategorylistWidget.currentRow() == 19:
+            self.lineEdit_luSSx.setText("UN")
+            self.lineEdit_luNLUD.setText("")
+            self.lineEdit_luTCPA.setText("")
+
+        if self.lucategorylistWidget.currentRow() == 20:
+            self.lineEdit_luSSx.setText("V")
+            self.lineEdit_luNLUD.setText("U110")
+            self.lineEdit_luTCPA.setText("")
 
 
 

@@ -93,14 +93,29 @@ def reloadLayer(layer):
         QgsMapLayerRegistry.instance().addMapLayer(new_layer)
     return new_layer
 
-def updateID(iface, layer):
-    features = layer.getFeatures()
-    i = 1
-    layer.startEditing()
-    for feat in features:
-        feat['F_ID'] = i
-        i += 1
-        layer.updateFeature(feat)
+def isRequiredLayer(self, layer, type):
+    if layer.type() == QgsMapLayer.VectorLayer \
+            and layer.geometryType() == type:
+        fieldlist = getFieldNames(layer)
+        if 'F_Group' in fieldlist and 'F_Type' in fieldlist:
+            return True
 
-    layer.commitChanges()
-    layer.startEditing()
+    return False
+
+def isRequiredEntranceLayer(self, layer, type):
+    if layer.type() == QgsMapLayer.VectorLayer \
+            and layer.geometryType() == type:
+        fieldlist = getFieldNames(layer)
+        if 'E_Category' in fieldlist and 'E_SubCat' in fieldlist:
+            return True
+
+    return False
+
+def isRequiredLULayer(self, layer, type):
+    if layer.type() == QgsMapLayer.VectorLayer \
+            and layer.geometryType() == type:
+        fieldlist = getFieldNames(layer)
+        if 'GF_Cat' in fieldlist and 'GF_SubCat' in fieldlist:
+            return True
+
+    return False
