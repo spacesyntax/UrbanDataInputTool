@@ -374,9 +374,9 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
     def addLUDataFields(self):
         self.LUtableClear()
         layer = self.setLULayer()
-        dp = layer.dataProvider()
-        fieldlist = uf.getFieldNames(layer)
         if layer:
+            dp = layer.dataProvider()
+            fieldlist = uf.getFieldNames(layer)
             features = layer.selectedFeatures()
             attrs = []
             for feat in features:
