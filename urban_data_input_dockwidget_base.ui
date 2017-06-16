@@ -27,7 +27,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="usesScrollButtons">
        <bool>true</bool>
@@ -158,7 +158,7 @@
                 </sizepolicy>
                </property>
                <property name="text">
-                <string>Update ID</string>
+                <string>Update IDs</string>
                </property>
               </widget>
              </item>
@@ -290,7 +290,7 @@
                 </sizepolicy>
                </property>
                <property name="text">
-                <string>Update ID</string>
+                <string>Update IDs</string>
                </property>
               </widget>
              </item>
@@ -631,7 +631,7 @@
                 </sizepolicy>
                </property>
                <property name="text">
-                <string>Update ID</string>
+                <string>Update IDs</string>
                </property>
               </widget>
              </item>
