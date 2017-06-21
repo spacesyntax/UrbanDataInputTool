@@ -62,8 +62,12 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.pushIDlistWidget.hide()
         self.pushIDcomboBox.hide()
         self.updateIDPushButton.hide()
+        self.frontagescatlistWidget.setCurrentRow(0)
+        self.updateFrontageSubTypes()
+
 
         self.updateEntranceTypes()
+        self.ecategorylistWidget.setCurrentRow(1)
         self.eaccesscategorylistWidget.setCurrentRow(1)
 
         self.updateLUTypes()
@@ -96,6 +100,10 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         frontage_sub_category_list_Building = ['Transparent', 'Semi Transparent', 'Blank']
         frontage_sub_category_list_Fences = ['High Opaque Fence', 'High See Through Fence','Low Fence']
+        self.frontagessubcatlistWidget.clear()
+        self.frontagessubcatlistWidget.addItems(frontage_sub_category_list_Building)
+        self.frontagessubcatlistWidget.setCurrentRow(0)
+
 
         if self.frontagescatlistWidget.currentRow() == 0:
             self.frontagessubcatlistWidget.clear()

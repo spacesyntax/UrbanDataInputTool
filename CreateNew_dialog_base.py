@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'CreateNew_dialog_base.ui'
 #
-# Created: Thu Oct 27 15:31:27 2016
+# Created: Wed Jun 21 16:25:02 2017
 #      by: PyQt4 UI code generator 4.10.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -71,6 +71,9 @@ class Ui_CreatenewDialogBase(object):
         self.createNewFileCheckBox.setEnabled(True)
         self.createNewFileCheckBox.setObjectName(_fromUtf8("createNewFileCheckBox"))
         self.gridLayout.addWidget(self.createNewFileCheckBox, 2, 0, 1, 1)
+        self.lineEditFrontages = QtGui.QLineEdit(CreatenewDialogBase)
+        self.lineEditFrontages.setObjectName(_fromUtf8("lineEditFrontages"))
+        self.gridLayout.addWidget(self.lineEditFrontages, 1, 1, 1, 2)
         self.pushButtonNewFileDLG = QtGui.QPushButton(CreatenewDialogBase)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -79,9 +82,6 @@ class Ui_CreatenewDialogBase(object):
         self.pushButtonNewFileDLG.setSizePolicy(sizePolicy)
         self.pushButtonNewFileDLG.setObjectName(_fromUtf8("pushButtonNewFileDLG"))
         self.gridLayout.addWidget(self.pushButtonNewFileDLG, 4, 2, 1, 1)
-        self.lineEditFrontages = QtGui.QLineEdit(CreatenewDialogBase)
-        self.lineEditFrontages.setObjectName(_fromUtf8("lineEditFrontages"))
-        self.gridLayout.addWidget(self.lineEditFrontages, 1, 1, 1, 2)
         self.verticalLayout.addLayout(self.gridLayout)
 
         self.retranslateUi(CreatenewDialogBase)
@@ -90,9 +90,9 @@ class Ui_CreatenewDialogBase(object):
     def retranslateUi(self, CreatenewDialogBase):
         CreatenewDialogBase.setWindowTitle(_translate("CreatenewDialogBase", "Create new frontage layer", None))
         self.pushButtonSelectLocation.setText(_translate("CreatenewDialogBase", "...", None))
-        self.label.setText(_translate("CreatenewDialogBase", "Select lave Location:", None))
+        self.label.setText(_translate("CreatenewDialogBase", "Select save Location:", None))
         self.closePopUpButton.setText(_translate("CreatenewDialogBase", "Cancel", None))
         self.createNewFileCheckBox.setText(_translate("CreatenewDialogBase", "Use building layer:", None))
-        self.pushButtonNewFileDLG.setText(_translate("CreatenewDialogBase", "OK", None))
         self.lineEditFrontages.setPlaceholderText(_translate("CreatenewDialogBase", "[Save to memory file]", None))
+        self.pushButtonNewFileDLG.setText(_translate("CreatenewDialogBase", "OK", None))
 
