@@ -217,6 +217,7 @@ class FrontageTool(QObject):
                     filename = os.path.basename(exploded_lines['OUTPUT'])
                     location = os.path.abspath(exploded_lines['OUTPUT'])
                     result_layer = self.iface.addVectorLayer(location, filename, "ogr")
+                    print result_layer
                     result_layer.setLayerName("memory:Frontages")
 
                 if not result_layer:

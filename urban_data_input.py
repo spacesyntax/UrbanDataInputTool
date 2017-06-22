@@ -246,6 +246,8 @@ class UrbanDataInput:
             self.dockwidget.useExistingEntrancescomboBox.currentIndexChanged.disconnect(self.entrance_tool.loadEntranceLayer)
             self.dockwidget.updateEntranceButton.clicked.disconnect(self.entrance_tool.updateSelectedEntranceAttribute)
             self.dockwidget.updateEntranceIDButton.clicked.disconnect(self.entrance_tool.updateIDEntrances)
+            self.iface.legendInterface().itemRemoved.disconnect(self.entrance_tool.updateEntranceLayer)
+            self.iface.legendInterface().itemAdded.disconnect(self.entrance_tool.updateEntranceLayer)
 
             # Landuse
             self.iface.mapCanvas().selectionChanged.disconnect(self.dockwidget.addLUDataFields)
