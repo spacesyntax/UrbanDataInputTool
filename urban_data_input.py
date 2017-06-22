@@ -337,6 +337,7 @@ class UrbanDataInput:
 
             # set up GUI operation signals
             # Frontages
+
             self.iface.mapCanvas().selectionChanged.connect(self.dockwidget.addDataFields)
             self.iface.legendInterface().itemRemoved.connect(self.frontage_tool.updateLayers)
             self.iface.legendInterface().itemAdded.connect(self.frontage_tool.updateLayers)

@@ -80,7 +80,6 @@ class EntranceTool(QObject):
         if self.dockwidget.useExistingEntrancescomboBox.count() > 0:
             self.dockwidget.useExistingEntrancescomboBox.setEnabled(True)
             self.dockwidget.setEntranceLayer()
-            self.iface.actionAddFeature().trigger()
 
 
     # Create New Layer
@@ -93,6 +92,14 @@ class EntranceTool(QObject):
 
             destCRS = self.canvas.mapRenderer().destinationCrs()
             vl = QgsVectorLayer("Point?crs=" + destCRS.toWkt(), "memory:Entrances", "memory")
+
+
+            provider = vl.dataProvider()
+            provider.addAttributes([QgsField("E_ID", QVariant.Int),
+                                 QgsField("E_Category", QVariant.String),
+                                 QgsField("E_SubCat", QVariant.String),
+                                 QgsField("E_Level", QVariant.Double)])
+
             QgsMapLayerRegistry.instance().addMapLayer(vl)
 
             QgsVectorFileWriter.writeAsVectorFormat(vl, location, "CP1250", None, "ESRI Shapefile")
@@ -114,11 +121,6 @@ class EntranceTool(QObject):
 
                 input2.startEditing()
 
-                edit1 = input2.dataProvider()
-                edit1.addAttributes([QgsField("E_ID", QVariant.Int),
-                                     QgsField("E_Category", QVariant.String),
-                                     QgsField("E_SubCat", QVariant.String),
-                                     QgsField("E_Level", QVariant.Double)])
 
                 input2.commitChanges()
                 self.updateEntranceLayer()
@@ -166,6 +168,7 @@ class EntranceTool(QObject):
 
             input.featureAdded.connect(self.logEntranceFeatureAdded)
             input.selectionChanged.connect(self.dockwidget.addEntranceDataFields)
+            input.featureDeleted.connect(self.dockwidget.clearEntranceDataFields)
 
 # Draw New Feature
     def logEntranceFeatureAdded(self, fid):
@@ -198,6 +201,7 @@ class EntranceTool(QObject):
         v_layer.changeAttributeValue(fid, update2, subcategorytext, True)
         v_layer.changeAttributeValue(fid, update3, inputid, True)
         v_layer.changeAttributeValue(fid, update4, accessleveltext, True)
+        v_layer.featureDeleted.connect(self.dockwidget.clearEntranceDataFields)
         v_layer.updateFields()
 
 
@@ -218,4 +222,6 @@ class EntranceTool(QObject):
             feat['E_Level'] = accessleveltext
             layer.updateFeature(feat)
             self.dockwidget.addEntranceDataFields()
+
+        layer.featureDeleted.connect(self.dockwidget.clearEntranceDataFields)
 

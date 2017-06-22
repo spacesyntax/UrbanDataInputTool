@@ -81,7 +81,6 @@ class FrontageTool(QObject):
         if self.dockwidget.useExistingcomboBox.count() > 0:
             self.dockwidget.useExistingcomboBox.setEnabled(True)
             self.dockwidget.setFrontageLayer()
-            self.iface.actionAddFeature().trigger()
 
     # Add building layers from the legend to combobox on main widget window
     def updateLayersPushID(self):
@@ -133,14 +132,21 @@ class FrontageTool(QObject):
 
                 destCRS = self.canvas.mapRenderer().destinationCrs()
                 vl = QgsVectorLayer("LineString?crs=" + destCRS.toWkt(), "memory:Frontages", "memory")
-                QgsMapLayerRegistry.instance().addMapLayer(vl)
 
+                provider = vl.dataProvider()
+                provider.addAttributes([QgsField("F_ID", QVariant.Int),
+                                     QgsField("F_Group", QVariant.String),
+                                     QgsField("F_Type", QVariant.String),
+                                     QgsField("F_Length", QVariant.Double)])
+
+                QgsMapLayerRegistry.instance().addMapLayer(vl)
                 QgsVectorFileWriter.writeAsVectorFormat(vl, location, "ogr", None, "ESRI Shapefile",True)
                 QgsMapLayerRegistry.instance().removeMapLayers([vl.id()])
 
                 input2 = self.iface.addVectorLayer(location, filename, "ogr")
 
                 QgsMapLayerRegistry.instance().addMapLayer(input2)
+                input2.featureDeleted.connect(self.dockwidget.clearDataFields)
 
                 if not input2:
                     msgBar = self.iface.messageBar()
@@ -154,12 +160,6 @@ class FrontageTool(QObject):
 
                     input2.startEditing()
 
-                    edit1 = input2.dataProvider()
-                    edit1.addAttributes([QgsField("F_ID", QVariant.Int),
-                                         QgsField("F_Group", QVariant.String),
-                                         QgsField("F_Type", QVariant.String),
-                                         QgsField("F_Length", QVariant.Double)])
-
                     input2.commitChanges()
                     self.updateFrontageLayer()
 
@@ -170,6 +170,7 @@ class FrontageTool(QObject):
                 destCRS = self.canvas.mapRenderer().destinationCrs()
                 vl = QgsVectorLayer("LineString?crs=" + destCRS.toWkt(), "memory:Frontages", "memory")
                 QgsMapLayerRegistry.instance().addMapLayer(vl)
+                vl.featureDeleted.connect(self.dockwidget.clearDataFields)
 
                 if not vl:
                     msgBar = self.iface.messageBar()
@@ -209,6 +210,7 @@ class FrontageTool(QObject):
                     lines_from_polys = processing.runalg("qgis:polygonstolines", input1, None)
                     exploded_lines = processing.runalg("qgis:explodelines", lines_from_polys['OUTPUT'], path)
                     result_layer = self.iface.addVectorLayer(location, filename, "ogr")
+                    result_layer.featureDeleted.connect(self.dockwidget.clearDataFields)
                 # create a memory layer
                 else:
                     # Save to memory, using base land use layer
@@ -218,6 +220,7 @@ class FrontageTool(QObject):
                     filename = os.path.basename(exploded_lines['OUTPUT'])
                     location = os.path.abspath(exploded_lines['OUTPUT'])
                     result_layer = self.iface.addVectorLayer(location, filename, "ogr")
+                    result_layer.featureDeleted.connect(self.dockwidget.clearDataFields)
                     print result_layer
                     result_layer.setLayerName("memory:Frontages")
 
@@ -265,6 +268,7 @@ class FrontageTool(QObject):
 
             input.featureAdded.connect(self.logFeatureAdded)
             input.selectionChanged.connect(self.dockwidget.addDataFields)
+            input.featureDeleted.connect(self.dockwidget.clearDataFields)
 
     # Draw New Feature
     def logFeatureAdded(self, fid):
@@ -300,6 +304,7 @@ class FrontageTool(QObject):
         v_layer.changeAttributeValue(fid, update2, subcategorytext, True)
         v_layer.changeAttributeValue(fid, update3, inputid, True)
         v_layer.changeAttributeValue(fid, update4, frontagelength, True)
+        v_layer.featureDeleted.connect(self.dockwidget.clearDataFields)
         v_layer.updateFields()
 
 
@@ -332,6 +337,8 @@ class FrontageTool(QObject):
             feat['F_Length'] = geom.length()
             layer.updateFeature(feat)
             self.dockwidget.addDataFields()
+
+        layer.featureDeleted.connect(self.dockwidget.clearDataFields)
 
 
     # Hide features with NULL value

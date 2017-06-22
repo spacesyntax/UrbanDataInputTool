@@ -67,8 +67,9 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
 
         self.updateEntranceTypes()
-        self.ecategorylistWidget.setCurrentRow(1)
-        self.eaccesscategorylistWidget.setCurrentRow(1)
+        self.ecategorylistWidget.setCurrentRow(0)
+        self.eaccesscategorylistWidget.setCurrentRow(0)
+        self.updateSubCategory()
 
         self.updateLUTypes()
         self.LUGroundfloorradioButton.setChecked(1)
@@ -78,6 +79,8 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.LUGroundfloorradioButton.setEnabled(0)
         self.LULowerfloorradioButton.setEnabled(0)
         self.LUUpperfloorradioButton.setEnabled(0)
+        self.lucategorylistWidget.setCurrentRow(0)
+        self.lusubcategorylistWidget.setCurrentRow(0)
 
 
     def closeEvent(self, event):
@@ -126,6 +129,21 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         layer_name = self.pushIDcomboBox.currentText()
         layer = uf.getLegendLayerByName(self.iface, layer_name)
         return layer
+
+    def clearDataFields(self):
+        self.tableClear()
+        layer = self.setFrontageLayer()
+        if layer:
+            features = layer.selectedFeatures()
+            attrs = []
+            for feat in features:
+                attr = feat.attributes()
+                attrs.append(attr)
+        layer = self.setFrontageLayer()
+        self.tableWidgetFrontage.setColumnCount(4)
+        headers = ["F-ID", "Group", "Type", "Length"]
+        self.tableWidgetFrontage.setHorizontalHeaderLabels(headers)
+        self.tableWidgetFrontage.setRowCount(len(attrs))
 
     def addDataFields(self):
         self.tableClear()
@@ -182,6 +200,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
         entrance_sub_category_list_Controlled = ['Default', 'Fire Exit', 'Service Entrance', 'Unused']
         entrance_sub_category_list_Uncontrolled = ['Default']
+        self.esubcategorylistWidget.addItems(entrance_sub_category_list_Controlled)
 
         if self.ecategorylistWidget.currentRow() == 0:
             self.esubcategorylistWidget.clear()
@@ -199,6 +218,21 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         index = self.useExistingEntrancescomboBox.currentIndex()
         self.entrance_layer = self.useExistingEntrancescomboBox.itemData(index)
         return self.entrance_layer
+
+    def clearEntranceDataFields(self):
+        self.entrancetableClear()
+        layer = self.setEntranceLayer()
+        if layer:
+            features = layer.selectedFeatures()
+            attrs = []
+            for feat in features:
+                attr = feat.attributes()
+                attrs.append(attr)
+
+            self.tableWidgetEntrance.setColumnCount(4)
+            headers = ["E-ID", "Category", "Sub Category", "Access Level"]
+            self.tableWidgetEntrance.setHorizontalHeaderLabels(headers)
+            self.tableWidgetEntrance.setRowCount(len(attrs))
 
     def addEntranceDataFields(self):
         self.entrancetableClear()
@@ -251,8 +285,10 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                             "Residential","Services","Storage",
                             "Transport","Utilities", "Under Construction",
                             "Under Developed", "Unknown/Undefined","Vacant Building"]
+        lu_sub_category_list_empty = ["-"]
 
         self.lucategorylistWidget.addItems(lu_category_list)
+        self.lusubcategorylistWidget.addItems(lu_sub_category_list_empty)
 
     def updateLUsubcat(self):
 
@@ -264,7 +300,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         lu_sub_category_list_residential = ["Institutions","Dwellings"]
         lu_sub_category_list_services = ["Commercial","Financial"]
         lu_sub_category_list_transport = ["Transport Terminals","Goods Terminals"]
-        lu_sub_category_list_empty = [""]
+        lu_sub_category_list_empty = ["-"]
 
         if self.lucategorylistWidget.currentRow() == 0:
             self.lusubcategorylistWidget.clear()
@@ -379,6 +415,39 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.LU_layer = self.useExistingLUcomboBox.itemData(index)
         return self.LU_layer
 
+    def clearLUDataFields(self):
+        self.LUtableClear()
+        layer = self.setLULayer()
+        if layer:
+            dp = layer.dataProvider()
+            fieldlist = uf.getFieldNames(layer)
+            features = layer.selectedFeatures()
+            attrs = []
+            for feat in features:
+                attr = feat.attributes()
+                attrs.append(attr)
+
+            if self.LUGroundfloorradioButton.isChecked():
+                self.tableWidgetlanduse.setColumnCount(5)
+                headers = ["LU-ID", "Floors", "Area", "GF Category", "GF Sub Category"]
+
+                self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
+                self.tableWidgetlanduse.setRowCount(len(attrs))
+
+            if self.LULowerfloorradioButton.isChecked():
+                self.tableWidgetlanduse.setColumnCount(5)
+                headers = ["LU-ID", "Floors", "Area", "LF Category", "LF Sub Category"]
+
+                self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
+                self.tableWidgetlanduse.setRowCount(len(attrs))
+
+            if self.LUUpperfloorradioButton.isChecked():
+                self.tableWidgetlanduse.setColumnCount(5)
+                headers = ["LU-ID", "Floors", "Area", "UF Category", "UF Sub Category"]
+
+                self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
+                self.tableWidgetlanduse.setRowCount(len(attrs))
+
     def addLUDataFields(self):
         self.LUtableClear()
         layer = self.setLULayer()
@@ -462,6 +531,9 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
     def LUtableClear(self):
         self.tableWidgetlanduse.clear()
 
+    def clearLuTabledel(self):
+        layer = self.dockwidget.setLULayer()
+        layer.featureDeleted.connect(self.dockwidget.clearLUDataFields)
 
     def updateLUCodes(self):
         if self.lucategorylistWidget.currentRow() == 0:
