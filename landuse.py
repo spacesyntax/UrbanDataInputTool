@@ -351,7 +351,7 @@ class LanduseTool(QObject):
                     vl = QgsVectorLayer("Polygon?crs=" + destCRS.toWkt(), "memory:Land use", "memory")
                     vl.dataProvider().addFeatures(feat_list)
                     QgsMapLayerRegistry.instance().addMapLayer(vl)
-                 
+
                     if not vl:
                         msgBar = self.iface.messageBar()
                         msg = msgBar.createMessage(u'Layer failed to load!')
