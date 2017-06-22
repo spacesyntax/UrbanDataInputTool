@@ -127,17 +127,18 @@ class FrontageTool(QObject):
             if self.frontagedlg.lineEditFrontages.text() != "":
                 path = self.frontagedlg.lineEditFrontages.text()
                 filename = os.path.basename(path)
+                print filename
                 location = os.path.abspath(path)
 
                 destCRS = self.canvas.mapRenderer().destinationCrs()
                 vl = QgsVectorLayer("LineString?crs=" + destCRS.toWkt(), "memory:Frontages", "memory")
                 QgsMapLayerRegistry.instance().addMapLayer(vl)
 
-                QgsVectorFileWriter.writeAsVectorFormat(vl, location, "CP1250", None, "ESRI Shapefile")
-
+                QgsVectorFileWriter.writeAsVectorFormat(vl, location, "ogr", None, "ESRI Shapefile")
                 QgsMapLayerRegistry.instance().removeMapLayers([vl.id()])
 
                 input2 = self.iface.addVectorLayer(location, filename, "ogr")
+
                 QgsMapLayerRegistry.instance().addMapLayer(input2)
 
                 if not input2:
