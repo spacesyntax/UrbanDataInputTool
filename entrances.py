@@ -80,6 +80,7 @@ class EntranceTool(QObject):
         if self.dockwidget.useExistingEntrancescomboBox.count() > 0:
             self.dockwidget.useExistingEntrancescomboBox.setEnabled(True)
             self.dockwidget.setEntranceLayer()
+            self.iface.actionAddFeature().trigger()
 
 
     # Create New Layer

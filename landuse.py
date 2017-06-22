@@ -106,6 +106,7 @@ class LanduseTool(QObject):
         if self.dockwidget.useExistingLUcomboBox.count() > 0:
             self.dockwidget.useExistingLUcomboBox.setEnabled(True)
             self.dockwidget.setLULayer()
+            self.iface.actionAddFeature().trigger()
 
 # Create New Layer
     def newLULayer(self):

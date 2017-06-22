@@ -81,6 +81,7 @@ class FrontageTool(QObject):
         if self.dockwidget.useExistingcomboBox.count() > 0:
             self.dockwidget.useExistingcomboBox.setEnabled(True)
             self.dockwidget.setFrontageLayer()
+            self.iface.actionAddFeature().trigger()
 
     # Add building layers from the legend to combobox on main widget window
     def updateLayersPushID(self):
@@ -134,7 +135,7 @@ class FrontageTool(QObject):
                 vl = QgsVectorLayer("LineString?crs=" + destCRS.toWkt(), "memory:Frontages", "memory")
                 QgsMapLayerRegistry.instance().addMapLayer(vl)
 
-                QgsVectorFileWriter.writeAsVectorFormat(vl, location, "ogr", None, "ESRI Shapefile")
+                QgsVectorFileWriter.writeAsVectorFormat(vl, location, "ogr", None, "ESRI Shapefile",True)
                 QgsMapLayerRegistry.instance().removeMapLayers([vl.id()])
 
                 input2 = self.iface.addVectorLayer(location, filename, "ogr")
