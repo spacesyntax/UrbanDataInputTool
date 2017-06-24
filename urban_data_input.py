@@ -23,16 +23,18 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from qgis.core import *
+
 from urban_data_input_dockwidget import UrbanDataInputDockWidget
 from CreateNew_Entrance_dialog import CreateNew_EntranceDialog
 from CreateNew_LU_dialog import CreateNew_LUDialog
 from CreateNew_dialog import CreatenewDialog
-import os.path
 from frontages import FrontageTool
 from entrances import EntranceTool
 from landuse import LanduseTool
-import resources
 
+import os.path
+
+import resources
 
 #import debug package
 is_debug = False
