@@ -43,7 +43,6 @@ try:
     has_pydevd = True
 except ImportError, e:
     has_pydevd = False
-    is_debug = False
 
 
 class UrbanDataInput:
@@ -95,12 +94,10 @@ class UrbanDataInput:
         QSettings().setValue('/qgis/digitizing/disable_enter_attribute_values_dialog', True)
         QSettings().setValue('/qgis/crs/use_project_crs', True)
 
-
         if has_pydevd and is_debug:
             pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True, suspend=False)
 
         # Create the dialog (after translation) and keep reference
-
 
 
     # noinspection PyMethodMayBeStatic

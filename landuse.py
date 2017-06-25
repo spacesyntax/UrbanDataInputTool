@@ -40,6 +40,7 @@ class LanduseTool(QObject):
         self.canvas = self.iface.mapCanvas()
         self.dockwidget = dockwidget
         self.ludlg.LUincGFcheckBox.setChecked(1)
+        self.plugin_path = os.path.dirname(__file__)
 
     #######
     #   Data functions
@@ -84,7 +85,6 @@ class LanduseTool(QObject):
             feat['LU_ID'] = i
             i += 1
             layer.updateFeature(feat)
-
         layer.commitChanges()
         layer.startEditing()
 
@@ -419,8 +419,7 @@ class LanduseTool(QObject):
         if self.dockwidget.useExistingLUcomboBox.count() > 0:
             input = self.dockwidget.setLULayer()
 
-            plugin_path = os.path.dirname(__file__)
-            qml_path = plugin_path + "/landuseThematic.qml"
+            qml_path = self.plugin_path + "/styles/landuseThematic.qml"
             input.loadNamedStyle(qml_path)
 
             input.startEditing()

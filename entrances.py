@@ -31,13 +31,14 @@ from . import utility_functions as uf
 
 class EntranceTool(QObject):
 
-    def __init__(self, iface, dockwidget,entrancedlg):
+    def __init__(self, iface, dockwidget, entrancedlg):
         QObject.__init__(self)
         self.iface = iface
         self.legend = self.iface.legendInterface()
         self.entrancedlg = entrancedlg
         self.canvas = self.iface.mapCanvas()
         self.dockwidget = dockwidget
+        self.plugin_path = os.path.dirname(__file__)
 
 
     #######
@@ -160,8 +161,7 @@ class EntranceTool(QObject):
         if self.dockwidget.useExistingEntrancescomboBox.count() > 0:
             input = self.dockwidget.setEntranceLayer()
 
-            plugin_path = os.path.dirname(__file__)
-            qml_path = plugin_path + "/entrancesThematic.qml"
+            qml_path = self.plugin_path + "/styles/entrancesThematic.qml"
             input.loadNamedStyle(qml_path)
 
             input.startEditing()

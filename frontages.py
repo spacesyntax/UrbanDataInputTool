@@ -39,6 +39,7 @@ class FrontageTool(QObject):
         self.frontagedlg = frontagedlg
         self.canvas = self.iface.mapCanvas()
         self.dockwidget = dockwidget
+        self.plugin_path = os.path.dirname(__file__)
 
     #######
     #   Data functions
@@ -260,8 +261,7 @@ class FrontageTool(QObject):
         if self.dockwidget.useExistingcomboBox.count() > 0:
             input = self.dockwidget.setFrontageLayer()
 
-            plugin_path = os.path.dirname(__file__)
-            qml_path = plugin_path + "/frontagesThematic.qml"
+            qml_path = self.plugin_path + "/styles/frontagesThematic.qml"
             input.loadNamedStyle(qml_path)
 
             input.startEditing()
@@ -346,14 +346,12 @@ class FrontageTool(QObject):
         mc = self.canvas
         layer = self.dockwidget.setFrontageLayer()
         if self.dockwidget.hideshowButton.isChecked():
-            plugin_path = os.path.dirname(__file__)
-            qml_path = plugin_path + "/frontagesThematic_NULL.qml"
+            qml_path = self.plugin_path + "/styles/frontagesThematic_NULL.qml"
             layer.loadNamedStyle(qml_path)
             mc.refresh()
 
         else:
-            plugin_path = os.path.dirname(__file__)
-            qml_path = plugin_path + "/frontagesThematic.qml"
+            qml_path = self.plugin_path + "/styles/frontagesThematic.qml"
             layer.loadNamedStyle(qml_path)
             mc.refresh()
 
