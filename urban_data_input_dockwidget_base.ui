@@ -175,7 +175,14 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_2">
              <item>
-              <widget class="QTableWidget" name="tableWidgetFrontage"/>
+              <widget class="QTableWidget" name="tableWidgetFrontage">
+               <property name="selectionBehavior">
+                <enum>QAbstractItemView::SelectRows</enum>
+               </property>
+               <property name="cornerButtonEnabled">
+                <bool>false</bool>
+               </property>
+              </widget>
              </item>
             </layout>
            </item>
@@ -444,7 +451,14 @@
             <number>5</number>
            </property>
            <item>
-            <widget class="QTableWidget" name="tableWidgetEntrance"/>
+            <widget class="QTableWidget" name="tableWidgetEntrance">
+             <property name="selectionBehavior">
+              <enum>QAbstractItemView::SelectRows</enum>
+             </property>
+             <property name="cornerButtonEnabled">
+              <bool>false</bool>
+             </property>
+            </widget>
            </item>
            <item>
             <layout class="QGridLayout" name="gridLayout_8">
@@ -699,7 +713,14 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_5">
              <item>
-              <widget class="QTableWidget" name="tableWidgetlanduse"/>
+              <widget class="QTableWidget" name="tableWidgetlanduse">
+               <property name="selectionBehavior">
+                <enum>QAbstractItemView::SelectRows</enum>
+               </property>
+               <property name="cornerButtonEnabled">
+                <bool>false</bool>
+               </property>
+              </widget>
              </item>
             </layout>
            </item>
