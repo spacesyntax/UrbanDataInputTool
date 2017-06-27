@@ -53,6 +53,13 @@ def getLegendLayerByName(iface, name):
             layer = i
     return layer
 
+def getfieldByName(iface, name, layer):
+    field = None
+    for i in layer.dataProvider().fields():
+        if i.name() == name:
+            field = i
+    return field
+
 def getLegendLayerByIndex(iface, index):
     layer = None
     for i in iface.legendInterface().layers():

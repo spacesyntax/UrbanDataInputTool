@@ -390,7 +390,11 @@ class UrbanDataInput:
 
             self.iface.mapCanvas().selectionChanged.connect(self.dockwidget.addLUDataFields)
 
+            self.ludlg.pushButtonLUNewFileDLG.clicked.connect(self.lu_tool.getSelectedLULayerID)
             self.ludlg.pushButtonLUNewFileDLG.clicked.connect(self.lu_tool.newLULayer)
+            self.ludlg.selectbuildingCombo.currentIndexChanged.connect(self.lu_tool.popIdColumn)
+
+
             self.ludlg.closePopUpLUButton.clicked.connect(self.lu_tool.closePopUpLU)
             self.ludlg.pushButtonSelectLocationLU.clicked.connect(self.lu_tool.selectSaveLocationLU)
             self.ludlg.createNewLUFileCheckBox.stateChanged.connect(self.lu_tool.updatebuildingLayers)

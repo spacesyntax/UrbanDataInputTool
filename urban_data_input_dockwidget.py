@@ -450,6 +450,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
                 self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
                 self.tableWidgetlanduse.setRowCount(len(attrs))
 
+
     def addLUDataFields(self):
         self.LUtableClear()
         layer = self.setLULayer()
