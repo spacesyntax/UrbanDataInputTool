@@ -134,7 +134,6 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.tableWidgetFrontage.setColumnCount(4)
         headers = ["F-ID", "Group", "Type", "Length"]
         self.tableWidgetFrontage.setHorizontalHeaderLabels(headers)
-        self.tableWidgetFrontage.setRowCount(len(attrs))
 
     def addDataFields(self):
         self.tableClear()
