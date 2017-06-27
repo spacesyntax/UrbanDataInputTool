@@ -467,7 +467,7 @@ class LanduseTool(QObject):
         categorytext = self.dockwidget.lucategorylistWidget.currentItem().text()
         subcategorytext = self.dockwidget.lusubcategorylistWidget.currentItem().text()
         floortext = self.dockwidget.spinBoxlufloors.value()
-        description = self.dockwidget.plainTextEdit.toPlainText()
+        description = self.dockwidget.descriptionTextEdit.text()
         ssxcode = self.dockwidget.lineEdit_luSSx.text()
         nludcode = self.dockwidget.lineEdit_luNLUD.text()
         tcpacode = self.dockwidget.lineEdit_luTCPA.text()
@@ -532,7 +532,7 @@ class LanduseTool(QObject):
 
         self.dockwidget.spinBoxlufloors.clear()
         v_layer.featureDeleted.connect(self.dockwidget.clearLUDataFields)
-        self.dockwidget.plainTextEdit.clear()
+        self.dockwidget.descriptionTextEdit.clear()
 
 # Update Feature
 
@@ -545,7 +545,7 @@ class LanduseTool(QObject):
         categorytext = self.dockwidget.lucategorylistWidget.currentItem().text()
         subcategorytext = self.dockwidget.lusubcategorylistWidget.currentItem().text()
         floortext = self.dockwidget.spinBoxlufloors.value()
-        description = self.dockwidget.plainTextEdit.toPlainText()
+        description = self.dockwidget.descriptionTextEdit.text()
         ssxcode = self.dockwidget.lineEdit_luSSx.text()
         nludcode = self.dockwidget.lineEdit_luNLUD.text()
         tcpacode = self.dockwidget.lineEdit_luTCPA.text()
@@ -588,5 +588,5 @@ class LanduseTool(QObject):
                 self.dockwidget.addLUDataFields()
 
         self.dockwidget.spinBoxlufloors.clear()
-        self.dockwidget.plainTextEdit.clear()
+        self.dockwidget.descriptionTextEdit.clear()
         layer.featureDeleted.connect(self.dockwidget.clearLUDataFields)

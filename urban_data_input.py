@@ -37,7 +37,7 @@ import os.path
 import resources
 
 #import debug package
-is_debug = False
+is_debug = True
 try:
     import pydevd
     has_pydevd = True
@@ -405,9 +405,6 @@ class UrbanDataInput:
             self.dockwidget.useExistingLUcomboBox.currentIndexChanged.connect(self.lu_tool.loadLULayer)
             self.dockwidget.pushButtonNewLUFile.clicked.connect(self.newFileDialogLU)
             self.dockwidget.updateLUButton.clicked.connect(self.lu_tool.updateSelectedLUAttribute)
-
-
-
 
             #Initialisation
             # Frontages
