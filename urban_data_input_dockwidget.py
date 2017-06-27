@@ -131,18 +131,11 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         return layer
 
     def clearDataFields(self):
-        attrs = []
-        self.tableClear()
-        layer = self.setFrontageLayer()
-        if layer:
-            features = layer.selectedFeatures()
-            for feat in features:
-                attr = feat.attributes()
-                attrs.append(attr)
         self.tableWidgetFrontage.setColumnCount(4)
         headers = ["F-ID", "Group", "Type", "Length"]
         self.tableWidgetFrontage.setHorizontalHeaderLabels(headers)
-        self.tableWidgetFrontage.setRowCount(len(attrs))
+        self.tableWidgetFrontage.setRowCount(0)
+
 
     def addDataFields(self):
         self.tableClear()
@@ -222,18 +215,12 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
     def clearEntranceDataFields(self):
         self.entrancetableClear()
-        layer = self.setEntranceLayer()
-        if layer:
-            features = layer.selectedFeatures()
-            attrs = []
-            for feat in features:
-                attr = feat.attributes()
-                attrs.append(attr)
+        self.tableWidgetEntrance.setColumnCount(4)
+        headers = ["E-ID", "Category", "Sub Category", "Access Level"]
+        self.tableWidgetEntrance.setHorizontalHeaderLabels(headers)
+        self.tableWidgetEntrance.setRowCount(0)
 
-            self.tableWidgetEntrance.setColumnCount(4)
-            headers = ["E-ID", "Category", "Sub Category", "Access Level"]
-            self.tableWidgetEntrance.setHorizontalHeaderLabels(headers)
-            self.tableWidgetEntrance.setRowCount(len(attrs))
+
 
     def addEntranceDataFields(self):
         self.entrancetableClear()
@@ -419,36 +406,31 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
     def clearLUDataFields(self):
         self.LUtableClear()
-        layer = self.setLULayer()
-        if layer:
-            dp = layer.dataProvider()
-            fieldlist = uf.getFieldNames(layer)
-            features = layer.selectedFeatures()
-            attrs = []
-            for feat in features:
-                attr = feat.attributes()
-                attrs.append(attr)
 
-            if self.LUGroundfloorradioButton.isChecked():
-                self.tableWidgetlanduse.setColumnCount(5)
-                headers = ["LU-ID", "Floors", "Area", "GF Category", "GF Sub Category"]
+        if self.LUGroundfloorradioButton.isChecked():
+            self.tableWidgetlanduse.setColumnCount(5)
+            headers = ["LU-ID", "Floors", "Area", "GF Category", "GF Sub Category"]
+            self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
+            self.tableWidgetlanduse.setRowCount(0)
 
-                self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
-                self.tableWidgetlanduse.setRowCount(len(attrs))
 
-            if self.LULowerfloorradioButton.isChecked():
-                self.tableWidgetlanduse.setColumnCount(5)
-                headers = ["LU-ID", "Floors", "Area", "LF Category", "LF Sub Category"]
 
-                self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
-                self.tableWidgetlanduse.setRowCount(len(attrs))
+        if self.LULowerfloorradioButton.isChecked():
+            self.tableWidgetlanduse.setColumnCount(5)
+            headers = ["LU-ID", "Floors", "Area", "LF Category", "LF Sub Category"]
+            self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
+            self.tableWidgetlanduse.setRowCount(0)
 
-            if self.LUUpperfloorradioButton.isChecked():
-                self.tableWidgetlanduse.setColumnCount(5)
-                headers = ["LU-ID", "Floors", "Area", "UF Category", "UF Sub Category"]
 
-                self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
-                self.tableWidgetlanduse.setRowCount(len(attrs))
+
+        if self.LUUpperfloorradioButton.isChecked():
+            self.tableWidgetlanduse.setColumnCount(5)
+            headers = ["LU-ID", "Floors", "Area", "UF Category", "UF Sub Category"]
+            self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
+            self.tableWidgetlanduse.setRowCount(0)
+
+
+
 
     def addLUDataFields(self):
         self.LUtableClear()
@@ -518,6 +500,8 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
     def LUtableClear(self):
         self.tableWidgetlanduse.clear()
+        self.tableWidgetlanduse.clearContents()
+
 
     def clearLuTabledel(self):
         layer = self.dockwidget.setLULayer()

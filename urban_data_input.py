@@ -232,6 +232,7 @@ class UrbanDataInput:
             self.dockwidget.pushIDcomboBox.currentIndexChanged.disconnect(self.frontage_tool.updatepushWidgetList)
             self.dockwidget.useExistingcomboBox.currentIndexChanged.disconnect(self.frontage_tool.loadFrontageLayer)
             self.dockwidget.hideshowButton.clicked.disconnect(self.frontage_tool.hideFeatures)
+            self.dockwidget.useExistingcomboBox.currentIndexChanged.disconnect(self.dockwidget.clearDataFields)
 
             # Entrances
             self.iface.mapCanvas().selectionChanged.disconnect(self.dockwidget.addEntranceDataFields)
@@ -247,6 +248,7 @@ class UrbanDataInput:
             self.dockwidget.updateEntranceIDButton.clicked.disconnect(self.entrance_tool.updateIDEntrances)
             self.iface.legendInterface().itemRemoved.disconnect(self.entrance_tool.updateEntranceLayer)
             self.iface.legendInterface().itemAdded.disconnect(self.entrance_tool.updateEntranceLayer)
+            self.dockwidget.useExistingEntrancescomboBox.currentIndexChanged.disconnect(self.dockwidget.clearEntranceDataFields)
 
             # Landuse
             self.iface.mapCanvas().selectionChanged.disconnect(self.dockwidget.addLUDataFields)
@@ -262,6 +264,8 @@ class UrbanDataInput:
             self.ludlg.pushButtonLUNewFileDLG.clicked.disconnect(self.lu_tool.newLULayer)
             self.ludlg.closePopUpLUButton.clicked.disconnect(self.lu_tool.closePopUpLU)
             self.ludlg.pushButtonSelectLocationLU.clicked.disconnect(self.lu_tool.selectSaveLocationLU)
+            self.ludlg.selectbuildingCombo.currentIndexChanged.disconnect(self.lu_tool.popIdColumn)
+            self.dockwidget.useExistingLUcomboBox.currentIndexChanged.disconnect(self.dockwidget.clearLUDataFields)
 
             self.dockwidget.lucategorylistWidget.currentRowChanged.disconnect(self.dockwidget.updateLUsubcat)
             self.dockwidget.lucategorylistWidget.currentRowChanged.disconnect(self.dockwidget.updateLUCodes)
@@ -361,6 +365,7 @@ class UrbanDataInput:
             self.dockwidget.pushIDcomboBox.currentIndexChanged.connect(self.frontage_tool.updatepushWidgetList)
             self.dockwidget.useExistingcomboBox.currentIndexChanged.connect(self.frontage_tool.loadFrontageLayer)
             self.dockwidget.hideshowButton.clicked.connect(self.frontage_tool.hideFeatures)
+            self.dockwidget.useExistingcomboBox.currentIndexChanged.connect(self.dockwidget.clearDataFields)
 
             #Entrances
             self.iface.legendInterface().itemRemoved.connect(self.entrance_tool.updateEntranceLayer)
@@ -377,6 +382,7 @@ class UrbanDataInput:
             self.dockwidget.useExistingEntrancescomboBox.currentIndexChanged.connect(self.entrance_tool.loadEntranceLayer)
             self.dockwidget.updateEntranceButton.clicked.connect(self.entrance_tool.updateSelectedEntranceAttribute)
             self.dockwidget.updateEntranceIDButton.clicked.connect(self.entrance_tool.updateIDEntrances)
+            self.dockwidget.useExistingEntrancescomboBox.currentIndexChanged.connect(self.dockwidget.clearEntranceDataFields)
 
             # Landuse
             self.iface.projectRead.connect(self.lu_tool.loadLULayer)
@@ -390,7 +396,13 @@ class UrbanDataInput:
 
             self.iface.mapCanvas().selectionChanged.connect(self.dockwidget.addLUDataFields)
 
+            self.ludlg.pushButtonLUNewFileDLG.clicked.connect(self.lu_tool.getSelectedLULayerID)
             self.ludlg.pushButtonLUNewFileDLG.clicked.connect(self.lu_tool.newLULayer)
+            self.ludlg.selectbuildingCombo.currentIndexChanged.connect(self.lu_tool.popIdColumn)
+            self.dockwidget.useExistingLUcomboBox.currentIndexChanged.connect(self.dockwidget.clearLUDataFields)
+
+
+
             self.ludlg.closePopUpLUButton.clicked.connect(self.lu_tool.closePopUpLU)
             self.ludlg.pushButtonSelectLocationLU.clicked.connect(self.lu_tool.selectSaveLocationLU)
             self.ludlg.createNewLUFileCheckBox.stateChanged.connect(self.lu_tool.updatebuildingLayers)
