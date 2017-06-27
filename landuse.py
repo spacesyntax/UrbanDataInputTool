@@ -73,7 +73,7 @@ class LanduseTool(QObject):
         field_names = []
         layer = self.getSelectedLULayer()
         if layer and layer.dataProvider():
-            field_names = ["-"] + [field.name() for field in layer.dataProvider().fields()]
+            field_names = [field.name() for field in layer.dataProvider().fields()]
         self.ludlg.selectIDbuildingCombo.addItems(field_names)
 
     def getSelectedLULayerID(self):

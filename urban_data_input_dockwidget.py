@@ -134,6 +134,8 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.tableWidgetFrontage.setColumnCount(4)
         headers = ["F-ID", "Group", "Type", "Length"]
         self.tableWidgetFrontage.setHorizontalHeaderLabels(headers)
+        self.tableWidgetFrontage.setRowCount(0)
+
 
     def addDataFields(self):
         self.tableClear()
@@ -216,6 +218,8 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.tableWidgetEntrance.setColumnCount(4)
         headers = ["E-ID", "Category", "Sub Category", "Access Level"]
         self.tableWidgetEntrance.setHorizontalHeaderLabels(headers)
+        self.tableWidgetEntrance.setRowCount(0)
+
 
 
     def addEntranceDataFields(self):
@@ -407,18 +411,24 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.tableWidgetlanduse.setColumnCount(5)
             headers = ["LU-ID", "Floors", "Area", "GF Category", "GF Sub Category"]
             self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
+            self.tableWidgetlanduse.setRowCount(0)
+
 
 
         if self.LULowerfloorradioButton.isChecked():
             self.tableWidgetlanduse.setColumnCount(5)
             headers = ["LU-ID", "Floors", "Area", "LF Category", "LF Sub Category"]
             self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
+            self.tableWidgetlanduse.setRowCount(0)
+
 
 
         if self.LUUpperfloorradioButton.isChecked():
             self.tableWidgetlanduse.setColumnCount(5)
             headers = ["LU-ID", "Floors", "Area", "UF Category", "UF Sub Category"]
             self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
+            self.tableWidgetlanduse.setRowCount(0)
+
 
 
 
