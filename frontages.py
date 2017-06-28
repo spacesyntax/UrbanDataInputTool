@@ -99,20 +99,22 @@ class FrontageTool(QObject):
         self.frontagedlg.selectLUCombo.clear()
         layers = self.iface.legendInterface().layers()
         layer_list = []
-
+        # identify relevant layers
         for layer in layers:
-            if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == 2:
-                self.frontagedlg.createNewFileCheckBox.setEnabled(True)
-
-                if self.frontagedlg.createNewFileCheckBox.checkState() == 2:
-                    if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == 2:
-                        layer_list.append(layer.name())
-                        self.frontagedlg.selectLUCombo.setEnabled(True)
-
-            elif layer.type() != QgsMapLayer.VectorLayer and layer.geometryType() != 2:
-                self.frontagedlg.createNewFileCheckBox.setEnabled(False)
-
-        self.frontagedlg.selectLUCombo.addItems(layer_list)
+            if layer.type() == QgsMapLayer.VectorLayer:
+                if layer.geometryType() == 2:
+                    layer_list.append(layer.name())
+        # update combo if necessary
+        if layer_list:
+            self.frontagedlg.createNewFileCheckBox.setEnabled(True)
+            self.frontagedlg.selectLUCombo.addItems(layer_list)
+            # activate combo if checked
+            if self.frontagedlg.createNewFileCheckBox.checkState() == 2:
+                self.frontagedlg.selectLUCombo.setEnabled(True)
+            else:
+                self.frontagedlg.selectLUCombo.setEnabled(False)
+        else:
+            self.frontagedlg.createNewFileCheckBox.setEnabled(False)
 
     # Get building layer selected in the combo box
     def getSelectedLayer(self):

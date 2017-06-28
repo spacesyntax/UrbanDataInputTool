@@ -52,21 +52,25 @@ class LanduseTool(QObject):
         self.ludlg.selectbuildingCombo.clear()
         layers = self.iface.legendInterface().layers()
         layer_list = []
-
+        # identify relevant layers
         for layer in layers:
-            if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == 2:
-                self.ludlg.createNewLUFileCheckBox.setEnabled(True)
-
-                if self.ludlg.createNewLUFileCheckBox.checkState() == 2:
-                    if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == 2:
-                        layer_list.append(layer.name())
-                        self.ludlg.selectbuildingCombo.setEnabled(True)
-
-            elif layer.type() != QgsMapLayer.VectorLayer and layer.geometryType() != 2:
-                self.ludlg.createNewLUFileCheckBox.setEnabled(False)
-
-        self.ludlg.selectbuildingCombo.addItems(layer_list)
-        self.popIdColumn()
+            if layer.type() == QgsMapLayer.VectorLayer:
+                if layer.geometryType() == 2:
+                    layer_list.append(layer.name())
+        # update combo if necessary
+        if layer_list:
+            self.ludlg.createNewLUFileCheckBox.setEnabled(True)
+            self.ludlg.selectbuildingCombo.addItems(layer_list)
+            # activate combo if checked
+            if self.ludlg.createNewLUFileCheckBox.checkState() == 2:
+                self.ludlg.selectbuildingCombo.setEnabled(True)
+                self.ludlg.selectIDbuildingCombo.setEnabled(True)
+            else:
+                self.ludlg.selectbuildingCombo.setEnabled(False)
+                self.ludlg.selectIDbuildingCombo.setEnabled(False)
+            self.popIdColumn()
+        else:
+            self.ludlg.createNewLUFileCheckBox.setEnabled(False)
 
     def popIdColumn(self):
         self.ludlg.selectIDbuildingCombo.clear()
