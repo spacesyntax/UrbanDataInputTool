@@ -57,9 +57,12 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.LU_layer = None
         self.legend = self.iface.legendInterface()
 
+        # customise the dockwidget
+        self.tableWidgetFrontage.verticalHeader().hide()
+        self.tableWidgetEntrance.verticalHeader().hide()
+        self.tableWidgetlanduse.verticalHeader().hide()
 
         # initialisation
-
         self.updateFrontageTypes()
         self.pushIDlistWidget.hide()
         self.pushIDcomboBox.hide()

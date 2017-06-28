@@ -49,7 +49,7 @@ class UrbanDataInputTool(QObject):
         self.frontage_tool = FrontageTool(self.iface, self.dockwidget, self.frontagedlg)
         self.entrance_tool = EntranceTool(self.iface, self.dockwidget, self.entrancedlg)
         self.lu_tool = LanduseTool(self.iface, self.dockwidget, self.ludlg)
-        
+
         # get current user settings
         self.user_settings = {}
         self.user_settings['crs'] = QSettings().value('/qgis/crs/use_project_crs')
