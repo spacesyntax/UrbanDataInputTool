@@ -22,23 +22,41 @@
  """
 
 # Import the PyQt and QGIS libraries
-import os
 from PyQt4.QtCore import *
 from PyQt4 import QtGui
+
 from qgis.core import *
 from qgis.gui import *
+
 from . import utility_functions as uf
+
+import os
+
 
 class EntranceTool(QObject):
 
-    def __init__(self, iface, dockwidget, entrancedlg):
+    def __init__(self, iface, dockwidget):
         QObject.__init__(self)
         self.iface = iface
         self.legend = self.iface.legendInterface()
-        self.entrancedlg = entrancedlg
         self.canvas = self.iface.mapCanvas()
+
         self.dockwidget = dockwidget
+        self.entrancedlg = self.dockwidget.entrancedlg
+
         self.plugin_path = os.path.dirname(__file__)
+
+        self.entrance_layer = None
+
+        # signals from dockwidget
+        self.dockwidget.updateEntranceButton.clicked.connect(self.updateSelectedEntranceAttribute)
+        self.dockwidget.updateEntranceIDButton.clicked.connect(self.updateIDEntrances)
+        self.dockwidget.useExistingEntrancescomboBox.currentIndexChanged.connect(self.loadEntranceLayer)
+
+        # signals from new entrance dialog
+        self.entrancedlg.pushButtonEntrancesNewFileDLG.clicked.connect(self.newEntranceLayer)
+        self.entrancedlg.closePopUpEntrancesButton.clicked.connect(self.closePopUpEntrances)
+        self.entrancedlg.pushButtonSelectLocationEntrance.clicked.connect(self.selectSaveLocationEntrance)
 
 
     #######
@@ -70,6 +88,8 @@ class EntranceTool(QObject):
 
     # Add Frontage layer to combobox if conditions are satisfied
     def updateEntranceLayer(self):
+        # disconnect any current entrance layer
+        self.disconnectEntranceLayer()
         self.dockwidget.useExistingEntrancescomboBox.clear()
         self.dockwidget.useExistingEntrancescomboBox.setEnabled(False)
         layers = self.legend.layers()
@@ -80,8 +100,8 @@ class EntranceTool(QObject):
 
         if self.dockwidget.useExistingEntrancescomboBox.count() > 0:
             self.dockwidget.useExistingEntrancescomboBox.setEnabled(True)
-            self.dockwidget.setEntranceLayer()
-
+            self.entrance_layer = self.dockwidget.setEntranceLayer()
+            self.connectEntranceLayer()
 
     # Create New Layer
     def newEntranceLayer(self):
@@ -156,21 +176,31 @@ class EntranceTool(QObject):
                 self.closePopUpEntrances()
 
 
-    # Set layer as frontage layer and apply thematic style
+    # Set layer as entrance layer and apply thematic style
     def loadEntranceLayer(self):
+        # disconnect any current entrance layer
+        self.disconnectEntranceLayer()
         if self.dockwidget.useExistingEntrancescomboBox.count() > 0:
-            input = self.dockwidget.setEntranceLayer()
-
+            self.entrance_layer = self.dockwidget.setEntranceLayer()
             qml_path = self.plugin_path + "/styles/entrancesThematic.qml"
-            input.loadNamedStyle(qml_path)
+            self.entrance_layer.loadNamedStyle(qml_path)
+            self.entrance_layer.startEditing()
+            self.connectEntranceLayer()
 
-            input.startEditing()
+    def connectEntranceLayer(self):
+        if self.entrance_layer:
+            self.entrance_layer.featureAdded.connect(self.logEntranceFeatureAdded)
+            self.entrance_layer.selectionChanged.connect(self.dockwidget.addEntranceDataFields)
+            self.entrance_layer.featureDeleted.connect(self.dockwidget.clearEntranceDataFields)
 
-            input.featureAdded.connect(self.logEntranceFeatureAdded)
-            input.selectionChanged.connect(self.dockwidget.addEntranceDataFields)
-            input.featureDeleted.connect(self.dockwidget.clearEntranceDataFields)
+    def disconnectEntranceLayer(self):
+        if self.entrance_layer:
+            self.entrance_layer.selectionChanged.disconnect(self.dockwidget.addEntranceDataFields)
+            self.entrance_layer.featureAdded.disconnect(self.logEntranceFeatureAdded)
+            self.entrance_layer.featureDeleted.disconnect(self.dockwidget.clearEntranceDataFields)
+            self.entrance_layer = None
 
-# Draw New Feature
+            # Draw New Feature
     def logEntranceFeatureAdded(self, fid):
 
         QgsMessageLog.logMessage("feature added, id = " + str(fid))
@@ -201,7 +231,7 @@ class EntranceTool(QObject):
         v_layer.changeAttributeValue(fid, update2, subcategorytext, True)
         v_layer.changeAttributeValue(fid, update3, inputid, True)
         v_layer.changeAttributeValue(fid, update4, accessleveltext, True)
-        v_layer.featureDeleted.connect(self.dockwidget.clearEntranceDataFields)
+        #v_layer.featureDeleted.connect(self.dockwidget.clearEntranceDataFields)
         v_layer.updateFields()
 
 
@@ -221,7 +251,7 @@ class EntranceTool(QObject):
             feat['E_SubCat'] = subcategorytext
             feat['E_Level'] = accessleveltext
             layer.updateFeature(feat)
-            self.dockwidget.addEntranceDataFields()
+        self.dockwidget.addEntranceDataFields()
 
-        layer.featureDeleted.connect(self.dockwidget.clearEntranceDataFields)
+        #layer.featureDeleted.connect(self.dockwidget.clearEntranceDataFields)
 

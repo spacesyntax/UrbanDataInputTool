@@ -30,24 +30,37 @@ from qgis.gui import *
 import processing
 from . import utility_functions as uf
 
+
 class FrontageTool(QObject):
 
-    def __init__(self, iface, dockwidget,frontagedlg):
+    def __init__(self, iface, dockwidget):
         QObject.__init__(self)
+
         self.iface = iface
         self.legend = self.iface.legendInterface()
-        self.frontagedlg = frontagedlg
-        self.canvas = self.iface.mapCanvas()
         self.dockwidget = dockwidget
+        self.frontagedlg = self.dockwidget.frontagedlg
+        self.canvas = self.iface.mapCanvas()
         self.plugin_path = os.path.dirname(__file__)
+        self.frontage_layer = None
+
+        # signals from dockwidget
+        self.dockwidget.loadFrontageLayer.connect(self.loadFrontageLayer)
+        self.dockwidget.updateIDButton.clicked.connect(self.updateID)
+        self.dockwidget.updateLengthButton.clicked.connect(self.updateLength)
+        self.dockwidget.updateFacadeButton.clicked.connect(self.updateSelectedFrontageAttribute)
+        self.dockwidget.updateIDPushButton.clicked.connect(self.pushID)
+        self.dockwidget.pushIDcomboBox.currentIndexChanged.connect(self.updatepushWidgetList)
+        self.dockwidget.hideshowButton.clicked.connect(self.hideFeatures)
+        self.dockwidget.pushButtonNewFile.clicked.connect(self.updateLayers)
+
+        # signals from new frontage dialog
+        self.frontagedlg.create_new_layer.connect(self.newFrontageLayer)
+        self.frontagedlg.createNewFileCheckBox.stateChanged.connect(self.updateLayers)
 
     #######
     #   Data functions
     #######
-
-    # Close create new file pop up dialogue when cancel button is pressed
-    def closePopUp(self):
-        self.frontagedlg.close()
 
     # Update the F_ID column of the Frontage layer
     def updateID(self):
@@ -59,20 +72,14 @@ class FrontageTool(QObject):
             feat['F_ID'] = i
             i += 1
             layer.updateFeature(feat)
-
         layer.commitChanges()
         layer.startEditing()
-        layer.selectionChanged.connect(self.dockwidget.addDataFields)
-
-    # Open Save file dialogue and set location in text edit
-    def selectSaveLocation(self):
-        filename = QtGui.QFileDialog.getSaveFileName(None, "Select Save Location ", "", '*.shp')
-        self.frontagedlg.lineEditFrontages.setText(filename)
 
     # Add Frontage layer to combobox if conditions are satisfied
     def updateFrontageLayer(self):
         self.dockwidget.useExistingcomboBox.clear()
         self.dockwidget.useExistingcomboBox.setEnabled(False)
+        self.disconnectFrontageLayer()
         layers = self.legend.layers()
         type = 1
         for lyr in layers:
@@ -81,7 +88,8 @@ class FrontageTool(QObject):
 
         if self.dockwidget.useExistingcomboBox.count() > 0:
             self.dockwidget.useExistingcomboBox.setEnabled(True)
-            self.dockwidget.setFrontageLayer()
+            self.frontage_layer = self.dockwidget.setFrontageLayer()
+            self.connectFrontageLayer()
 
     # Add building layers from the legend to combobox on main widget window
     def updateLayersPushID(self):
@@ -90,9 +98,10 @@ class FrontageTool(QObject):
         layer_list = []
 
         for layer in layers:
-            if layer.type() == QgsMapLayer.VectorLayer and layer.geometryType() == QGis.Polygon:
-                self.dockwidget.pushIDcomboBox.setEnabled(False)
-                self.dockwidget.pushIDcomboBox.addItem(layer.name(), layer)
+            if layer.type() == QgsMapLayer.VectorLayer:
+                if layer.geometryType() == QGis.Polygon:
+                    self.dockwidget.pushIDcomboBox.setEnabled(False)
+                    self.dockwidget.pushIDcomboBox.addItem(layer.name(), layer)
 
     # Add building layers from the legend to combobox in Create New file pop up dialogue
     def updateLayers(self):
@@ -122,6 +131,31 @@ class FrontageTool(QObject):
         self.LU_layer = uf.getLegendLayerByName(self.iface, layer_name)
         return self.LU_layer
 
+    # Set layer as frontage layer and apply thematic style
+    def loadFrontageLayer(self):
+        # disconnect any current frontage layer
+        self.disconnectFrontageLayer()
+        if self.dockwidget.useExistingcomboBox.count() > 0:
+            self.frontage_layer = self.dockwidget.setFrontageLayer()
+            qml_path = self.plugin_path + "/styles/frontagesThematic.qml"
+            self.frontage_layer.loadNamedStyle(qml_path)
+            self.frontage_layer.startEditing()
+            # connect signals from layer
+            self.connectFrontageLayer()
+
+    def connectFrontageLayer(self):
+        if self.frontage_layer:
+            self.frontage_layer.selectionChanged.connect(self.dockwidget.addDataFields)
+            self.frontage_layer.featureAdded.connect(self.logFeatureAdded)
+            self.frontage_layer.featureDeleted.connect(self.dockwidget.clearDataFields)
+
+    def disconnectFrontageLayer(self):
+        if self.frontage_layer:
+            self.frontage_layer.selectionChanged.disconnect(self.dockwidget.addDataFields)
+            self.frontage_layer.featureAdded.disconnect(self.logFeatureAdded)
+            self.frontage_layer.featureDeleted.disconnect(self.dockwidget.clearDataFields)
+            self.frontage_layer = None
+
     # Create New Layer
     def newFrontageLayer(self):
         # Save to file, no base land use layer
@@ -149,7 +183,7 @@ class FrontageTool(QObject):
                 input2 = self.iface.addVectorLayer(location, filename, "ogr")
 
                 QgsMapLayerRegistry.instance().addMapLayer(input2)
-                input2.featureDeleted.connect(self.dockwidget.clearDataFields)
+                #input2.featureDeleted.connect(self.dockwidget.clearDataFields)
 
                 if not input2:
                     msgBar = self.iface.messageBar()
@@ -165,15 +199,14 @@ class FrontageTool(QObject):
 
                     input2.commitChanges()
                     self.updateFrontageLayer()
-
-                    self.closePopUp()
+                    self.frontagedlg.closePopUp()
 
             else:
                 # Save to memory, no base land use layer
                 destCRS = self.canvas.mapRenderer().destinationCrs()
                 vl = QgsVectorLayer("LineString?crs=" + destCRS.toWkt(), "memory:Frontages", "memory")
                 QgsMapLayerRegistry.instance().addMapLayer(vl)
-                vl.featureDeleted.connect(self.dockwidget.clearDataFields)
+                #vl.featureDeleted.connect(self.dockwidget.clearDataFields)
 
                 if not vl:
                     msgBar = self.iface.messageBar()
@@ -195,7 +228,7 @@ class FrontageTool(QObject):
 
                     vl.commitChanges()
                     self.updateFrontageLayer()
-                    self.closePopUp()
+                    self.frontagedlg.closePopUp()
 
         elif self.frontagedlg.createNewFileCheckBox.checkState() == 2:
             # Save to file, using base land use layer
@@ -256,21 +289,7 @@ class FrontageTool(QObject):
                     # TODO: updateLength function should receive a layer as input. It would be used earlier
                     self.updateLength()
 
-        self.closePopUp()
-
-    # Set layer as frontage layer and apply thematic style
-    def loadFrontageLayer(self):
-        if self.dockwidget.useExistingcomboBox.count() > 0:
-            input = self.dockwidget.setFrontageLayer()
-
-            qml_path = self.plugin_path + "/styles/frontagesThematic.qml"
-            input.loadNamedStyle(qml_path)
-
-            input.startEditing()
-
-            input.featureAdded.connect(self.logFeatureAdded)
-            input.selectionChanged.connect(self.dockwidget.addDataFields)
-            input.featureDeleted.connect(self.dockwidget.clearDataFields)
+        self.frontagedlg.closePopUp()
 
     # Draw New Feature
     def logFeatureAdded(self, fid):
@@ -282,6 +301,7 @@ class FrontageTool(QObject):
         feature_Count = v_layer.featureCount()
         features = v_layer.getFeatures()
         inputid = 0
+        frontagelength = 0
 
         for feat in features:
             geom = feat.geometry()
@@ -306,9 +326,8 @@ class FrontageTool(QObject):
         v_layer.changeAttributeValue(fid, update2, subcategorytext, True)
         v_layer.changeAttributeValue(fid, update3, inputid, True)
         v_layer.changeAttributeValue(fid, update4, frontagelength, True)
-        v_layer.featureDeleted.connect(self.dockwidget.clearDataFields)
+        #v_layer.featureDeleted.connect(self.dockwidget.clearDataFields)
         v_layer.updateFields()
-
 
     # Update Feature Length
     def updateLength(self):
@@ -338,10 +357,9 @@ class FrontageTool(QObject):
             geom = feat.geometry()
             feat['F_Length'] = geom.length()
             layer.updateFeature(feat)
-            self.dockwidget.addDataFields()
+        self.dockwidget.addDataFields()
 
-        layer.featureDeleted.connect(self.dockwidget.clearDataFields)
-
+        #layer.featureDeleted.connect(self.dockwidget.clearDataFields)
 
     # Hide features with NULL value
     def hideFeatures(self):
@@ -368,7 +386,7 @@ class FrontageTool(QObject):
         else:
             self.dockwidget.pushIDlistWidget.clear()
 
-    # Push data from coulumn in he buildis layer to the frontages layer
+    # Push data from column in the buildings layer to the frontages layer
     def pushID(self):
         buildinglayer = self.dockwidget.getSelectedLayerPushID()
 

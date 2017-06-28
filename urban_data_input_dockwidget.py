@@ -25,19 +25,19 @@ import os
 from PyQt4 import QtGui, uic
 from PyQt4.QtCore import *
 
-
-from CreateNew_dialog import CreatenewDialog
 from . import utility_functions as uf
 
+from CreateNew_Entrance_dialog import CreateNew_EntranceDialog
+from CreateNew_LU_dialog import CreateNew_LUDialog
+from CreateNew_dialog import CreatenewDialog
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'urban_data_input_dockwidget_base.ui'))
 
 
-
 class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
-
     closingPlugin = pyqtSignal()
+    loadFrontageLayer = pyqtSignal()
 
     def __init__(self, iface, parent=None):
         """Constructor."""
@@ -49,13 +49,19 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
 
-        # define globals
         self.iface = iface
         self.canvas = self.iface.mapCanvas()
+        self.legend = self.iface.legendInterface()
+
+        # create sub dialogs for new layers
+        self.frontagedlg = CreatenewDialog()
+        self.entrancedlg = CreateNew_EntranceDialog()
+        self.ludlg = CreateNew_LUDialog()
+
+        # define globals
         self.frontage_layer = None
         self.entrance_layer = None
         self.LU_layer = None
-        self.legend = self.iface.legendInterface()
 
         # customise the dockwidget
         self.tableWidgetFrontage.verticalHeader().hide()
@@ -87,10 +93,62 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.lucategorylistWidget.setCurrentRow(0)
         self.lusubcategorylistWidget.setCurrentRow(0)
 
+        # setup dockwidget signals
+        # frontages
+        self.frontagescatlistWidget.currentRowChanged.connect(self.updateFrontageSubTypes)
+        self.useExistingcomboBox.currentIndexChanged.connect(self.clearDataFields)
+        self.useExistingcomboBox.currentIndexChanged.connect(self.loadFrontageLayer)
+        self.pushButtonNewFile.clicked.connect(self.newFileDialog)
+        # entrances
+        self.ecategorylistWidget.currentRowChanged.connect(self.updateSubCategory)
+        self.pushButtonNewEntrancesFile.clicked.connect(self.newFileDialogEntrance)
+        self.useExistingEntrancescomboBox.currentIndexChanged.connect(self.clearEntranceDataFields)
+        # landuse
+        self.useExistingLUcomboBox.currentIndexChanged.connect(self.clearLUDataFields)
+        self.lucategorylistWidget.currentRowChanged.connect(self.updateLUsubcat)
+        self.lucategorylistWidget.currentRowChanged.connect(self.updateLUCodes)
+        self.LUGroundfloorradioButton.toggled.connect(self.addLUDataFields)
+        self.LULowerfloorradioButton.toggled.connect(self.addLUDataFields)
+        self.LUUpperfloorradioButton.toggled.connect(self.addLUDataFields)
+        self.lusubcategorylistWidget.currentRowChanged.connect(self.updateLUCodes)
+        self.pushButtonNewLUFile.clicked.connect(self.newFileDialogLU)
 
     def closeEvent(self, event):
         self.closingPlugin.emit()
         event.accept()
+
+    def newFileDialog(self):
+        """Run method that performs all the real work"""
+        self.frontagedlg.lineEditFrontages.clear()
+        # show the dialog
+        self.frontagedlg.show()
+        # Run the dialog event loop
+        result = self.frontagedlg.exec_()
+        # See if OK was pressed
+        if result:
+            pass
+
+    def newFileDialogEntrance(self):
+        """Run method that performs all the real work"""
+        self.entrancedlg.lineEditEntrances.clear()
+        # show the dialog
+        self.entrancedlg.show()
+        # Run the dialog event loop
+        result = self.entrancedlg.exec_()
+        # See if OK was pressed
+        if result:
+            pass
+
+    def newFileDialogLU(self):
+        """Run method that performs all the real work"""
+        self.ludlg.lineEditLU.clear()
+        # show the dialog
+        self.ludlg.show()
+        # Run the dialog event loop
+        result = self.ludlg.exec_()
+        # See if OK was pressed
+        if result:
+            pass
 
     #######
     #   Frontages
@@ -99,19 +157,15 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
     # Update frontage types
     def updateFrontageTypes(self):
         self.frontagescatlistWidget.clear()
-
         frontage_list_cat = ['Building', 'Fences']
-
         self.frontagescatlistWidget.addItems(frontage_list_cat)
 
     def updateFrontageSubTypes(self):
-
         frontage_sub_category_list_Building = ['Transparent', 'Semi Transparent', 'Blank']
         frontage_sub_category_list_Fences = ['High Opaque Fence', 'High See Through Fence','Low Fence']
         self.frontagessubcatlistWidget.clear()
         self.frontagessubcatlistWidget.addItems(frontage_sub_category_list_Building)
         self.frontagessubcatlistWidget.setCurrentRow(0)
-
 
         if self.frontagescatlistWidget.currentRow() == 0:
             self.frontagessubcatlistWidget.clear()
@@ -125,6 +179,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
     # Set universal Frontage layer if conditions are satisfied
     def setFrontageLayer(self):
+        # get the new layer
         index = self.useExistingcomboBox.currentIndex()
         self.frontage_layer = self.useExistingcomboBox.itemData(index)
         return self.frontage_layer
@@ -224,8 +279,6 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         headers = ["E-ID", "Category", "Sub Category", "Access Level"]
         self.tableWidgetEntrance.setHorizontalHeaderLabels(headers)
         self.tableWidgetEntrance.setRowCount(0)
-
-
 
     def addEntranceDataFields(self):
         self.entrancetableClear()
@@ -434,9 +487,6 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
             self.tableWidgetlanduse.setRowCount(0)
 
-
-
-
     def addLUDataFields(self):
         self.LUtableClear()
         layer = self.setLULayer()
@@ -487,7 +537,7 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
             elif self.LUUpperfloorradioButton.isChecked():
 
-                headers = ["LU-ID", "Floors", "Area","UF Category", "UF Sub Category"]
+                headers = ["LU-ID", "Floors", "Area", "UF Category", "UF Sub Category"]
                 self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
 
                 for i, item in enumerate(attrs):
@@ -499,18 +549,16 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
 
             self.tableWidgetlanduse.resizeRowsToContents()
             self.tableWidgetlanduse.resizeColumnsToContents()
-            #self.tableWidgetlanduse.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
+            # self.tableWidgetlanduse.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
             self.tableWidgetlanduse.horizontalHeader().setResizeMode(5, QtGui.QHeaderView.Stretch)
-
 
     def LUtableClear(self):
         self.tableWidgetlanduse.clear()
         self.tableWidgetlanduse.clearContents()
 
-
     def clearLuTabledel(self):
         layer = self.dockwidget.setLULayer()
-        layer.featureDeleted.connect(self.dockwidget.clearLUDataFields)
+        #layer.featureDeleted.connect(self.dockwidget.clearLUDataFields)
 
     def updateLUCodes(self):
         if self.lucategorylistWidget.currentRow() == 0:

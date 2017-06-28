@@ -32,16 +32,30 @@ from . import utility_functions as uf
 
 class LanduseTool(QObject):
 
-    def __init__(self, iface, dockwidget,ludlg):
+    def __init__(self, iface, dockwidget):
         QObject.__init__(self)
         self.iface = iface
         self.legend = self.iface.legendInterface()
-        self.ludlg = ludlg
         self.canvas = self.iface.mapCanvas()
+
         self.dockwidget = dockwidget
+        self.ludlg = self.dockwidget.ludlg
         self.ludlg.LUincGFcheckBox.setChecked(1)
         self.plugin_path = os.path.dirname(__file__)
         self.ludlg.idcolumn = None
+        self.lu_layer = None
+
+        # signals from dockwidget
+        self.dockwidget.updateLUIDButton.clicked.connect(self.updateIDLU)
+        self.dockwidget.useExistingLUcomboBox.currentIndexChanged.connect(self.loadLULayer)
+        self.dockwidget.updateLUButton.clicked.connect(self.updateSelectedLUAttribute)
+        self.dockwidget.pushButtonNewLUFile.clicked.connect(self.updatebuildingLayers)
+
+        # signals from new landuse dialog
+        self.ludlg.pushButtonLUNewFileDLG.clicked.connect(self.newLULayer)
+        self.ludlg.closePopUpLUButton.clicked.connect(self.closePopUpLU)
+        self.ludlg.pushButtonSelectLocationLU.clicked.connect(self.selectSaveLocationLU)
+        self.ludlg.selectbuildingCombo.currentIndexChanged.connect(self.popIdColumn)
 
     #######
     #   Data functions
@@ -113,6 +127,7 @@ class LanduseTool(QObject):
 
 # Add Frontage layer to combobox if conditions are satisfied
     def updateLULayer(self):
+        self.disconnectLULayer()
         self.dockwidget.useExistingLUcomboBox.clear()
         self.dockwidget.useExistingLUcomboBox.setEnabled(False)
         layers = self.legend.layers()
@@ -123,7 +138,8 @@ class LanduseTool(QObject):
 
         if self.dockwidget.useExistingLUcomboBox.count() > 0:
             self.dockwidget.useExistingLUcomboBox.setEnabled(True)
-            self.dockwidget.setLULayer()
+            self.lu_layer = self.dockwidget.setLULayer()
+            self.connectLULayer()
 
 # Create New Layer
     def newLULayer(self):
@@ -530,17 +546,28 @@ class LanduseTool(QObject):
 
 # Set layer as frontage layer and apply thematic style
     def loadLULayer(self):
+        # disconnect any current frontage layer
+        self.disconnectLULayer()
         if self.dockwidget.useExistingLUcomboBox.count() > 0:
-            input = self.dockwidget.setLULayer()
-
+            self.lu_layer = self.dockwidget.setLULayer()
             qml_path = self.plugin_path + "/styles/landuseThematic.qml"
-            input.loadNamedStyle(qml_path)
+            self.lu_layer.loadNamedStyle(qml_path)
+            self.lu_layer.startEditing()
+            # connect signals from layer
+            self.connectLULayer()
 
-            input.startEditing()
+    def connectLULayer(self):
+        if self.lu_layer:
+            self.lu_layer.selectionChanged.connect(self.dockwidget.addLUDataFields)
+            self.lu_layer.featureAdded.connect(self.logLUFeatureAdded)
+            self.lu_layer.featureDeleted.connect(self.dockwidget.clearLUDataFields)
 
-            input.featureAdded.connect(self.logLUFeatureAdded)
-            input.selectionChanged.connect(self.dockwidget.addLUDataFields)
-            input.featureDeleted.connect(self.dockwidget.clearLUDataFields)
+    def disconnectLULayer(self):
+        if self.lu_layer:
+            self.lu_layer.selectionChanged.disconnect(self.dockwidget.addLUDataFields)
+            self.lu_layer.featureAdded.disconnect(self.logLUFeatureAdded)
+            self.lu_layer.featureDeleted.disconnect(self.dockwidget.clearLUDataFields)
+            self.lu_layer = None
 
      # Draw New Feature
     def logLUFeatureAdded(self, fid):
@@ -630,7 +657,7 @@ class LanduseTool(QObject):
             v_layer.updateFields()
 
         self.dockwidget.spinBoxlufloors.clear()
-        v_layer.featureDeleted.connect(self.dockwidget.clearLUDataFields)
+        #v_layer.featureDeleted.connect(self.dockwidget.clearLUDataFields)
         self.dockwidget.LUtextedit.clear()
 
 
@@ -655,7 +682,7 @@ class LanduseTool(QObject):
             geom = feat.geometry()
             feat["Area"] = geom.area()
             layer.updateFeature(feat)
-            self.dockwidget.addLUDataFields()
+            #self.dockwidget.addLUDataFields()
 
             if self.dockwidget.LUGroundfloorradioButton.isChecked():
                 feat["GF_Cat"] = categorytext
@@ -665,7 +692,7 @@ class LanduseTool(QObject):
                 feat["GF_TCPA"] = tcpacode
                 feat["GF_Descrip"] = description
                 layer.updateFeature(feat)
-                self.dockwidget.addLUDataFields()
+                #self.dockwidget.addLUDataFields()
 
             if self.dockwidget.LULowerfloorradioButton.isChecked():
                 feat["LF_Cat"] = categorytext
@@ -675,7 +702,7 @@ class LanduseTool(QObject):
                 feat["LF_TCPA"] = tcpacode
                 feat["LF_Descrip"] = description
                 layer.updateFeature(feat)
-                self.dockwidget.addLUDataFields()
+                #self.dockwidget.addLUDataFields()
 
             if self.dockwidget.LUUpperfloorradioButton.isChecked():
                 feat["UF_Cat"] = categorytext
@@ -685,8 +712,8 @@ class LanduseTool(QObject):
                 feat["UF_TCPA"] = tcpacode
                 feat["UF_Descrip"] = description
                 layer.updateFeature(feat)
-                self.dockwidget.addLUDataFields()
 
+        self.dockwidget.addLUDataFields()
         self.dockwidget.spinBoxlufloors.clear()
         self.dockwidget.LUtextedit.clear()
-        layer.featureDeleted.connect(self.dockwidget.clearLUDataFields)
+        #layer.featureDeleted.connect(self.dockwidget.clearLUDataFields)

@@ -56,9 +56,6 @@ class UrbanDataInput:
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
 
-        # urban data input class initialisation
-        self.urban_data_input = urban_data_input_tool.UrbanDataInputTool(self.iface)
-
         # initialize locale
         locale = QSettings().value('locale/userLocale')[0:2]
         locale_path = os.path.join(
@@ -86,7 +83,8 @@ class UrbanDataInput:
             pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True, suspend=False)
 
         # Create the dialog (after translation) and keep reference
-
+        # urban data input class initialisation
+        self.urban_data_input = urban_data_input_tool.UrbanDataInputTool(self.iface)
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -190,17 +188,15 @@ class UrbanDataInput:
     #--------------------------------------------------------------------------
 
     def unload(self):
-        try:
-            """Removes the plugin menu item and icon from QGIS GUI."""
-            for action in self.actions:
-                self.iface.removePluginVectorMenu(
-                    self.menu,
-                    action)
-                self.iface.removeToolBarIcon(action)
-            # remove the toolbar
-            del self.toolbar
-        except:
-            pass
+        """Removes the plugin menu item and icon from QGIS GUI."""
+        for action in self.actions:
+            self.iface.removePluginVectorMenu(
+                self.menu,
+                action)
+            self.iface.removeToolBarIcon(action)
+        # remove the toolbar
+        del self.toolbar
+
         self.urban_data_input.unload_gui()
 
     #--------------------------------------------------------------------------
