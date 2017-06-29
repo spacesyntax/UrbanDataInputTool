@@ -495,19 +495,12 @@ class LanduseTool(QObject):
         QgsMessageLog.logMessage("feature added, id = " + str(fid))
 
         v_layer = self.dockwidget.setLULayer()
-        feature_Count = v_layer.featureCount()
-        features = v_layer.getFeatures()
-        inputid = 0
-
-        if feature_Count == 1:
-            inputid = 1
-
-        elif feature_Count > 1:
-            inputid = feature_Count
-
-        for feat in features:
-            geom = feat.geometry()
-            luarea = geom.area()
+        inputid = v_layer.featureCount()
+        luarea = 0
+        #features = v_layer.getFeatures()
+        #for feat in features:
+        #    geom = feat.geometry()
+        #    luarea = geom.area()
 
         data = v_layer.dataProvider()
         categorytext = self.dockwidget.lucategorylistWidget.currentItem().text()
@@ -517,7 +510,6 @@ class LanduseTool(QObject):
         ssxcode = self.dockwidget.lineEdit_luSSx.text()
         nludcode = self.dockwidget.lineEdit_luNLUD.text()
         tcpacode = self.dockwidget.lineEdit_luTCPA.text()
-
 
         updateID = data.fieldNameIndex("LU_ID")
         updatefloors = data.fieldNameIndex("Floors")
@@ -545,10 +537,10 @@ class LanduseTool(QObject):
         UFupdate6 = data.fieldNameIndex("UF_Descrip")
 
         v_layer.changeAttributeValue(fid, updateID, inputid, True)
-        v_layer.changeAttributeValue(fid, updatefloors, floortext, True)
+        if floortext > 0:
+            v_layer.changeAttributeValue(fid, updatefloors, floortext, True)
         v_layer.changeAttributeValue(fid, updatearea, luarea, True)
-        v_layer.updateFields()
-
+        # attributes of individual floors
         if self.dockwidget.LUGroundfloorradioButton.isChecked():
             v_layer.changeAttributeValue(fid, GFupdate1, categorytext, True)
             v_layer.changeAttributeValue(fid, GFupdate2, subcategorytext, True)
@@ -556,8 +548,6 @@ class LanduseTool(QObject):
             v_layer.changeAttributeValue(fid, GFupdate4, nludcode, True)
             v_layer.changeAttributeValue(fid, GFupdate5, tcpacode, True)
             v_layer.changeAttributeValue(fid, GFupdate6, description, True)
-            v_layer.updateFields()
-
         if self.dockwidget.LULowerfloorradioButton.isChecked():
             v_layer.changeAttributeValue(fid, LFupdate1, categorytext, True)
             v_layer.changeAttributeValue(fid, LFupdate2, subcategorytext, True)
@@ -565,8 +555,6 @@ class LanduseTool(QObject):
             v_layer.changeAttributeValue(fid, LFupdate4, nludcode, True)
             v_layer.changeAttributeValue(fid, LFupdate5, tcpacode, True)
             v_layer.changeAttributeValue(fid, LFupdate6, description, True)
-            v_layer.updateFields()
-
         if self.dockwidget.LUUpperfloorradioButton.isChecked():
             v_layer.changeAttributeValue(fid, UFupdate1, categorytext, True)
             v_layer.changeAttributeValue(fid, UFupdate2, subcategorytext, True)
@@ -574,14 +562,13 @@ class LanduseTool(QObject):
             v_layer.changeAttributeValue(fid, UFupdate4, nludcode, True)
             v_layer.changeAttributeValue(fid, UFupdate5, tcpacode, True)
             v_layer.changeAttributeValue(fid, UFupdate6, description, True)
-            v_layer.updateFields()
 
-        self.dockwidget.spinBoxlufloors.clear()
-        self.dockwidget.LUtextedit.clear()
-
+        v_layer.updateFields()
+        # lets let the user decide when to change these fields
+        #self.dockwidget.setLuFloors(0)
+        #self.dockwidget.LUtextedit.clear()
 
 # Update Feature
-
     def updateSelectedLUAttribute(self):
         QtGui.QApplication.beep()
         mc = self.canvas
@@ -597,7 +584,8 @@ class LanduseTool(QObject):
         tcpacode = self.dockwidget.lineEdit_luTCPA.text()
 
         for feat in features:
-            feat["Floors"] = floortext
+            if floortext > 0:
+                feat["Floors"] = floortext
             geom = feat.geometry()
             feat["Area"] = geom.area()
             layer.updateFeature(feat)
@@ -627,5 +615,6 @@ class LanduseTool(QObject):
                 layer.updateFeature(feat)
 
         self.dockwidget.addLUDataFields()
-        self.dockwidget.spinBoxlufloors.clear()
-        self.dockwidget.LUtextedit.clear()
+        # lets let the user decide when to change these fields
+        #self.dockwidget.setLuFloors(0)
+        #self.dockwidget.LUtextedit.clear()

@@ -467,15 +467,11 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
             self.tableWidgetlanduse.setRowCount(0)
 
-
-
         if self.LULowerfloorradioButton.isChecked():
             self.tableWidgetlanduse.setColumnCount(5)
             headers = ["LU-ID", "Floors", "Area", "LF Category", "LF Sub Category"]
             self.tableWidgetlanduse.setHorizontalHeaderLabels(headers)
             self.tableWidgetlanduse.setRowCount(0)
-
-
 
         if self.LUUpperfloorradioButton.isChecked():
             self.tableWidgetlanduse.setColumnCount(5)
@@ -555,6 +551,9 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
     def clearLuTabledel(self):
         layer = self.dockwidget.setLULayer()
         #layer.featureDeleted.connect(self.dockwidget.clearLUDataFields)
+
+    def setLuFloors(self, value):
+        self.spinBoxlufloors.setValue(int(value))
 
     def updateLUCodes(self):
         if self.lucategorylistWidget.currentRow() == 0:
