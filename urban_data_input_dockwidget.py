@@ -196,7 +196,6 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.tableWidgetFrontage.setHorizontalHeaderLabels(headers)
         self.tableWidgetFrontage.setRowCount(0)
 
-
     def addDataFields(self):
         self.tableClear()
         layer = self.setFrontageLayer()
@@ -232,7 +231,6 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             #self.tableWidgetFrontage.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
             self.tableWidgetFrontage.horizontalHeader().setResizeMode(3, QtGui.QHeaderView.Stretch)
 
-
     def tableClear(self):
         self.tableWidgetFrontage.clear()
 
@@ -251,7 +249,6 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
         self.eaccesscategorylistWidget.addItems(entrance_access_level_list)
 
     def updateSubCategory(self):
-
         entrance_sub_category_list_Controlled = ['Default', 'Fire Exit', 'Service Entrance', 'Unused']
         entrance_sub_category_list_Uncontrolled = ['Default']
         self.esubcategorylistWidget.addItems(entrance_sub_category_list_Controlled)
@@ -265,7 +262,6 @@ class UrbanDataInputDockWidget(QtGui.QDockWidget, FORM_CLASS):
             self.esubcategorylistWidget.clear()
             self.esubcategorylistWidget.addItems(entrance_sub_category_list_Uncontrolled)
             self.esubcategorylistWidget.setCurrentRow(0)
-
 
     # Set universal Entrance layer if conditions are satisfied
     def setEntranceLayer(self):

@@ -124,6 +124,7 @@ class FrontageTool(QObject):
                 self.frontagedlg.selectLUCombo.setEnabled(False)
         else:
             self.frontagedlg.createNewFileCheckBox.setEnabled(False)
+            self.frontagedlg.selectLUCombo.setEnabled(False)
 
     # Get building layer selected in the combo box
     def getSelectedLayer(self):
@@ -199,7 +200,7 @@ class FrontageTool(QObject):
 
                     input2.commitChanges()
                     self.updateFrontageLayer()
-                    self.frontagedlg.closePopUp()
+                    #self.frontagedlg.closePopUp()
 
             else:
                 # Save to memory, no base land use layer
@@ -228,7 +229,7 @@ class FrontageTool(QObject):
 
                     vl.commitChanges()
                     self.updateFrontageLayer()
-                    self.frontagedlg.closePopUp()
+                    #self.frontagedlg.closePopUp()
 
         elif self.frontagedlg.createNewFileCheckBox.checkState() == 2:
             # Save to file, using base land use layer
@@ -257,7 +258,7 @@ class FrontageTool(QObject):
                     location = os.path.abspath(exploded_lines['OUTPUT'])
                     result_layer = self.iface.addVectorLayer(location, filename, "ogr")
                     result_layer.featureDeleted.connect(self.dockwidget.clearDataFields)
-                    print result_layer
+                    #print result_layer
                     result_layer.setLayerName("memory:Frontages")
 
                 if not result_layer:

@@ -23,13 +23,15 @@
 
 import os
 
-from PyQt4 import QtGui, uic
+from PyQt4 import QtCore, QtGui, uic
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'CreateNew_LU_dialog_base.ui'))
 
 
 class CreateNew_LUDialog(QtGui.QDialog, FORM_CLASS):
+    create_new_layer = QtCore.pyqtSignal()
+
     def __init__(self, parent=None):
         """Constructor."""
         super(CreateNew_LUDialog, self).__init__(parent)
@@ -39,3 +41,22 @@ class CreateNew_LUDialog(QtGui.QDialog, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
+
+        # setup signals
+        self.pushButtonSelectLocationLU.clicked.connect(self.selectSaveLocationLU)
+        self.pushButtonLUNewFileDLG.clicked.connect(self.newLULayer)
+        self.closePopUpLUButton.clicked.connect(self.closePopUpLU)
+
+    def closePopUpLU(self):
+        self.close()
+
+    # Open Save file dialogue and set location in text edit
+    def selectSaveLocationLU(self):
+        filename = QtGui.QFileDialog.getSaveFileName(None, "Select Save Location ", "", '*.shp')
+        self.lineEditLU.setText(filename)
+
+    def newLULayer(self):
+        self.create_new_layer.emit()
+
+    def getSelectedLULayerID(self):
+        return self.selectIDbuildingCombo.currentText()

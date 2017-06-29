@@ -42,7 +42,6 @@ class LanduseTool(QObject):
         self.ludlg = self.dockwidget.ludlg
         self.ludlg.LUincGFcheckBox.setChecked(1)
         self.plugin_path = os.path.dirname(__file__)
-        self.ludlg.idcolumn = None
         self.lu_layer = None
 
         # signals from dockwidget
@@ -52,10 +51,9 @@ class LanduseTool(QObject):
         self.dockwidget.pushButtonNewLUFile.clicked.connect(self.updatebuildingLayers)
 
         # signals from new landuse dialog
-        self.ludlg.pushButtonLUNewFileDLG.clicked.connect(self.newLULayer)
-        self.ludlg.closePopUpLUButton.clicked.connect(self.closePopUpLU)
-        self.ludlg.pushButtonSelectLocationLU.clicked.connect(self.selectSaveLocationLU)
+        self.ludlg.create_new_layer.connect(self.newLULayer)
         self.ludlg.selectbuildingCombo.currentIndexChanged.connect(self.popIdColumn)
+        self.ludlg.createNewLUFileCheckBox.stateChanged.connect(self.updatebuildingLayers)
 
     #######
     #   Data functions
@@ -85,6 +83,8 @@ class LanduseTool(QObject):
             self.popIdColumn()
         else:
             self.ludlg.createNewLUFileCheckBox.setEnabled(False)
+            self.ludlg.selectbuildingCombo.setEnabled(False)
+            self.ludlg.selectIDbuildingCombo.setEnabled(False)
 
     def popIdColumn(self):
         self.ludlg.selectIDbuildingCombo.clear()
@@ -94,18 +94,10 @@ class LanduseTool(QObject):
             field_names = [field.name() for field in layer.dataProvider().fields()]
         self.ludlg.selectIDbuildingCombo.addItems(field_names)
 
-    def getSelectedLULayerID(self):
-        self.ludlg.idcolumn = self.ludlg.selectIDbuildingCombo.currentText()
-        print self.ludlg.idcolumn
-
     def getSelectedLULayer(self):
         layer_name = self.ludlg.selectbuildingCombo.currentText()
         self.building_layer = uf.getLegendLayerByName(self.iface, layer_name)
         return self.building_layer
-
-# Close create new file pop up dialogue when cancel button is pressed
-    def closePopUpLU(self):
-        self.ludlg.close()
 
 # Update the F_ID column of the Frontage layer
     def updateIDLU(self):
@@ -119,11 +111,6 @@ class LanduseTool(QObject):
             layer.updateFeature(feat)
         layer.commitChanges()
         layer.startEditing()
-
-# Open Save file dialogue and set location in text edit
-    def selectSaveLocationLU(self):
-        filename = QtGui.QFileDialog.getSaveFileName(None, "Select Save Location ", "", '*.shp')
-        self.ludlg.lineEditLU.setText(filename)
 
 # Add Frontage layer to combobox if conditions are satisfied
     def updateLULayer(self):
@@ -173,9 +160,6 @@ class LanduseTool(QObject):
                                              QgsField("GF_NLUD", QVariant.String),
                                              QgsField("GF_TCPA", QVariant.String),
                                              QgsField("GF_Descrip", QVariant.String)])
-
-                        vl.commitChanges()
-                        self.updateLULayer()
                         self.dockwidget.LUGroundfloorradioButton.setEnabled(1)
 
                     if self.ludlg.LUincLFcheckBox.checkState() == 2:
@@ -185,9 +169,6 @@ class LanduseTool(QObject):
                                              QgsField("LF_NLUD", QVariant.String),
                                              QgsField("LF_TCPA", QVariant.String),
                                              QgsField("LF_Descrip", QVariant.String)])
-
-                        vl.commitChanges()
-                        self.updateLULayer()
                         self.dockwidget.LULowerfloorradioButton.setEnabled(1)
 
                     if self.ludlg.LUincUFcheckBox.checkState() == 2:
@@ -197,11 +178,9 @@ class LanduseTool(QObject):
                                              QgsField("UF_NLUD", QVariant.String),
                                              QgsField("UF_TCPA", QVariant.String),
                                              QgsField("UF_Descrip", QVariant.String)])
-
-                        vl.commitChanges()
-                        self.updateLULayer()
                         self.dockwidget.LULowerfloorradioButton.setEnabled(1)
 
+                    vl.updateFields()
                     features = vl.getFeatures()
                     i = 1
                     vl.startEditing()
@@ -220,7 +199,6 @@ class LanduseTool(QObject):
                     input2 = self.iface.addVectorLayer(location, filename, "ogr")
                     QgsMapLayerRegistry.instance().addMapLayer(input2)
 
-
                     if not input2:
                         msgBar = self.iface.messageBar()
                         msg = msgBar.createMessage(u'Layer failed to load!' + location)
@@ -230,16 +208,7 @@ class LanduseTool(QObject):
                         msgBar = self.iface.messageBar()
                         msg = msgBar.createMessage(u'New Land Use Layer Created:' + location)
                         msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
-
                         input2.startEditing()
-
-
-                        input2.commitChanges()
-                        self.updateLULayer()
-                        self.dockwidget.LUUpperfloorradioButton.setEnabled(1)
-
-                    self.closePopUpLU()
-                    self.ludlg.lineEditLU.clear()
 
                 else:
                     # Save to memory, no base land use layer
@@ -272,10 +241,6 @@ class LanduseTool(QObject):
                                                 QgsField("GF_NLUD", QVariant.String),
                                                 QgsField("GF_TCPA", QVariant.String),
                                                 QgsField("GF_Descrip", QVariant.String)])
-
-                            vl.commitChanges()
-                            vl.startEditing()
-                            self.updateLULayer()
                             self.dockwidget.LUGroundfloorradioButton.setEnabled(1)
 
                         if self.ludlg.LUincLFcheckBox.checkState() == 2:
@@ -285,10 +250,6 @@ class LanduseTool(QObject):
                                                 QgsField("LF_NLUD", QVariant.String),
                                                 QgsField("LF_TCPA", QVariant.String),
                                                 QgsField("LF_Descrip", QVariant.String)])
-
-                            vl.commitChanges()
-                            vl.startEditing()
-                            self.updateLULayer()
                             self.dockwidget.LULowerfloorradioButton.setEnabled(1)
 
                         if self.ludlg.LUincUFcheckBox.checkState() == 2:
@@ -298,12 +259,9 @@ class LanduseTool(QObject):
                                                 QgsField("UF_NLUD", QVariant.String),
                                                 QgsField("UF_TCPA", QVariant.String),
                                                 QgsField("UF_Descrip", QVariant.String)])
-
-                            vl.commitChanges()
-                            vl.startEditing()
-                            self.updateLULayer()
                             self.dockwidget.LUUpperfloorradioButton.setEnabled(1)
 
+                    vl.updateFields()
                     features = vl.getFeatures()
                     i = 1
                     vl.startEditing()
@@ -313,10 +271,9 @@ class LanduseTool(QObject):
                         vl.updateFeature(feat)
                     vl.commitChanges()
                     vl.startEditing()
-                    self.closePopUpLU()
-                    self.ludlg.lineEditLU.clear()
 
             if self.ludlg.createNewLUFileCheckBox.checkState() == 2:
+                idcolumn = self.ludlg.getSelectedLULayerID()
                 # Save to file
                 if self.ludlg.lineEditLU.text() != "":
                     path = self.ludlg.lineEditLU.text()
@@ -326,13 +283,10 @@ class LanduseTool(QObject):
                     destCRS = self.canvas.mapRenderer().destinationCrs()
 
                     vl = self.getSelectedLULayer()
-                    feat_list = [feat for feat in vl.getFeatures()]
-                    attrs_list = vl.fields()
 
                     nl = QgsVectorLayer("Polygon?crs=" + destCRS.toWkt(), "memory:Land use", "memory")
                     provider = nl.dataProvider()
-                    # provider.addAttributes([])
-                    # provider.addFeatures(feat_list)
+
                     QgsMapLayerRegistry.instance().addMapLayer(nl)
 
 
@@ -347,10 +301,6 @@ class LanduseTool(QObject):
                                                 QgsField("GF_NLUD", QVariant.String),
                                                 QgsField("GF_TCPA", QVariant.String),
                                                 QgsField("GF_Descrip", QVariant.String)])
-
-
-                        nl.commitChanges()
-                        self.updateLULayer()
                         self.dockwidget.LUGroundfloorradioButton.setEnabled(1)
 
                     if self.ludlg.LUincLFcheckBox.checkState() == 2:
@@ -360,10 +310,6 @@ class LanduseTool(QObject):
                                                 QgsField("LF_NLUD", QVariant.String),
                                                 QgsField("LF_TCPA", QVariant.String),
                                                 QgsField("LF_Descrip", QVariant.String)])
-
-
-                        nl.commitChanges()
-                        self.updateLULayer()
                         self.dockwidget.LULowerfloorradioButton.setEnabled(1)
 
                     if self.ludlg.LUincUFcheckBox.checkState() == 2:
@@ -373,11 +319,6 @@ class LanduseTool(QObject):
                                                 QgsField("UF_NLUD", QVariant.String),
                                                 QgsField("UF_TCPA", QVariant.String),
                                                 QgsField("UF_Descrip", QVariant.String)])
-
-
-
-                        nl.commitChanges()
-                        self.updateLULayer()
                         self.dockwidget.LULowerfloorradioButton.setEnabled(1)
 
                     null_attr = []
@@ -394,14 +335,14 @@ class LanduseTool(QObject):
                     if self.ludlg.LUincGFcheckBox.checkState() == 2 and self.ludlg.LUincUFcheckBox.checkState() and self.ludlg.LUincUFcheckBox.checkState() == 2:
                         null_attr = [NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL]
 
-
                     new_feat_list =[]
                     for feat in vl.getFeatures():
                         new_feat = QgsFeature()
-                        new_feat.setAttributes([feat[self.ludlg.idcolumn]]+ null_attr)
+                        new_feat.setAttributes([feat[idcolumn]]+ null_attr)
                         new_feat.setGeometry(feat.geometry())
                         new_feat_list.append(new_feat)
 
+                    nl.updateFields()
                     provider.addFeatures(new_feat_list)
 
                     features = nl.getFeatures()
@@ -429,20 +370,12 @@ class LanduseTool(QObject):
                         msgBar = self.iface.messageBar()
                         msg = msgBar.createMessage(u'New Land Use Layer Created:' + location)
                         msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
-
                         input2.startEditing()
-
-                        edit1 = input2.dataProvider()
-                        edit1.addAttributes([])
-
-                    self.closePopUpLU()
-                    self.ludlg.lineEditLU.clear()
 
                 else:
                     # Save to memory, no base land use layer
                     destCRS = self.canvas.mapRenderer().destinationCrs()
                     vl = self.getSelectedLULayer()
-                    feat_list = [feat for feat in vl.getFeatures()]
 
                     nl = QgsVectorLayer("Polygon?crs=" + destCRS.toWkt(), "memory:Land use", "memory")
                     provider = nl.dataProvider()
@@ -460,11 +393,7 @@ class LanduseTool(QObject):
                              QgsField("GF_NLUD", QVariant.String),
                              QgsField("GF_TCPA", QVariant.String),
                              QgsField("GF_Descrip", QVariant.String)])
-
-                    nl.commitChanges()
-                    nl.startEditing()
-                    self.updateLULayer()
-                    self.dockwidget.LUGroundfloorradioButton.setEnabled(1)
+                        self.dockwidget.LUGroundfloorradioButton.setEnabled(1)
 
                     if self.ludlg.LUincLFcheckBox.checkState() == 2:
                         provider.addAttributes([QgsField("LF_Cat", QVariant.String),
@@ -473,11 +402,7 @@ class LanduseTool(QObject):
                              QgsField("LF_NLUD", QVariant.String),
                              QgsField("LF_TCPA", QVariant.String),
                              QgsField("LF_Descrip", QVariant.String)])
-
-                    nl.commitChanges()
-                    nl.startEditing()
-                    self.updateLULayer()
-                    self.dockwidget.LULowerfloorradioButton.setEnabled(1)
+                        self.dockwidget.LULowerfloorradioButton.setEnabled(1)
 
                     if self.ludlg.LUincUFcheckBox.checkState() == 2:
                         provider.addAttributes([QgsField("UF_Cat", QVariant.String),
@@ -486,14 +411,9 @@ class LanduseTool(QObject):
                              QgsField("UF_NLUD", QVariant.String),
                              QgsField("UF_TCPA", QVariant.String),
                              QgsField("UF_Descrip", QVariant.String)])
-
-                    nl.commitChanges()
-                    nl.startEditing()
-                    self.updateLULayer()
-                    self.dockwidget.LUUpperfloorradioButton.setEnabled(1)
+                        self.dockwidget.LUUpperfloorradioButton.setEnabled(1)
 
                     null_attr = []
-
                     if self.ludlg.LUincGFcheckBox.checkState() == 2:
                         null_attr = [NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL]
 
@@ -512,10 +432,12 @@ class LanduseTool(QObject):
                     new_feat_list = []
                     for feat in vl.getFeatures():
                         new_feat = QgsFeature()
-                        new_feat.setAttributes([feat[self.ludlg.idcolumn]] + null_attr)
+                        new_feat.setAttributes([feat[idcolumn]] + null_attr)
                         new_feat.setGeometry(feat.geometry())
                         new_feat_list.append(new_feat)
 
+                    nl.updateFields()
+                    nl.startEditing()
                     provider.addFeatures(new_feat_list)
 
                     features = nl.getFeatures()
@@ -526,22 +448,20 @@ class LanduseTool(QObject):
                         i += 1
                         nl.updateFeature(feat)
                     nl.commitChanges()
-                    nl.startEditing()
 
                     if not nl:
                         msgBar = self.iface.messageBar()
                         msg = msgBar.createMessage(u'Layer failed to load!')
                         msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
-
                     else:
                         msgBar = self.iface.messageBar()
                         msg = msgBar.createMessage(u'New Land Use Layer Created:')
                         msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
                         nl.startEditing()
 
-                    self.closePopUpLU()
-                    self.ludlg.lineEditLU.clear()
-
+            self.updateLULayer()
+            self.ludlg.closePopUpLU()
+            self.ludlg.lineEditLU.clear()
 
 
 # Set layer as frontage layer and apply thematic style
