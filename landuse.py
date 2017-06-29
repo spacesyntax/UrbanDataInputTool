@@ -576,7 +576,7 @@ class LanduseTool(QObject):
 
 # Update Feature
     def updateSelectedLUAttribute(self):
-        QtGui.QApplication.beep()
+        #QtGui.QApplication.beep()
         mc = self.canvas
         layer = self.dockwidget.setLULayer()
         features = layer.selectedFeatures()

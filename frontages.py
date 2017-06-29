@@ -310,7 +310,7 @@ class FrontageTool(QObject):
 
     # Update Feature
     def updateSelectedFrontageAttribute(self):
-        QtGui.QApplication.beep()
+        #QtGui.QApplication.beep() can be annoying... sorry
         mc = self.canvas
         layer = self.dockwidget.setFrontageLayer()
         features = layer.selectedFeatures()
@@ -360,7 +360,7 @@ class FrontageTool(QObject):
         frontlayer.startEditing()
 
         buildingID = self.dockwidget.pushIDlistWidget.currentItem().text()
-        print buildingID
+        #print buildingID
         newColumn = "B_" + buildingID
         frontlayer_pr = frontlayer.dataProvider()
         frontlayer_pr.addAttributes([QgsField(newColumn, QVariant.Int)])

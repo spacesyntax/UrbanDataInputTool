@@ -215,7 +215,7 @@ class EntranceTool(QObject):
 
     # Update Feature
     def updateSelectedEntranceAttribute(self):
-        QtGui.QApplication.beep()
+        #QtGui.QApplication.beep()
         mc = self.canvas
         layer = self.dockwidget.setEntranceLayer()
         features = layer.selectedFeatures()
