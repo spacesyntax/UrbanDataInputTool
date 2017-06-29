@@ -561,7 +561,6 @@ class LanduseTool(QObject):
             v_layer.changeAttributeValue(fid, UFupdate5, tcpacode, True)
             v_layer.changeAttributeValue(fid, UFupdate6, description, True)
 
-        #v_layer.updateFields()
         # area can be obtained after the layer is added
         request = QgsFeatureRequest().setFilterExpression(u'"LU_ID" = %s' % inputid)
         features = v_layer.getFeatures(request)

@@ -271,20 +271,9 @@ class FrontageTool(QObject):
 
         mc = self.canvas
         v_layer = self.dockwidget.setFrontageLayer()
-        feature_Count = v_layer.featureCount()
         features = v_layer.getFeatures()
-        inputid = 0
+        inputid = v_layer.featureCount()
         frontagelength = 0
-
-        for feat in features:
-            geom = feat.geometry()
-            frontagelength = geom.length()
-
-        if feature_Count == 1:
-            inputid = 1
-
-        elif feature_Count > 1:
-            inputid = feature_Count
 
         data = v_layer.dataProvider()
         update1 = data.fieldNameIndex("F_Group")
@@ -298,7 +287,15 @@ class FrontageTool(QObject):
         v_layer.changeAttributeValue(fid, update1, categorytext, True)
         v_layer.changeAttributeValue(fid, update2, subcategorytext, True)
         v_layer.changeAttributeValue(fid, update3, inputid, True)
+
+        # length can be obtained after the layer is added
+        request = QgsFeatureRequest().setFilterExpression(u'"F_ID" = %s' % inputid)
+        features = v_layer.getFeatures(request)
+        for feat in features:
+            geom = feat.geometry()
+            frontagelength = geom.length()
         v_layer.changeAttributeValue(fid, update4, frontagelength, True)
+
         v_layer.updateFields()
 
     # Update Feature Length
@@ -380,5 +377,3 @@ class FrontageTool(QObject):
                         frontfeat[newColumn] = buildfeat[buildingID]
                         frontlayer.updateFeature(frontfeat)
                         frontlayer.commitChanges()
-
-
