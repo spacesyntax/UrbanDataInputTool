@@ -29,6 +29,8 @@ from qgis.core import *
 from qgis.gui import *
 from . import utility_functions as uf
 
+is_debug = False
+
 
 class LanduseTool(QObject):
 
@@ -492,15 +494,12 @@ class LanduseTool(QObject):
      # Draw New Feature
     def logLUFeatureAdded(self, fid):
 
-        QgsMessageLog.logMessage("feature added, id = " + str(fid))
+        if is_debug:
+            QgsMessageLog.logMessage("feature added, id = " + str(fid))
 
         v_layer = self.dockwidget.setLULayer()
         inputid = v_layer.featureCount()
         luarea = 0
-        #features = v_layer.getFeatures()
-        #for feat in features:
-        #    geom = feat.geometry()
-        #    luarea = geom.area()
 
         data = v_layer.dataProvider()
         categorytext = self.dockwidget.lucategorylistWidget.currentItem().text()
@@ -539,7 +538,6 @@ class LanduseTool(QObject):
         v_layer.changeAttributeValue(fid, updateID, inputid, True)
         if floortext > 0:
             v_layer.changeAttributeValue(fid, updatefloors, floortext, True)
-        v_layer.changeAttributeValue(fid, updatearea, luarea, True)
         # attributes of individual floors
         if self.dockwidget.LUGroundfloorradioButton.isChecked():
             v_layer.changeAttributeValue(fid, GFupdate1, categorytext, True)
@@ -562,6 +560,15 @@ class LanduseTool(QObject):
             v_layer.changeAttributeValue(fid, UFupdate4, nludcode, True)
             v_layer.changeAttributeValue(fid, UFupdate5, tcpacode, True)
             v_layer.changeAttributeValue(fid, UFupdate6, description, True)
+
+        #v_layer.updateFields()
+        # area can be obtained after the layer is added
+        request = QgsFeatureRequest().setFilterExpression(u'"LU_ID" = %s' % inputid)
+        features = v_layer.getFeatures(request)
+        for feat in features:
+            geom = feat.geometry()
+            luarea = geom.area()
+        v_layer.changeAttributeValue(fid, updatearea, luarea, True)
 
         v_layer.updateFields()
         # lets let the user decide when to change these fields
