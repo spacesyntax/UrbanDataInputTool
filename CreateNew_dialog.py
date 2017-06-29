@@ -23,8 +23,7 @@
 
 import os
 
-from PyQt4 import QtGui, uic
-from . import utility_functions as uf
+from PyQt4 import QtCore, QtGui, uic
 
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -32,6 +31,7 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
 
 
 class CreatenewDialog(QtGui.QDialog, FORM_CLASS):
+    create_new_layer = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         """Constructor."""
@@ -43,7 +43,21 @@ class CreatenewDialog(QtGui.QDialog, FORM_CLASS):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
 
+        # setup signals
+        self.closePopUpButton.clicked.connect(self.closePopUp)
+        self.pushButtonSelectLocation.clicked.connect(self.selectSaveLocation)
+        self.pushButtonNewFileDLG.clicked.connect(self.createLayer)
 
 
+    # Close create new file pop up dialogue when cancel button is pressed
+    def closePopUp(self):
+        self.close()
 
+    # Open Save file dialogue and set location in text edit
+    def selectSaveLocation(self):
+        filename = QtGui.QFileDialog.getSaveFileName(None, "Select Save Location ", "", '*.shp')
+        self.lineEditFrontages.setText(filename)
+
+    def createLayer(self):
+        self.create_new_layer.emit()
 
