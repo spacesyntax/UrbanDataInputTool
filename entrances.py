@@ -54,18 +54,11 @@ class EntranceTool(QObject):
         self.dockwidget.useExistingEntrancescomboBox.currentIndexChanged.connect(self.loadEntranceLayer)
 
         # signals from new entrance dialog
-        self.entrancedlg.pushButtonEntrancesNewFileDLG.clicked.connect(self.newEntranceLayer)
-        self.entrancedlg.closePopUpEntrancesButton.clicked.connect(self.closePopUpEntrances)
-        self.entrancedlg.pushButtonSelectLocationEntrance.clicked.connect(self.selectSaveLocationEntrance)
-
+        self.entrancedlg.create_new_layer.connect(self.newEntranceLayer)
 
     #######
     #   Data functions
     #######
-
-    # Close create new file pop up dialogue when cancel button is pressed
-    def closePopUpEntrances(self):
-        self.entrancedlg.close()
 
     # Update the F_ID column of the Frontage layer
     def updateIDEntrances(self):
@@ -80,11 +73,6 @@ class EntranceTool(QObject):
 
         layer.commitChanges()
         layer.startEditing()
-
-    # Open Save file dialogue and set location in text edit
-    def selectSaveLocationEntrance(self):
-        filename = QtGui.QFileDialog.getSaveFileName(None, "Select Save Location ", "", '*.shp')
-        self.entrancedlg.lineEditEntrances.setText(filename)
 
     # Add Frontage layer to combobox if conditions are satisfied
     def updateEntranceLayer(self):
@@ -139,14 +127,7 @@ class EntranceTool(QObject):
                 msgBar = self.iface.messageBar()
                 msg = msgBar.createMessage(u'New Frontages Layer Created:' + location)
                 msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
-
                 input2.startEditing()
-
-
-                input2.commitChanges()
-                self.updateEntranceLayer()
-                self.closePopUpEntrances()
-
         else:
             # Save to memory, no base land use layer
             destCRS = self.canvas.mapRenderer().destinationCrs()
@@ -164,17 +145,16 @@ class EntranceTool(QObject):
                 msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
 
                 vl.startEditing()
-
                 edit1 = vl.dataProvider()
                 edit1.addAttributes([QgsField("E_ID", QVariant.Int),
                                      QgsField("E_Category", QVariant.String),
                                      QgsField("E_SubCat", QVariant.String),
                                      QgsField("E_Level", QVariant.Double)])
-
                 vl.commitChanges()
-                self.updateEntranceLayer()
-                self.closePopUpEntrances()
+                vl.startEditing()
 
+        self.updateEntranceLayer()
+        self.entrancedlg.closePopUpEntrances()
 
     # Set layer as entrance layer and apply thematic style
     def loadEntranceLayer(self):
