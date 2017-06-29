@@ -56,7 +56,7 @@ class CreatenewDialog(QtGui.QDialog, FORM_CLASS):
     # Open Save file dialogue and set location in text edit
     def selectSaveLocation(self):
         filename = QtGui.QFileDialog.getSaveFileName(None, "Select Save Location ", "", '*.shp')
-        self.frontagedlg.lineEditFrontages.setText(filename)
+        self.lineEditFrontages.setText(filename)
 
     def createLayer(self):
         self.create_new_layer.emit()

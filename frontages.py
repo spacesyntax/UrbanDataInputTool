@@ -161,81 +161,55 @@ class FrontageTool(QObject):
     def newFrontageLayer(self):
         # Save to file, no base land use layer
         if self.frontagedlg.createNewFileCheckBox.checkState() == 0 or self.frontagedlg.selectLUCombo.count() == 0:
+            # always create a memory layer first
+            destCRS = self.canvas.mapRenderer().destinationCrs()
+            vl = QgsVectorLayer("LineString?crs=" + destCRS.toWkt(), "memory:Frontages", "memory")
+            provider = vl.dataProvider()
+            provider.addAttributes([QgsField("F_ID", QVariant.Int),
+                                    QgsField("F_Group", QVariant.String),
+                                    QgsField("F_Type", QVariant.String),
+                                    QgsField("F_Length", QVariant.Double)])
 
             if self.frontagedlg.lineEditFrontages.text() != "":
                 path = self.frontagedlg.lineEditFrontages.text()
                 filename = os.path.basename(path)
-                print filename
                 location = os.path.abspath(path)
-
-                destCRS = self.canvas.mapRenderer().destinationCrs()
-                vl = QgsVectorLayer("LineString?crs=" + destCRS.toWkt(), "memory:Frontages", "memory")
-
-                provider = vl.dataProvider()
-                provider.addAttributes([QgsField("F_ID", QVariant.Int),
-                                     QgsField("F_Group", QVariant.String),
-                                     QgsField("F_Type", QVariant.String),
-                                     QgsField("F_Length", QVariant.Double)])
 
                 QgsMapLayerRegistry.instance().addMapLayer(vl)
                 QgsVectorFileWriter.writeAsVectorFormat(vl, location, "ogr", None, "ESRI Shapefile",True)
                 QgsMapLayerRegistry.instance().removeMapLayers([vl.id()])
-
                 input2 = self.iface.addVectorLayer(location, filename, "ogr")
 
                 QgsMapLayerRegistry.instance().addMapLayer(input2)
-                #input2.featureDeleted.connect(self.dockwidget.clearDataFields)
 
                 if not input2:
                     msgBar = self.iface.messageBar()
                     msg = msgBar.createMessage(u'Layer failed to load!' + location)
                     msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
-
                 else:
                     msgBar = self.iface.messageBar()
                     msg = msgBar.createMessage(u'New Frontages Layer Created:' + location)
                     msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
 
                     input2.startEditing()
-
-                    input2.commitChanges()
-                    self.updateFrontageLayer()
-                    #self.frontagedlg.closePopUp()
-
             else:
                 # Save to memory, no base land use layer
-                destCRS = self.canvas.mapRenderer().destinationCrs()
-                vl = QgsVectorLayer("LineString?crs=" + destCRS.toWkt(), "memory:Frontages", "memory")
                 QgsMapLayerRegistry.instance().addMapLayer(vl)
-                #vl.featureDeleted.connect(self.dockwidget.clearDataFields)
 
                 if not vl:
                     msgBar = self.iface.messageBar()
                     msg = msgBar.createMessage(u'Layer failed to load!')
                     msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
-
                 else:
                     msgBar = self.iface.messageBar()
-                    msg = msgBar.createMessage(u'New Frontages Layer Create:')
+                    msg = msgBar.createMessage(u'New Frontages Layer Created')
                     msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
 
                     vl.startEditing()
 
-                    edit1 = vl.dataProvider()
-                    edit1.addAttributes([QgsField("F_ID", QVariant.Int),
-                                         QgsField("F_Group", QVariant.String),
-                                         QgsField("F_Type", QVariant.String),
-                                         QgsField("F_Length", QVariant.Double)])
-
-                    vl.commitChanges()
-                    self.updateFrontageLayer()
-                    #self.frontagedlg.closePopUp()
-
         elif self.frontagedlg.createNewFileCheckBox.checkState() == 2:
-            # Save to file, using base land use layer
+             # Save to file, using base land use layer
             input1 = self.getSelectedLayer()
-            print input1
-
             if input1:
                 # create a new file
                 if self.frontagedlg.lineEditFrontages.text() != "":
@@ -247,7 +221,6 @@ class FrontageTool(QObject):
                     lines_from_polys = processing.runalg("qgis:polygonstolines", input1, None)
                     exploded_lines = processing.runalg("qgis:explodelines", lines_from_polys['OUTPUT'], path)
                     result_layer = self.iface.addVectorLayer(location, filename, "ogr")
-                    result_layer.featureDeleted.connect(self.dockwidget.clearDataFields)
                 # create a memory layer
                 else:
                     # Save to memory, using base land use layer
@@ -257,8 +230,6 @@ class FrontageTool(QObject):
                     filename = os.path.basename(exploded_lines['OUTPUT'])
                     location = os.path.abspath(exploded_lines['OUTPUT'])
                     result_layer = self.iface.addVectorLayer(location, filename, "ogr")
-                    result_layer.featureDeleted.connect(self.dockwidget.clearDataFields)
-                    #print result_layer
                     result_layer.setLayerName("memory:Frontages")
 
                 if not result_layer:
@@ -286,11 +257,12 @@ class FrontageTool(QObject):
                     result_layer.commitChanges()
                     # Add layer to panel
                     QgsMapLayerRegistry.instance().addMapLayer(result_layer)
-                    self.updateFrontageLayer()
-                    # TODO: updateLength function should receive a layer as input. It would be used earlier
-                    self.updateLength()
+                    result_layer.startEditing()
 
+        self.updateFrontageLayer()
+        # TODO: updateLength function should receive a layer as input. It would be used earlier
         self.frontagedlg.closePopUp()
+        self.updateLength()
 
     # Draw New Feature
     def logFeatureAdded(self, fid):
@@ -327,20 +299,17 @@ class FrontageTool(QObject):
         v_layer.changeAttributeValue(fid, update2, subcategorytext, True)
         v_layer.changeAttributeValue(fid, update3, inputid, True)
         v_layer.changeAttributeValue(fid, update4, frontagelength, True)
-        #v_layer.featureDeleted.connect(self.dockwidget.clearDataFields)
         v_layer.updateFields()
 
     # Update Feature Length
     def updateLength(self):
-
         layer = self.dockwidget.setFrontageLayer()
-        v_layer = layer
-        features = v_layer.getFeatures()
-
-        for feat in features:
-            geom = feat.geometry()
-            feat['F_Length'] = geom.length()
-            v_layer.updateFeature(feat)
+        if layer:
+            features = layer.getFeatures()
+            for feat in features:
+                geom = feat.geometry()
+                feat['F_Length'] = geom.length()
+                layer.updateFeature(feat)
 
     # Update Feature
     def updateSelectedFrontageAttribute(self):
@@ -359,8 +328,6 @@ class FrontageTool(QObject):
             feat['F_Length'] = geom.length()
             layer.updateFeature(feat)
         self.dockwidget.addDataFields()
-
-        #layer.featureDeleted.connect(self.dockwidget.clearDataFields)
 
     # Hide features with NULL value
     def hideFeatures(self):

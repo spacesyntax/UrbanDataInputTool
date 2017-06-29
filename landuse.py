@@ -577,7 +577,6 @@ class LanduseTool(QObject):
             v_layer.updateFields()
 
         self.dockwidget.spinBoxlufloors.clear()
-        #v_layer.featureDeleted.connect(self.dockwidget.clearLUDataFields)
         self.dockwidget.LUtextedit.clear()
 
 
@@ -602,8 +601,6 @@ class LanduseTool(QObject):
             geom = feat.geometry()
             feat["Area"] = geom.area()
             layer.updateFeature(feat)
-            #self.dockwidget.addLUDataFields()
-
             if self.dockwidget.LUGroundfloorradioButton.isChecked():
                 feat["GF_Cat"] = categorytext
                 feat["GF_SubCat"] = subcategorytext
@@ -612,8 +609,6 @@ class LanduseTool(QObject):
                 feat["GF_TCPA"] = tcpacode
                 feat["GF_Descrip"] = description
                 layer.updateFeature(feat)
-                #self.dockwidget.addLUDataFields()
-
             if self.dockwidget.LULowerfloorradioButton.isChecked():
                 feat["LF_Cat"] = categorytext
                 feat["LF_SubCat"] = subcategorytext
@@ -622,8 +617,6 @@ class LanduseTool(QObject):
                 feat["LF_TCPA"] = tcpacode
                 feat["LF_Descrip"] = description
                 layer.updateFeature(feat)
-                #self.dockwidget.addLUDataFields()
-
             if self.dockwidget.LUUpperfloorradioButton.isChecked():
                 feat["UF_Cat"] = categorytext
                 feat["UF_SubCat"] = subcategorytext
@@ -636,4 +629,3 @@ class LanduseTool(QObject):
         self.dockwidget.addLUDataFields()
         self.dockwidget.spinBoxlufloors.clear()
         self.dockwidget.LUtextedit.clear()
-        #layer.featureDeleted.connect(self.dockwidget.clearLUDataFields)

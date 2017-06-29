@@ -211,9 +211,7 @@ class EntranceTool(QObject):
         v_layer.changeAttributeValue(fid, update2, subcategorytext, True)
         v_layer.changeAttributeValue(fid, update3, inputid, True)
         v_layer.changeAttributeValue(fid, update4, accessleveltext, True)
-        #v_layer.featureDeleted.connect(self.dockwidget.clearEntranceDataFields)
         v_layer.updateFields()
-
 
     # Update Feature
     def updateSelectedEntranceAttribute(self):
@@ -232,6 +230,3 @@ class EntranceTool(QObject):
             feat['E_Level'] = accessleveltext
             layer.updateFeature(feat)
         self.dockwidget.addEntranceDataFields()
-
-        #layer.featureDeleted.connect(self.dockwidget.clearEntranceDataFields)
-
