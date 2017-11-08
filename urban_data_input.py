@@ -31,7 +31,7 @@ import os.path
 import resources
 
 #import debug package
-is_debug = True
+is_debug = False
 try:
     import pydevd
     has_pydevd = True
