@@ -46,6 +46,7 @@ class CreateNew_EntranceDialog(QtGui.QDialog, FORM_CLASS):
         self.pushButtonSelectLocationEntrance.clicked.connect(self.selectSaveLocationEntrance)
         self.pushButtonEntrancesNewFileDLG.clicked.connect(self.newEntranceLayer)
         self.closePopUpEntrancesButton.clicked.connect(self.closePopUpEntrances)
+        self.e_shp_radioButton.setChecked(True)
 
     def closePopUpEntrances(self):
         self.close()

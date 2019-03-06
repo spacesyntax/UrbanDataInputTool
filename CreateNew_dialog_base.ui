@@ -32,6 +32,13 @@
    <string>Create new frontage layer</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="1" colspan="2">
+    <widget class="QLineEdit" name="lineEditFrontages">
+     <property name="placeholderText">
+      <string>[Save to memory file]</string>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="sizePolicy">
@@ -58,7 +65,7 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item row="2" column="0">
     <widget class="QCheckBox" name="createNewFileCheckBox">
      <property name="enabled">
       <bool>true</bool>
@@ -68,7 +75,7 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="2">
+   <item row="3" column="2">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -81,7 +88,7 @@
      </property>
     </spacer>
    </item>
-   <item row="3" column="2">
+   <item row="4" column="2">
     <widget class="QPushButton" name="pushButtonNewFileDLG">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -94,7 +101,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="3">
+   <item row="4" column="3">
     <widget class="QPushButton" name="closePopUpButton">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -107,13 +114,20 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="1" colspan="2">
+   <item row="2" column="1" colspan="2">
     <widget class="QComboBox" name="selectLUCombo"/>
    </item>
-   <item row="0" column="1" colspan="2">
-    <widget class="QLineEdit" name="lineEditFrontages">
-     <property name="placeholderText">
-      <string>[Save to memory file]</string>
+   <item row="1" column="1">
+    <widget class="QRadioButton" name="f_shp_radioButton">
+     <property name="text">
+      <string>shapefile</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QRadioButton" name="f_postgis_radioButton">
+     <property name="text">
+      <string>postgis</string>
      </property>
     </widget>
    </item>

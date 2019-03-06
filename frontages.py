@@ -62,14 +62,14 @@ class FrontageTool(QObject):
     #   Data functions
     #######
 
-    # Update the F_ID column of the Frontage layer
+    # Update the f_id column of the Frontage layer
     def updateID(self):
         layer = self.dockwidget.setFrontageLayer()
         features = layer.getFeatures()
         i = 1
         layer.startEditing()
         for feat in features:
-            feat['F_ID'] = i
+            feat['f_id'] = i
             i += 1
             layer.updateFeature(feat)
         layer.commitChanges()
@@ -165,10 +165,10 @@ class FrontageTool(QObject):
             destCRS = self.canvas.mapRenderer().destinationCrs()
             vl = QgsVectorLayer("LineString?crs=" + destCRS.toWkt(), "memory:Frontages", "memory")
             provider = vl.dataProvider()
-            provider.addAttributes([QgsField("F_ID", QVariant.Int),
-                                    QgsField("F_Group", QVariant.String),
-                                    QgsField("F_Type", QVariant.String),
-                                    QgsField("F_Length", QVariant.Double)])
+            provider.addAttributes([QgsField("f_id", QVariant.Int),
+                                    QgsField("f_group", QVariant.String),
+                                    QgsField("f_type", QVariant.String),
+                                    QgsField("f_length", QVariant.Double)])
 
             if self.frontagedlg.lineEditFrontages.text() != "":
                 path = self.frontagedlg.lineEditFrontages.text()
@@ -243,16 +243,16 @@ class FrontageTool(QObject):
 
                     # Add new fields
                     provider = result_layer.dataProvider()
-                    provider.addAttributes([QgsField("F_ID", QVariant.Int),
-                                            QgsField("F_Group", QVariant.String),
-                                            QgsField("F_Type", QVariant.String),
-                                            QgsField("F_Length", QVariant.Double)])
+                    provider.addAttributes([QgsField("f_id", QVariant.Int),
+                                            QgsField("f_group", QVariant.String),
+                                            QgsField("f_type", QVariant.String),
+                                            QgsField("f_length", QVariant.Double)])
                     result_layer.updateFields()
                     # Update new fields with values
                     result_layer.startEditing()
                     features = result_layer.getFeatures()
                     for feat in features:
-                        feat['F_ID'] = feat.id()
+                        feat['f_id'] = feat.id()
                         result_layer.updateFeature(feat)
                     result_layer.commitChanges()
                     # Add layer to panel
@@ -276,10 +276,10 @@ class FrontageTool(QObject):
         frontagelength = 0
 
         data = v_layer.dataProvider()
-        update1 = data.fieldNameIndex("F_Group")
-        update2 = data.fieldNameIndex("F_Type")
-        update3 = data.fieldNameIndex("F_ID")
-        update4 = data.fieldNameIndex("F_Length")
+        update1 = data.fieldNameIndex("f_group")
+        update2 = data.fieldNameIndex("f_type")
+        update3 = data.fieldNameIndex("f_id")
+        update4 = data.fieldNameIndex("f_length")
 
         categorytext = self.dockwidget.frontagescatlistWidget.currentItem().text()
         subcategorytext = self.dockwidget.frontagessubcatlistWidget.currentItem().text()
@@ -289,7 +289,7 @@ class FrontageTool(QObject):
         v_layer.changeAttributeValue(fid, update3, inputid, True)
 
         # length can be obtained after the layer is added
-        request = QgsFeatureRequest().setFilterExpression(u'"F_ID" = %s' % inputid)
+        request = QgsFeatureRequest().setFilterExpression(u'"f_id" = %s' % inputid)
         features = v_layer.getFeatures(request)
         for feat in features:
             geom = feat.geometry()
@@ -305,7 +305,7 @@ class FrontageTool(QObject):
             features = layer.getFeatures()
             for feat in features:
                 geom = feat.geometry()
-                feat['F_Length'] = geom.length()
+                feat['f_length'] = geom.length()
                 layer.updateFeature(feat)
 
     # Update Feature
@@ -319,10 +319,10 @@ class FrontageTool(QObject):
         subcategorytext = self.dockwidget.frontagessubcatlistWidget.currentItem().text()
 
         for feat in features:
-            feat['F_Group'] = categorytext
-            feat['F_Type'] = subcategorytext
+            feat['f_group'] = categorytext
+            feat['f_type'] = subcategorytext
             geom = feat.geometry()
-            feat['F_Length'] = geom.length()
+            feat['f_length'] = geom.length()
             layer.updateFeature(feat)
         self.dockwidget.addDataFields()
 

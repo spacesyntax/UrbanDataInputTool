@@ -67,7 +67,7 @@ class EntranceTool(QObject):
         i = 1
         layer.startEditing()
         for feat in features:
-            feat['E_ID'] = i
+            feat['e_id'] = i
             i += 1
             layer.updateFeature(feat)
 
@@ -104,10 +104,10 @@ class EntranceTool(QObject):
 
 
             provider = vl.dataProvider()
-            provider.addAttributes([QgsField("E_ID", QVariant.Int),
-                                 QgsField("E_Category", QVariant.String),
-                                 QgsField("E_SubCat", QVariant.String),
-                                 QgsField("E_Level", QVariant.Double)])
+            provider.addAttributes([QgsField("e_id", QVariant.Int),
+                                 QgsField("e_category", QVariant.String),
+                                 QgsField("e_subcat", QVariant.String),
+                                 QgsField("e_level", QVariant.Double)])
 
             QgsMapLayerRegistry.instance().addMapLayer(vl)
 
@@ -146,10 +146,10 @@ class EntranceTool(QObject):
 
                 vl.startEditing()
                 edit1 = vl.dataProvider()
-                edit1.addAttributes([QgsField("E_ID", QVariant.Int),
-                                     QgsField("E_Category", QVariant.String),
-                                     QgsField("E_SubCat", QVariant.String),
-                                     QgsField("E_Level", QVariant.Double)])
+                edit1.addAttributes([QgsField("e_id", QVariant.Int),
+                                     QgsField("e_category", QVariant.String),
+                                     QgsField("e_subcat", QVariant.String),
+                                     QgsField("e_level", QVariant.Double)])
                 vl.commitChanges()
                 vl.startEditing()
 
@@ -198,10 +198,10 @@ class EntranceTool(QObject):
             inputid = feature_Count
 
         data = v_layer.dataProvider()
-        update1 = data.fieldNameIndex("E_Category")
-        update2 = data.fieldNameIndex("E_SubCat")
-        update3 = data.fieldNameIndex("E_ID")
-        update4 = data.fieldNameIndex("E_Level")
+        update1 = data.fieldNameIndex("e_category")
+        update2 = data.fieldNameIndex("e_subcat")
+        update3 = data.fieldNameIndex("e_id")
+        update4 = data.fieldNameIndex("e_level")
 
         categorytext = self.dockwidget.ecategorylistWidget.currentItem().text()
         subcategorytext = self.dockwidget.esubcategorylistWidget.currentItem().text()
@@ -225,8 +225,8 @@ class EntranceTool(QObject):
         accessleveltext = self.dockwidget.eaccesscategorylistWidget.currentItem().text()
 
         for feat in features:
-            feat['E_Category'] = categorytext
-            feat['E_SubCat'] = subcategorytext
-            feat['E_Level'] = accessleveltext
+            feat['e_category'] = categorytext
+            feat['e_subcat'] = subcategorytext
+            feat['e_level'] = accessleveltext
             layer.updateFeature(feat)
         self.dockwidget.addEntranceDataFields()

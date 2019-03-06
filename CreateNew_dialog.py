@@ -47,6 +47,7 @@ class CreatenewDialog(QtGui.QDialog, FORM_CLASS):
         self.closePopUpButton.clicked.connect(self.closePopUp)
         self.pushButtonSelectLocation.clicked.connect(self.selectSaveLocation)
         self.pushButtonNewFileDLG.clicked.connect(self.createLayer)
+        self.f_shp_radioButton.setChecked(True)
 
 
     # Close create new file pop up dialogue when cancel button is pressed

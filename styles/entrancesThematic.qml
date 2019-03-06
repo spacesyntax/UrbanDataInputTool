@@ -4,7 +4,7 @@
     <edittype widgetv2type="TextEdit" name="E_ID">
       <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
     </edittype>
-    <edittype widgetv2type="TextEdit" name="E_Category">
+    <edittype widgetv2type="TextEdit" name="e_category">
       <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
     </edittype>
     <edittype widgetv2type="TextEdit" name="E_SubCat">
@@ -16,11 +16,11 @@
   </edittypes>
   <renderer-v2 forceraster="0" symbollevels="0" type="RuleRenderer" enableorderby="0">
     <rules key="{93bf477e-9f74-4672-8661-f2871c8b977f}">
-      <rule filter="&quot;E_Category&quot; = 'Controlled' AND   &quot;E_SubCat&quot;  = 'Default'" key="{907191b2-6fde-4f36-b4a6-93a0bb7c8f49}" symbol="0" label="Controlled + Default Entrance"/>
-      <rule filter=" &quot;E_Category&quot; = 'Uncontrolled'  and  &quot;E_SubCat&quot; ='Default'" key="{fff0785e-a55c-4161-abeb-bf8a0718213d}" symbol="1" label="Uncontrolled + Default Entrance"/>
-      <rule filter="&quot;E_Category&quot; = 'Controlled' AND  &quot;E_SubCat&quot; = 'Service Entrance' " key="{5e26a891-4a6e-4070-96c4-2c479f613302}" symbol="2" label="Controlled + Service Entrance"/>
-      <rule filter="&quot;E_Category&quot; ='Controlled' and  &quot;E_SubCat&quot; ='Unused'" key="{04e53d86-6a88-4ea2-9b97-1da41ba4676c}" symbol="3" label="Controlled + Unused Entrance"/>
-      <rule filter="&quot;E_Category&quot; ='Controlled' and &quot;E_SubCat&quot; ='Fire Exit'" key="{5efaaec9-fb30-40a3-8f6e-e472fc6184a5}" symbol="4" label="Controlled + Fire Exit"/>
+      <rule filter="&quot;e_category&quot; = 'Controlled' AND   &quot;E_SubCat&quot;  = 'Default'" key="{907191b2-6fde-4f36-b4a6-93a0bb7c8f49}" symbol="0" label="Controlled + Default Entrance"/>
+      <rule filter=" &quot;e_category&quot; = 'Uncontrolled'  and  &quot;E_SubCat&quot; ='Default'" key="{fff0785e-a55c-4161-abeb-bf8a0718213d}" symbol="1" label="Uncontrolled + Default Entrance"/>
+      <rule filter="&quot;e_category&quot; = 'Controlled' AND  &quot;E_SubCat&quot; = 'Service Entrance' " key="{5e26a891-4a6e-4070-96c4-2c479f613302}" symbol="2" label="Controlled + Service Entrance"/>
+      <rule filter="&quot;e_category&quot; ='Controlled' and  &quot;E_SubCat&quot; ='Unused'" key="{04e53d86-6a88-4ea2-9b97-1da41ba4676c}" symbol="3" label="Controlled + Unused Entrance"/>
+      <rule filter="&quot;e_category&quot; ='Controlled' and &quot;E_SubCat&quot; ='Fire Exit'" key="{5efaaec9-fb30-40a3-8f6e-e472fc6184a5}" symbol="4" label="Controlled + Fire Exit"/>
       <rule filter="ELSE" key="{8dd5cc4b-bc31-470f-a310-b965d3575462}" symbol="5"/>
     </rules>
     <symbols>
@@ -383,7 +383,7 @@
   <attributetableconfig actionWidgetStyle="dropDown" sortExpression="" sortOrder="0">
     <columns>
       <column width="-1" hidden="0" type="field" name="E_ID"/>
-      <column width="-1" hidden="0" type="field" name="E_Category"/>
+      <column width="-1" hidden="0" type="field" name="e_category"/>
       <column width="-1" hidden="0" type="field" name="E_SubCat"/>
       <column width="-1" hidden="0" type="field" name="E_Level"/>
       <column width="-1" hidden="1" type="actions"/>
