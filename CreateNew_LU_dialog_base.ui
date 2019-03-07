@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>544</width>
-    <height>229</height>
+    <width>527</width>
+    <height>198</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -31,7 +31,15 @@
   <property name="windowTitle">
    <string>Create new land use layer</string>
   </property>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>518</width>
+     <height>191</height>
+    </rect>
+   </property>
    <layout class="QGridLayout" name="gridLayout">
     <item row="5" column="1" colspan="2">
      <widget class="QComboBox" name="selectIDbuildingCombo"/>
@@ -170,16 +178,16 @@
     <item row="3" column="1">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QRadioButton" name="lu_shp_radioButton">
+       <widget class="QRadioButton" name="lu_memory_radioButton">
         <property name="text">
-         <string>shapefile</string>
+         <string>memory</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QRadioButton" name="lu_memory_radioButton">
+       <widget class="QRadioButton" name="lu_shp_radioButton">
         <property name="text">
-         <string>memory</string>
+         <string>shapefile</string>
         </property>
        </widget>
       </item>

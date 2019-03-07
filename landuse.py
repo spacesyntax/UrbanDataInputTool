@@ -31,6 +31,29 @@ from . import utility_functions as uf
 
 is_debug = False
 
+ground_floor_attributes = [QgsField("lu_id", QVariant.Int),
+                                             QgsField("floors", QVariant.Int),
+                                             QgsField("area", QVariant.Double),
+                                             QgsField("gf_cat", QVariant.String),
+                                             QgsField("gf_subcat", QVariant.String),
+                                             QgsField("gf_ssx", QVariant.String),
+                                             QgsField("gf_nlud", QVariant.String),
+                                             QgsField("gf_tcpa", QVariant.String),
+                                             QgsField("gf_descrip", QVariant.String)]
+
+lower_floor_attributes = [QgsField("lf_cat", QVariant.String),
+                                             QgsField("lf_subcat", QVariant.String),
+                                             QgsField("lf_ssx", QVariant.String),
+                                             QgsField("lf_nlud", QVariant.String),
+                                             QgsField("lf_tcpa", QVariant.String),
+                                             QgsField("lf_descrip", QVariant.String)]
+
+upper_floor_attributes = [QgsField("uf_cat", QVariant.String),
+                                            QgsField("uf_subcat", QVariant.String),
+                                            QgsField("uf_ssx", QVariant.String),
+                                            QgsField("uf_nlud", QVariant.String),
+                                            QgsField("uf_ntcpa", QVariant.String),
+                                            QgsField("uf_descrip", QVariant.String)]
 
 class LanduseTool(QObject):
 
@@ -139,292 +162,111 @@ class LanduseTool(QObject):
             msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
 
         else:
-            if self.ludlg.createNewLUFileCheckBox.checkState() == 0 or self.ludlg.selectbuildingCombo.count() == 0:
-                # Save to file
-                if self.ludlg.lineEditLU.text() != "":
-                    path = self.ludlg.lineEditLU.text()
-                    filename = os.path.basename(path)
-                    location = os.path.abspath(path)
+            idcolumn = self.ludlg.getSelectedLULayerID()
+            # if create from existing building layer
+            if self.ludlg.createNewLUFileCheckBox.checkState() == 1:
+                building_layer = self.getSelectedLULayer()
+                crs = building_layer.crs()
+                vl = QgsVectorLayer("Polygon?crs=" + crs.authid(), "memory:landuse", "memory")
+            else:
+                # create memory layer
+                vl = QgsVectorLayer("Polygon?crs=", "memory:landuse", "memory")
+            provider = vl.dataProvider()
+            #provider.addAttributes([])
 
-                    # destCRS = self.canvas.mapRenderer().destinationCrs()
-                    vl = QgsVectorLayer("Polygon?crs=", "memory:landuse", "memory")
-                    #vl = QgsVectorLayer("Polygon?crs=" + destCRS.toWkt(), "memory:landuse", "memory")
+            if self.ludlg.LUincGFcheckBox.checkState() == 2:
+                provider.addAttributes(ground_floor_attributes)
+                self.dockwidget.LUGroundfloorradioButton.setEnabled(1)
 
-                    provider = vl.dataProvider()
-                    provider.addAttributes([])
+            if self.ludlg.LUincLFcheckBox.checkState() == 2:
+                provider.addAttributes(lower_floor_attributes)
+                self.dockwidget.LULowerfloorradioButton.setEnabled(1)
 
-                    if self.ludlg.LUincGFcheckBox.checkState() == 2:
-                        provider.addAttributes([QgsField("lu_id", QVariant.Int),
-                                             QgsField("floors", QVariant.Int),
-                                             QgsField("area", QVariant.Double),
-                                             QgsField("gf_cat", QVariant.String),
-                                             QgsField("gf_subcat", QVariant.String),
-                                             QgsField("gf_ssx", QVariant.String),
-                                             QgsField("gf_nlud", QVariant.String),
-                                             QgsField("gf_tcpa", QVariant.String),
-                                             QgsField("gf_descrip", QVariant.String)])
-                        self.dockwidget.LUGroundfloorradioButton.setEnabled(1)
+            if self.ludlg.LUincUFcheckBox.checkState() == 2:
+                provider.addAttributes(upper_floor_attributes)
+                self.dockwidget.LULowerfloorradioButton.setEnabled(1)
 
-                    if self.ludlg.LUincLFcheckBox.checkState() == 2:
-                        provider.addAttributes([QgsField("lf_cat", QVariant.String),
-                                             QgsField("lf_subcat", QVariant.String),
-                                             QgsField("lf_ssx", QVariant.String),
-                                             QgsField("lf_nlud", QVariant.String),
-                                             QgsField("lf_tcpa", QVariant.String),
-                                             QgsField("lf_descrip", QVariant.String)])
-                        self.dockwidget.LULowerfloorradioButton.setEnabled(1)
+            vl.updateFields()
+            # if create from existing building layer
+            if self.ludlg.createNewLUFileCheckBox.checkState() == 1:
 
-                    if self.ludlg.LUincUFcheckBox.checkState() == 2:
-                        provider.addAttributes([QgsField("uf_cat", QVariant.String),
-                                             QgsField("uf_subcat", QVariant.String),
-                                             QgsField("uf_ssx", QVariant.String),
-                                             QgsField("uf_nlud", QVariant.String),
-                                             QgsField("uf_tcpa", QVariant.String),
-                                             QgsField("uf_descrip", QVariant.String)])
-                        self.dockwidget.LULowerfloorradioButton.setEnabled(1)
+                null_attr = []
+                provider.addAttributes([QgsField('build_id', QVariant.String)])
 
-                    vl.updateFields()
-                    features = vl.getFeatures()
-                    i = 1
-                    vl.startEditing()
-                    for feat in features:
-                        feat['lu_id'] = i
-                        i += 1
-                        vl.updateFeature(feat)
-                    vl.commitChanges()
-                    vl.startEditing()
+                if self.ludlg.LUincGFcheckBox.checkState() == 2:
+                    # TODO: has removed [QgsField("Build_ID", QVariant.Int)] +
+                    provider.addAttributes(ground_floor_attributes)
+                    self.dockwidget.LUGroundfloorradioButton.setEnabled(1)
+                    null_attr += [NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL]
 
-                    if self.ludlg.lu_shp_radioButton.isChecked(): #layer_type == 'shapefile':
-
-                        QgsVectorFileWriter.writeAsVectorFormat(vl, location, "CP1250", None, "ESRI Shapefile")
-                        input2 = self.iface.addVectorLayer(location, filename[:-3], "ogr")
-
-                    elif self.ludlg.lu_postgis_radioButton.isChecked():
-
-                        (database, schema, table_name) = (self.ludlg.lineEditLU.text()).split(':')
-                        # crs ?
-
-                        db_con_info = self.ludlg.dbsettings_dlg.available_dbs[database]
-
-                        uri = QgsDataSourceURI()
-                        # passwords, usernames need to be empty if not provided or else connection will fail
-                        if 'service' in db_con_info.keys():
-                            uri.setConnection(db_con_info['service'], database, '', '')
-                        elif 'password'in db_con_info.keys():
-                            uri.setConnection(db_con_info['host'], db_con_info['port'], database, db_con_info['user'], db_con_info['password'])
-                        else:
-                            uri.setConnection(db_con_info['host'], db_con_info['port'], database, db_con_info['user'], '')
-                        # uri = "dbname='test' host=localhost port=5432 user='user' password='password' key=gid type=POINT table=\"public\".\"test\" (geom) sql="
-                        # crs = QgsCoordinateReferenceSystem(int(crs.postgisSrid()), QgsCoordinateReferenceSystem.EpsgCrsId)
-                        # layer - QGIS vector layer
-                        uri.setDataSource(schema, table_name, "geom")
-                        error = QgsVectorLayerImport.importLayer(vl, uri.uri(), "postgres", vl.crs(), False, False)
-                        if error[0] != 0:
-                            print "Error when creating postgis layer: ", error[1]
-
-                        print uri.uri()
-                        input2 = QgsVectorLayer(uri.uri(), table_name, "postgres")
-                        QgsMapLayerRegistry.instance().addMapLayer(input2)
-
-                    if not input2:
-                        msgBar = self.iface.messageBar()
-                        msg = msgBar.createMessage(u'Land use layer failed to load!' + location)
-                        msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
-
-                    else:
-                        msgBar = self.iface.messageBar()
-                        msg = msgBar.createMessage(u'Land use layer created!')
-                        msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
-                        input2.startEditing()
-
-                else:
-                    # Save to memory, no base land use layer
-                    #destCRS = self.canvas.mapRenderer().destinationCrs()
-                    vl = QgsVectorLayer("Polygon?crs=", "memory:Land use", "memory")
-                    QgsMapLayerRegistry.instance().addMapLayer(vl)
+                if self.ludlg.LUincLFcheckBox.checkState() == 2:
+                    provider.addAttributes(lower_floor_attributes)
+                    self.dockwidget.LULowerfloorradioButton.setEnabled(1)
+                    null_attr += [ NULL, NULL, NULL, NULL, NULL, NULL]
 
 
-                    if not vl:
-                        msgBar = self.iface.messageBar()
-                        msg = msgBar.createMessage(u'Layer failed to load!')
-                        msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+                if self.ludlg.LUincUFcheckBox.checkState() == 2:
+                    provider.addAttributes(upper_floor_attributes)
+                    self.dockwidget.LULowerfloorradioButton.setEnabled(1)
+                    null_attr += [NULL, NULL, NULL, NULL, NULL, NULL]
 
-                    else:
-                        msgBar = self.iface.messageBar()
-                        msg = msgBar.createMessage(u'New Land Use Layer Created:')
-                        msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+                new_feat_list = []
+                i = 1
+                for feat in building_layer.getFeatures():
+                    new_feat = QgsFeature()
+                    new_feat.setAttributes([i] + null_attr + [feat[idcolumn]])
+                    i += 1
+                    new_feat.setGeometry(feat.geometry())
+                    new_feat_list.append(new_feat)
 
-                        vl.startEditing()
+                vl.updateFields()
+                provider.addFeatures(new_feat_list)
+                vl.commitChanges()
 
-                        edit1 = vl.dataProvider()
+            if self.ludlg.lu_shp_radioButton.isChecked(): #layer_type == 'shapefile':
 
-                        if self.ludlg.LUincGFcheckBox.checkState() == 2:
-                            edit1.addAttributes([QgsField("lu_id", QVariant.Int),
-                                                QgsField("floors", QVariant.Int),
-                                                QgsField("area", QVariant.Double),
-                                                QgsField("gf_cat", QVariant.String),
-                                                QgsField("gf_subcat", QVariant.String),
-                                                QgsField("gf_ssx", QVariant.String),
-                                                QgsField("gf_nlud", QVariant.String),
-                                                QgsField("gf_tcpa", QVariant.String),
-                                                QgsField("gf_descrip", QVariant.String)])
-                            self.dockwidget.LUGroundfloorradioButton.setEnabled(1)
-
-                        if self.ludlg.LUincLFcheckBox.checkState() == 2:
-                            edit1.addAttributes([QgsField("lf_cat", QVariant.String),
-                                                QgsField("lf_subcat", QVariant.String),
-                                                QgsField("lf_ssx", QVariant.String),
-                                                QgsField("lf_nlud", QVariant.String),
-                                                QgsField("lf_tcpa", QVariant.String),
-                                                QgsField("lf_descrip", QVariant.String)])
-                            self.dockwidget.LULowerfloorradioButton.setEnabled(1)
-
-                        if self.ludlg.LUincUFcheckBox.checkState() == 2:
-                            edit1.addAttributes([QgsField("uf_cat", QVariant.String),
-                                                QgsField("uf_subcat", QVariant.String),
-                                                QgsField("uf_ssx", QVariant.String),
-                                                QgsField("uf_nlud", QVariant.String),
-                                                QgsField("uf_ntcpa", QVariant.String),
-                                                QgsField("uf_descrip", QVariant.String)])
-                            self.dockwidget.LUUpperfloorradioButton.setEnabled(1)
-
-                    vl.updateFields()
-                    features = vl.getFeatures()
-                    i = 1
-                    vl.startEditing()
-                    for feat in features:
-                        feat['lu_id'] = i
-                        i += 1
-                        vl.updateFeature(feat)
-                    vl.commitChanges()
-                    vl.startEditing()
-
-            if self.ludlg.createNewLUFileCheckBox.checkState() == 2:
-                idcolumn = self.ludlg.getSelectedLULayerID()
-                # Save to file
                 path = self.ludlg.lineEditLU.text()
                 filename = os.path.basename(path)
                 location = os.path.abspath(path)
 
-                #destCRS = self.canvas.mapRenderer().destinationCrs()
+                QgsVectorFileWriter.writeAsVectorFormat(vl, location, "ogr", None, "ESRI Shapefile")
+                input2 = self.iface.addVectorLayer(location, filename[:-4], "ogr")
 
-                vl = self.getSelectedLULayer()
-                nl = QgsVectorLayer("Polygon?crs=", "memory:Land use", "memory")
-                provider = nl.dataProvider()
+            elif self.ludlg.lu_postgis_radioButton.isChecked():
 
-                if self.ludlg.LUincGFcheckBox.checkState() == 2:
-                    provider.addAttributes([QgsField("Build_ID", QVariant.Int),
-                                            QgsField("lu_id", QVariant.Int),
-                                            QgsField("floors", QVariant.Int),
-                                            QgsField("area", QVariant.Double),
-                                            QgsField("gf_cat", QVariant.String),
-                                            QgsField("gf_subcat", QVariant.String),
-                                            QgsField("gf_ssx", QVariant.String),
-                                            QgsField("gf_nlud", QVariant.String),
-                                            QgsField("gf_tcpa", QVariant.String),
-                                            QgsField("gf_descrip", QVariant.String)])
-                    self.dockwidget.LUGroundfloorradioButton.setEnabled(1)
-
-                if self.ludlg.LUincLFcheckBox.checkState() == 2:
-                    provider.addAttributes([QgsField("lf_cat", QVariant.String),
-                                            QgsField("lf_subcat", QVariant.String),
-                                            QgsField("lf_ssx", QVariant.String),
-                                            QgsField("lf_nlud", QVariant.String),
-                                            QgsField("lf_tcpa", QVariant.String),
-                                            QgsField("lf_descrip", QVariant.String)])
-                    self.dockwidget.LULowerfloorradioButton.setEnabled(1)
-
-                if self.ludlg.LUincUFcheckBox.checkState() == 2:
-                    provider.addAttributes([QgsField("uf_cat", QVariant.String),
-                                            QgsField("uf_subcat", QVariant.String),
-                                            QgsField("uf_ssx", QVariant.String),
-                                            QgsField("uf_nlud", QVariant.String),
-                                            QgsField("uf_ntcpa", QVariant.String),
-                                            QgsField("uf_descrip", QVariant.String)])
-                    self.dockwidget.LULowerfloorradioButton.setEnabled(1)
-
-                null_attr = []
-
-                if self.ludlg.LUincGFcheckBox.checkState() == 2:
-                    null_attr = [NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL]
-
-                if self.ludlg.LUincGFcheckBox.checkState() == 2 and self.ludlg.LUincLFcheckBox.checkState() == 2:
-                    null_attr = [NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL]
-
-                if self.ludlg.LUincGFcheckBox.checkState() == 2 and self.ludlg.LUincUFcheckBox.checkState() == 2:
-                    null_attr = [NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL]
-
-                if self.ludlg.LUincGFcheckBox.checkState() == 2 and self.ludlg.LUincUFcheckBox.checkState() and self.ludlg.LUincUFcheckBox.checkState() == 2:
-                    null_attr = [NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL]
-
-                new_feat_list =[]
-                for feat in vl.getFeatures():
-                    new_feat = QgsFeature()
-                    new_feat.setAttributes([feat[idcolumn]]+ null_attr)
-                    new_feat.setGeometry(feat.geometry())
-                    new_feat_list.append(new_feat)
-
-                nl.updateFields()
-                provider.addFeatures(new_feat_list)
-
-                features = nl.getFeatures()
-                i = 1
-                nl.startEditing()
-                for feat in features:
-                    feat['lu_id'] = i
-                    i += 1
-                    nl.updateFeature(feat)
-                nl.commitChanges()
-                nl.startEditing()
-
-                if self.ludlg.lu_shp_radioButton.isChecked(): #layer_type == 'shapefile':
-
-                    QgsVectorFileWriter.writeAsVectorFormat(nl, location, "ogr", None, "ESRI Shapefile")
-                    input2 = self.iface.addVectorLayer(location, filename[:-3], "ogr")
-
-                elif self.ludlg.lu_postgis_radioButton.isChecked():
-
-                    (database, schema, table_name) = (self.ludlg.lineEditLU.text()).split(':')
-                    # crs ?
-
-                    db_con_info = self.ludlg.dbsettings_dlg.available_dbs[database]
-
-                    uri = QgsDataSourceURI()
-                    # passwords, usernames need to be empty if not provided or else connection will fail
-                    if 'service' in db_con_info.keys():
-                        uri.setConnection(db_con_info['service'], database, '', '')
-                    elif 'password'in db_con_info.keys():
-                        uri.setConnection(db_con_info['host'], db_con_info['port'], database, db_con_info['user'], db_con_info['password'])
-                    else:
-                        uri.setConnection(db_con_info['host'], db_con_info['port'], database, db_con_info['user'], '')
-                    # uri = "dbname='test' host=localhost port=5432 user='user' password='password' key=gid type=POINT table=\"public\".\"test\" (geom) sql="
-                    # crs = QgsCoordinateReferenceSystem(int(crs.postgisSrid()), QgsCoordinateReferenceSystem.EpsgCrsId)
-                    # layer - QGIS vector layer
-                    uri.setDataSource(schema, table_name, "geom")
-                    error = QgsVectorLayerImport.importLayer(vl, uri.uri(), "postgres", vl.crs(), False, False)
-                    if error[0] != 0:
-                        print "Error when creating postgis layer: ", error[1]
-
-                    print uri.uri()
-                    input2 = QgsVectorLayer(uri.uri(), table_name, "postgres")
-                    QgsMapLayerRegistry.instance().addMapLayer(input2)
+                (database, schema, table_name) = (self.ludlg.lineEditLU.text()).split(':')
+                db_con_info = self.ludlg.dbsettings_dlg.available_dbs[database]
+                uri = QgsDataSourceURI()
+                # passwords, usernames need to be empty if not provided or else connection will fail
+                if 'service' in db_con_info.keys():
+                    uri.setConnection(db_con_info['service'], database, '', '')
+                elif 'password'in db_con_info.keys():
+                    uri.setConnection(db_con_info['host'], db_con_info['port'], database, db_con_info['user'], db_con_info['password'])
                 else:
-                    input2 = nl
+                    uri.setConnection(db_con_info['host'], db_con_info['port'], database, db_con_info['user'], '')
+                uri.setDataSource(schema, table_name, "geom")
+                error = QgsVectorLayerImport.importLayer(vl, uri.uri(), "postgres", vl.crs(), False, False)
+                if error[0] != 0:
+                    print "Error when creating postgis layer: ", error[1]
+                input2 = QgsVectorLayer(uri.uri(), table_name, "postgres")
 
-                if not input2:
-                    msgBar = self.iface.messageBar()
-                    msg = msgBar.createMessage(u'Layer failed to load!' + location)
-                    msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+            else:
+                input2 = vl
 
-                else:
-                    msgBar = self.iface.messageBar()
-                    msg = msgBar.createMessage(u'New Land Use Layer Created:' + location)
-                    msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
-                    input2.startEditing()
+            if not input2:
+                msgBar = self.iface.messageBar()
+                msg = msgBar.createMessage(u'Land use layer failed to load!')
+                msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+            else:
+                QgsMapLayerRegistry.instance().addMapLayer(input2)
+                msgBar = self.iface.messageBar()
+                msg = msgBar.createMessage(u'Land use layer created!')
+                msgBar.pushWidget(msg, QgsMessageBar.INFO, 10)
+                input2.startEditing()
 
-            self.updateLULayer()
-            self.ludlg.closePopUpLU()
-            self.ludlg.lineEditLU.clear()
+        self.updateLULayer()
+        self.ludlg.closePopUpLU()
+        self.ludlg.lineEditLU.clear()
 
 
 # Set layer as frontage layer and apply thematic style
