@@ -105,6 +105,7 @@ class UrbanDataInputTool(QObject):
             pass
 
     def updateLayers(self):
+        # TODO: if the layer that is rmv is memory - commit changes and remove
         # frontages
         self.frontage_tool.updateLayers()
         self.frontage_tool.updateFrontageLayer()

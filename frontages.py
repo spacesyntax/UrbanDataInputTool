@@ -135,25 +135,30 @@ class FrontageTool(QObject):
     # Set layer as frontage layer and apply thematic style
     def loadFrontageLayer(self):
         # disconnect any current frontage layer
-        self.disconnectFrontageLayer()
+        #self.disconnectFrontageLayer()
         if self.dockwidget.useExistingcomboBox.count() > 0:
             self.frontage_layer = self.dockwidget.setFrontageLayer()
             qml_path = self.plugin_path + "/styles/frontagesThematic.qml"
             self.frontage_layer.loadNamedStyle(qml_path)
             self.frontage_layer.startEditing()
             # connect signals from layer
-            self.connectFrontageLayer()
+            #self.connectFrontageLayer()
 
     def connectFrontageLayer(self):
+        print 'connect'
+
         if self.frontage_layer:
+
             self.frontage_layer.selectionChanged.connect(self.dockwidget.addDataFields)
             self.frontage_layer.featureAdded.connect(self.logFeatureAdded)
             self.frontage_layer.featureDeleted.connect(self.dockwidget.clearDataFields)
+            self.frontage_layer.commitChanges()
 
     def disconnectFrontageLayer(self):
+        print 'disconnect'
         if self.frontage_layer:
             self.frontage_layer.selectionChanged.disconnect(self.dockwidget.addDataFields)
-            self.frontage_layer.featureAdded.disconnect(self.logFeatureAdded)
+            #self.frontage_layer.featureAdded.disconnect(self.logFeatureAdded)
             self.frontage_layer.featureDeleted.disconnect(self.dockwidget.clearDataFields)
             self.frontage_layer = None
 
@@ -251,9 +256,7 @@ class FrontageTool(QObject):
 
         QgsMessageLog.logMessage("feature added, id = " + str(fid))
 
-        mc = self.canvas
         v_layer = self.dockwidget.setFrontageLayer()
-        features = v_layer.getFeatures()
         inputid = v_layer.featureCount()
         frontagelength = 0
 
@@ -279,6 +282,9 @@ class FrontageTool(QObject):
         v_layer.changeAttributeValue(fid, update4, frontagelength, True)
 
         v_layer.updateFields()
+        #v_layer.commitChanges()
+        # v_layer.startEditing()
+        print 'teetetetet'
 
     # Update Feature Length
     def updateLength(self):
