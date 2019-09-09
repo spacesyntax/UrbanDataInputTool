@@ -53,16 +53,20 @@ class CreateNew_LUDialog(QtGui.QDialog, FORM_CLASS):
         self.dbsettings_dlg.nameLineEdit.setText('landuse')
 
         self.lu_memory_radioButton.setChecked(True)
-        self.lineEditLU.setPlaceholderText('Save as temporary layer')
-        self.lineEditLU.setDisabled(True)
+        self.lineEditLU.setPlaceholderText('Specify temporary layer name')
+        self.lineEditLU.setDisabled(False)
         self.lu_shp_radioButton.setChecked(False)
         self.lu_postgis_radioButton.setChecked(False)
 
         self.lu_shp_radioButton.clicked.connect(self.setOutput)
         self.lu_postgis_radioButton.clicked.connect(self.setOutput)
         self.lu_memory_radioButton.clicked.connect(self.setOutput)
+        self.pushButtonSelectLocationLU.setDisabled(True)
 
-        self.dbsettings_dlg.setDbOutput.connect(self.setOutput)
+        #self.dbsettings_dlg.setDbOutput.connect(self.setOutput)
+        self.dbsettings_dlg.dbCombo.currentIndexChanged.connect(self.setDbPath)
+        self.dbsettings_dlg.schemaCombo.currentIndexChanged.connect(self.setDbPath)
+        self.dbsettings_dlg.nameLineEdit.textChanged.connect(self.setDbPath)
 
     def closePopUpLU(self):
         self.close()
@@ -70,36 +74,58 @@ class CreateNew_LUDialog(QtGui.QDialog, FORM_CLASS):
     # Open Save file dialogue and set location in text edit
     def selectSaveLocationLU(self):
         if self.lu_shp_radioButton.isChecked():
-            filename = QtGui.QFileDialog.getSaveFileName(None, "Select Save Location ", "", '*.shp')
+            self.lineEditLU.clear()
+            filename = QtGui.QFileDialog.getSaveFileName(None, "Specify Output Location ", "", '*.shp')
             self.lineEditLU.setText(filename)
         elif self.lu_postgis_radioButton.isChecked():
+            self.lineEditLU.clear()
             self.setOutput()
             self.dbsettings_dlg.show()
-
             self.dbsettings = self.dbsettings_dlg.getDbSettings()
-            db_layer_name = "%s:%s:%s" % (
-                self.dbsettings['dbname'], self.dbsettings['schema'], self.dbsettings['table_name'])
-            print 'db_layer_name'
-            self.lineEditLU.setText(db_layer_name)
+            if self.dbsettings:
+                db_layer_name = "%s:%s:%s" % (
+                    self.dbsettings['dbname'], self.dbsettings['schema'], self.dbsettings['table_name'])
+                print 'db_layer_name'
+                self.lineEditLU.setText(db_layer_name)
         elif self.lu_memory_radioButton.isChecked():
+            self.lineEditLU.clear()
             pass
+
+    def setDbPath(self):
+        if self.lu_postgis_radioButton.isChecked():
+            try:
+                self.dbsettings = self.dbsettings_dlg.getDbSettings()
+                db_layer_name = "%s:%s:%s" % (
+                self.dbsettings['dbname'], self.dbsettings['schema'], self.dbsettings['table_name'])
+                self.lineEditLU.setText(db_layer_name)
+            except:
+                self.lineEditLU.clear()
+        return
 
     def setOutput(self):
         if self.lu_shp_radioButton.isChecked():
             self.lineEditLU.clear()
-            self.lineEditLU.setPlaceholderText('')
-            self.lineEditLU.setDisabled(False)
+            self.lineEditLU.setPlaceholderText('Specify output location')
+            self.lineEditLU.setDisabled(True)
+            self.pushButtonSelectLocationLU.setDisabled(False)
         elif self.lu_postgis_radioButton.isChecked():
+            self.lineEditLU.clear()
             self.dbsettings = self.dbsettings_dlg.getDbSettings()
-            print self.dbsettings
-            db_layer_name = "%s:%s:%s" % (
-                self.dbsettings['dbname'], self.dbsettings['schema'], self.dbsettings['table_name'])
-            self.lineEditLU.setText(db_layer_name)
-            self.lineEditLU.setDisabled(False)
+            self.pushButtonSelectLocationLU.setDisabled(False)
+            print 'dbs1', self.dbsettings
+            if self.dbsettings != {}:
+                db_layer_name = "%s:%s:%s" % (
+                    self.dbsettings['dbname'], self.dbsettings['schema'], self.dbsettings['table_name'])
+                self.lineEditLU.setText(db_layer_name)
+                self.lineEditLU.setDisabled(False)
+            else:
+                self.lineEditLU.setPlaceholderText('Specify as database:schema:table name')
+                self.lineEditLU.setDisabled(True)
         elif self.lu_memory_radioButton.isChecked():
             self.lineEditLU.clear()
-            self.lineEditLU.setPlaceholderText('Save as temporary layer')
-            self.lineEditLU.setDisabled(True)
+            self.lineEditLU.setDisabled(False)
+            self.lineEditLU.setPlaceholderText('Specify temporary layer name')
+            self.pushButtonSelectLocationLU.setDisabled(True)
 
     def newLULayer(self):
         self.create_new_layer.emit()

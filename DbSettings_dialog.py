@@ -26,11 +26,10 @@ from PyQt4 import QtGui, uic
 import os
 from PyQt4.QtCore import pyqtSignal
 
-from utility_functions import getPostgisSchemas
+from utility_functions import *
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'DbSettings_dialog_base.ui'))
-
 
 class DbSettingsDialog(QtGui.QDialog, FORM_CLASS):
 
@@ -46,24 +45,14 @@ class DbSettingsDialog(QtGui.QDialog, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
-
         self.available_dbs = available_dbs
-
         self.okButton.clicked.connect(self.close)
-        self.dbCombo.currentIndexChanged.connect(self.popSchemas)
-        self.dbCombo.currentIndexChanged.connect(self.setDbOutput)
-        self.schemaCombo.currentIndexChanged.connect(self.setDbOutput)
-        self.nameLineEdit.textChanged.connect(self.setDbOutput)
-
         self.popDbs()
-        if self.dbCombo.currentText() in self.available_dbs.keys():
-            self.popSchemas()
-
-        print 'ad', self.available_dbs
+        self.dbCombo.currentIndexChanged.connect(self.popSchemas)
 
     def popDbs(self):
         self.dbCombo.clear()
-        self.dbCombo.addItems(sorted(self.available_dbs.keys()))
+        self.dbCombo.addItems(['select db'] + sorted(self.available_dbs.keys()))
         return
 
     def getSelectedDb(self):
@@ -79,6 +68,9 @@ class DbSettingsDialog(QtGui.QDialog, FORM_CLASS):
             return {}
 
     def popSchemas(self):
+        idx = self.dbCombo.findText('select db')
+        if idx != -1:
+            self.dbCombo.removeItem(idx)
         self.schemaCombo.clear()
         schemas = []
         selected_db = self.getSelectedDb()
@@ -92,18 +84,20 @@ class DbSettingsDialog(QtGui.QDialog, FORM_CLASS):
     def get_connstring(self, selected_db):
         db_info = self.available_dbs[selected_db]
         print 'tries', db_info, selected_db
+        # pass connsting property so that it can be called
         self.connstring = ''
         try:
             db_info['user'] = db_info['username']
             del db_info['username']
         except KeyError:
             pass
+        try:
+            db_info['dbname'] = db_info['database']
+            del db_info['database']
+        except KeyError:
+            pass
         for k, v in db_info.items():
             self.connstring += str(k) + '=' + str(v) + ' '
-        if 'service' in db_info.keys():
-            pass
-        else:
-            self.connstring += 'dbname=' + str(selected_db)
         return
 
     def closeEvent(self, event):

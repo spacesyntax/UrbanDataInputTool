@@ -183,9 +183,11 @@ def getQGISDbs():
                 settings.value(i) != NULL and settings.value(i) != '']
     all_info = [i for i in all_info if
                 i[0] in named_dbs and i[2] != NULL and i[1] in ['name', 'host', 'service', 'password', 'username',
+                                                                'database',
                                                                 'port']]
     dbs = dict(
         [k, dict([i[1:] for i in list(g)])] for k, g in itertools.groupby(sorted(all_info), operator.itemgetter(0)))
+    QgsMessageLog.logMessage('dbs %s' % str(dbs), level=QgsMessageLog.CRITICAL)
     settings.endGroup()
 
     return dbs
