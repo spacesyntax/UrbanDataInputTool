@@ -119,11 +119,13 @@ class EntranceTool(QObject):
             uri = QgsDataSourceURI()
             # passwords, usernames need to be empty if not provided or else connection will fail
             if 'service' in db_con_info.keys():
-                uri.setConnection(db_con_info['service'], database, '', '')
-            elif 'password'in db_con_info.keys():
-                uri.setConnection(db_con_info['host'], db_con_info['port'], database, db_con_info['user'], db_con_info['password'])
+                uri.setConnection(db_con_info['service'], db_con_info['dbname'], '', '')
+            elif 'password' in db_con_info.keys():
+                uri.setConnection(db_con_info['host'], db_con_info['port'], db_con_info['dbname'], db_con_info['user'],
+                                  db_con_info['password'])
             else:
-                uri.setConnection(db_con_info['host'], db_con_info['port'], database, db_con_info['user'], '')
+                print db_con_info
+                uri.setConnection(db_con_info['host'], db_con_info['port'], db_con_info['dbname'], '', '')
             uri.setDataSource(schema, table_name, "geom")
             error = QgsVectorLayerImport.importLayer(vl, uri.uri(), "postgres", vl.crs(), False, False)
             if error[0] != 0:
